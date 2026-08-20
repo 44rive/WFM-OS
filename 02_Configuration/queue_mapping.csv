@@ -1,0 +1,2 @@
+Profile,SystemKey,SourceQueueID,QueueKey,QueueName,ActivityKey,ChannelKey,ValidFrom,ValidTo,Enabled
+example-enterprise,EXAMPLE_CONTACTS,Q_EXAMPLE,QUEUE_EXAMPLE,Example Queue,EXAMPLE_VOICE,VOICE,2026-01-01,,FALSE

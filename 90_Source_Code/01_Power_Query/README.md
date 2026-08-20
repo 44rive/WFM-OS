@@ -4,7 +4,8 @@ This directory is the reviewable source for every M query embedded in
 `WFM_OS.xlsm`.
 
 Query groups and load destinations are defined in
-`00_Governance/00-01_ARCHITECTURE.md`.
+`00_Governance/00-01_ARCHITECTURE.md`. The executable installation order and
+load destinations are declared in `MANIFEST.csv`.
 Vendor-specific parsing is permitted only in staging adapters. Dimensions,
 facts, outputs, and measures use canonical names exclusively.
 

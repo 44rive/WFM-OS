@@ -1,0 +1,3 @@
+business_date,offered,handled,short_abandoned,sl_eligible_offered,answered_within_sl,service_level,aht_seconds
+2026-01-15,3,2,1,2,1,0.5,290.0
+2026-01-16,2,1,0,2,1,0.5,205.0

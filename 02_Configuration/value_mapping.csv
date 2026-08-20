@@ -1,2 +1,6 @@
-Profile,Domain,SourceValue,CanonicalValue,ValidFrom,ValidTo,Enabled
-example-enterprise,ContactOutcome,answered,Handled,2026-01-01,,FALSE
+Profile,SystemKey,Domain,SourceValue,CanonicalValue,ValidFrom,ValidTo,Enabled
+example-enterprise,EXAMPLE_CONTACTS,ContactDirection,inbound,Inbound,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_CONTACTS,ContactDirection,outbound,Outbound,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_CONTACTS,ContactOutcome,answered,Handled,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_CONTACTS,ContactOutcome,abandoned,Abandoned,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_CONTACTS,Channel,voice,Voice,2026-01-01,,FALSE

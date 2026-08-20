@@ -1,2 +1,13 @@
-Profile,Entity,SourceField,CanonicalField,Required,Enabled
-example-enterprise,Contact,source_contact_id,SourceContactID,TRUE,FALSE
+Profile,Adapter,Entity,SourceField,CanonicalField,DataType,Required,Enabled
+example-enterprise,GenericDelimited,Contact,interaction_id,SourceContactID,text,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,start_time,ContactStart,datetime,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,end_time,ContactEnd,datetime,FALSE,FALSE
+example-enterprise,GenericDelimited,Contact,channel,ChannelExternalID,text,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,queue_id,QueueExternalID,text,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,agent_id,AgentExternalID,text,FALSE,FALSE
+example-enterprise,GenericDelimited,Contact,direction,Direction,text,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,outcome,Outcome,text,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,wait_seconds,WaitSeconds,number,TRUE,FALSE
+example-enterprise,GenericDelimited,Contact,talk_seconds,TalkSeconds,number,FALSE,FALSE
+example-enterprise,GenericDelimited,Contact,hold_seconds,HoldSeconds,number,FALSE,FALSE
+example-enterprise,GenericDelimited,Contact,acw_seconds,AfterContactSeconds,number,FALSE,FALSE

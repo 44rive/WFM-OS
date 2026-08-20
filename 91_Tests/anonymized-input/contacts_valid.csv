@@ -1,0 +1,7 @@
+interaction_id,start_time,end_time,channel,queue_id,agent_id,direction,outcome,wait_seconds,talk_seconds,hold_seconds,acw_seconds
+C001,2026-01-15T09:01:00,2026-01-15T09:06:58,voice,Q_EXAMPLE,A001,inbound,answered,8,300,10,40
+C002,2026-01-15T09:10:00,2026-01-15T09:14:15,voice,Q_EXAMPLE,A002,inbound,answered,25,200,0,30
+C003,2026-01-15T09:20:00,2026-01-15T09:20:03,voice,Q_EXAMPLE,,inbound,abandoned,3,0,0,0
+C004,2026-01-16T10:02:00,2026-01-16T10:05:37,voice,Q_EXAMPLE,A001,inbound,answered,12,180,5,20
+C005,2026-01-16T10:12:00,2026-01-16T10:12:40,voice,Q_EXAMPLE,,inbound,abandoned,40,0,0,0
+C006,2026-01-16T10:20:00,2026-01-16T10:23:00,voice,Q_EXAMPLE,A003,outbound,answered,0,160,0,20

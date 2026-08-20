@@ -8,6 +8,16 @@ Contacts Handled :=
     SUM ( fact_ContactClosed[Handled] )
         + SUM ( fact_ContactLive[Handled] )
 
+Contacts Short Abandoned :=
+    SUM ( fact_ContactClosed[ShortAbandon] )
+        + SUM ( fact_ContactLive[ShortAbandon] )
+
+Contacts Abandoned :=
+    [Contacts Offered] - [Contacts Handled]
+
+Abandon % :=
+    DIVIDE ( [Contacts Abandoned], [Contacts Offered] )
+
 Contacts Answered Within SL :=
     SUM ( fact_ContactClosed[AnsweredWithinSL] )
         + SUM ( fact_ContactLive[AnsweredWithinSL] )
@@ -25,3 +35,16 @@ Handle Seconds :=
 
 AHT Seconds :=
     DIVIDE ( [Handle Seconds], [Contacts Handled] )
+
+Wait Seconds Handled :=
+    CALCULATE (
+        SUM ( fact_ContactClosed[WaitSeconds] ),
+        fact_ContactClosed[Handled] = 1
+    )
+        + CALCULATE (
+            SUM ( fact_ContactLive[WaitSeconds] ),
+            fact_ContactLive[Handled] = 1
+        )
+
+ASA Seconds :=
+    DIVIDE ( [Wait Seconds Handled], [Contacts Handled] )

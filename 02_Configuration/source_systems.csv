@@ -1,2 +1,2 @@
-Profile,SourceRole,Adapter,PathPattern,Format,Enabled
-example-enterprise,ContactPlatform,GenericContacts,Data/Contacts/*.csv,csv,FALSE
+Profile,SystemKey,SourceRole,Adapter,RelativePath,FilePattern,Format,Delimiter,Encoding,Culture,Enabled
+example-enterprise,EXAMPLE_CONTACTS,ContactPlatform,GenericDelimited,03_Data/02_Contacts,*.csv,csv,comma,65001,en-US,FALSE

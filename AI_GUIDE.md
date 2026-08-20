@@ -44,6 +44,9 @@ Before making a change, read these files in order:
 Text source in Git is canonical. A workbook release must contain the same source
 and identify its repository commit on a technical `BUILD_INFO` sheet.
 
+For Power Query installation order and load destinations, use
+`90_Source_Code/01_Power_Query/MANIFEST.csv`; do not infer them from filenames.
+
 ## Hard constraints
 
 - Never commit production data, names, operational IDs, salaries, schedules,

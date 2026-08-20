@@ -1,2 +1,2 @@
-ActivityKey,ActivityName,Channel,Timezone,ValidFrom,ValidTo,Enabled
-EXAMPLE_VOICE,Example Voice,Voice,Europe/Berlin,2026-01-01,,FALSE
+Profile,ActivityKey,ActivityName,ChannelKey,Timezone,ValidFrom,ValidTo,Enabled
+example-enterprise,EXAMPLE_VOICE,Example Voice,VOICE,Europe/Berlin,2026-01-01,,FALSE

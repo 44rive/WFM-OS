@@ -2,10 +2,10 @@
 
 WFM OS is a portable, Excel-native workforce-management application.
 
-The product is one primary workbook, `WFM_OS.xlsm`, backed by external source
-folders. Power Query handles ingestion and normalization, Power Pivot holds the
-canonical model, DAX defines governed metrics, and Python in Excel handles
-forecasting and simulation.
+The target product is one primary workbook, `WFM_OS.xlsm`, backed by external
+source folders. Power Query handles ingestion and normalization, Power Pivot
+holds the canonical model, DAX defines governed metrics, and Python in Excel
+handles forecasting and simulation.
 
 The model is vendor-neutral. Source products are adapters; the workbook operates
 on canonical concepts such as contacts, work items, schedules, agent events,
@@ -78,7 +78,9 @@ and is never committed to Git.
 
 ## Status
 
-The repository currently contains the v0.1 architecture and implementation
-scaffold. The first build milestone is a reconciled vertical slice:
+The repository currently contains the v0.1 architecture, a deterministic
+premium `.xlsx` application shell, and the source for the first contact-service
+vertical slice. The shell remains explicitly non-operational until its Power
+Query and Power Pivot engines are installed and validated in desktop Excel:
 
 `contact export -> Power Query -> Power Pivot -> DAX volume/SL/AHT -> live and historical views`.
