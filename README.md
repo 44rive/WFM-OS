@@ -24,8 +24,8 @@ Source exports
 ```
 
 The workbook contains the application, configuration, model, decisions, and
-presentation. Raw operational history stays outside the workbook in `data/` and
-is never committed to Git.
+presentation. Raw operational history stays outside the workbook in `03_Data/`
+and is never committed to Git.
 
 ## Planned workbook modules
 
@@ -43,26 +43,24 @@ is never committed to Git.
 ## Repository map
 
 ```text
-workbooks/          Excel application and clean templates
-src/power-query/    Version-controlled M source
-src/dax/            Version-controlled DAX measures
-src/python/         Python-in-Excel analytical source
-src/vba/            Small, auditable workbook automation modules
-config/             Anonymized configuration schemas and templates
-tests/              Anonymized fixtures and expected results
-docs/               Architecture, contracts, decisions, and roadmap
-data/               Local runtime data; ignored by Git
-outputs/            Generated packs and extracts; ignored by Git
-backups/            Workbook snapshots; ignored by Git
+00_Governance/      Architecture, contracts, design, roadmap, and decisions
+01_Application/     Excel application and clean distribution template
+02_Configuration/   Anonymized configuration schemas and templates
+03_Data/            Numbered source landing zones; runtime data is ignored
+04_Outputs/         Numbered publication areas; generated files are ignored
+05_Backups/         Workbook snapshots; generated files are ignored
+90_Source_Code/     Power Query, DAX, Python, and VBA source
+91_Tests/           Anonymized fixtures and expected results
+99_Archive/         Retired clean artifacts and migration references
 ```
 
 ## Product and design standards
 
 - [`AI_GUIDE.md`](AI_GUIDE.md) is the repository-only operating manual for any
   future AI or developer modifying the product.
-- [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) defines the premium visual
-  language and workbook component standard.
-- [`config/design_tokens.csv`](config/design_tokens.csv) provides the same
+- [`00_Governance/00-03_DESIGN_SYSTEM.md`](00_Governance/00-03_DESIGN_SYSTEM.md)
+  defines the premium visual language and workbook component standard.
+- [`02_Configuration/design_tokens.csv`](02_Configuration/design_tokens.csv) provides the same
   visual tokens in a machine-readable form.
 - AI instructions and implementation notes do not appear in business-facing
   workbook sheets.

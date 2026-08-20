@@ -22,24 +22,24 @@ Before making a change, read these files in order:
 
 1. `AGENTS.md`
 2. this file;
-3. `docs/ARCHITECTURE.md`;
-4. `docs/CANONICAL_CONTRACTS.md`;
-5. `docs/DESIGN_SYSTEM.md`;
-6. the relevant decision record under `docs/decisions/`;
+3. `00_Governance/00-01_ARCHITECTURE.md`;
+4. `00_Governance/00-02_CANONICAL_CONTRACTS.md`;
+5. `00_Governance/00-03_DESIGN_SYSTEM.md`;
+6. the relevant decision record under `00_Governance/00-05_Decisions/`;
 7. the source files for the component being changed.
 
 ## Sources of truth
 
 | Concern | Source of truth |
 |---|---|
-| Architecture | `docs/ARCHITECTURE.md` and accepted ADRs |
-| Canonical fields | `docs/CANONICAL_CONTRACTS.md` |
-| Visual system | `docs/DESIGN_SYSTEM.md` and `config/design_tokens.csv` |
-| Power Query | `src/power-query/` |
-| DAX | `src/dax/` |
-| Python | `src/python/` |
-| VBA | `src/vba/` |
-| Released application | `workbooks/WFM_OS.xlsm` |
+| Architecture | `00_Governance/00-01_ARCHITECTURE.md` and accepted ADRs |
+| Canonical fields | `00_Governance/00-02_CANONICAL_CONTRACTS.md` |
+| Visual system | `00_Governance/00-03_DESIGN_SYSTEM.md` and `02_Configuration/design_tokens.csv` |
+| Power Query | `90_Source_Code/01_Power_Query/` |
+| DAX | `90_Source_Code/02_DAX/` |
+| Python | `90_Source_Code/03_Python/` |
+| VBA | `90_Source_Code/04_VBA/` |
+| Released application | `01_Application/WFM_OS.xlsm` |
 
 Text source in Git is canonical. A workbook release must contain the same source
 and identify its repository commit on a technical `BUILD_INFO` sheet.
@@ -82,7 +82,8 @@ Configuration changes must not modify canonical query logic.
 ### Adapter change
 
 Change or add an adapter when a new source format cannot be expressed through
-field/value mappings alone. Adapter work stays under `src/power-query/staging/`
+field/value mappings alone. Adapter work stays under
+`90_Source_Code/01_Power_Query/02_Staging/`
 and must output an existing canonical contract.
 
 Examples: a fixed-width schedule file, nested JSON contact export, unusual
@@ -124,11 +125,11 @@ versioned in controlled Excel tables before downstream use.
 
 VBA is limited to refresh sequencing, snapshot creation, backup, controlled
 publication, and similar workbook actions. Business metric logic does not belong
-in VBA. Export every embedded module to `src/vba/`.
+in VBA. Export every embedded module to `90_Source_Code/04_VBA/`.
 
 ### Design change
 
-Use `docs/DESIGN_SYSTEM.md`. A new visual component requires:
+Use `00_Governance/00-03_DESIGN_SYSTEM.md`. A new visual component requires:
 
 1. a business reason;
 2. a reusable component definition;

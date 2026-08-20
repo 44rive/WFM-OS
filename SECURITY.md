@@ -9,8 +9,10 @@ commercially sensitive information.
   be committed.
 - Real names, operational IDs, HR IDs, salaries, schedules, absences, contact
   records, and production exports are prohibited.
-- Runtime data belongs under `data/`, which is ignored by Git.
-- Generated operational packs belong under `outputs/`, also ignored by Git.
+- Runtime data belongs under `03_Data/`, which is ignored by Git except for
+  landing-zone instructions.
+- Generated operational packs belong under `04_Outputs/`, also ignored by Git
+  except for folder instructions.
 - Secrets and credentials must not be embedded in workbooks, M queries, VBA,
   Python, or configuration templates.
 

@@ -10,5 +10,6 @@
 - Do not silently discard unknown source values; surface them in data quality.
 - Prefer a small number of reusable M functions over repeated query code.
 - Prefer explicit DAX measures over worksheet formula grids.
-- Follow `docs/DESIGN_SYSTEM.md`; do not improvise new colors or components.
-- Record architectural changes in `docs/decisions/`.
+- Follow `00_Governance/00-03_DESIGN_SYSTEM.md`; do not improvise new colors or
+  components.
+- Record architectural changes in `00_Governance/00-05_Decisions/`.

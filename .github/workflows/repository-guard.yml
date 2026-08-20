@@ -14,12 +14,9 @@ jobs:
         run: |
           set -euo pipefail
           forbidden="$(git ls-files \
-            'data/raw/**' \
-            'data/approved/**' \
-            'data/quarantine/**' \
-            'data/snapshots/**' \
-            'outputs/**' \
-            'backups/**' \
+            '03_Data/**' \
+            '04_Outputs/**' \
+            '05_Backups/**' \
             '~$*' | grep -v '/README.md$' || true)"
           if [[ -n "$forbidden" ]]; then
             echo "Forbidden runtime artifacts are tracked:"
@@ -27,4 +24,4 @@ jobs:
             exit 1
           fi
       - name: Compile Python source
-        run: python -m compileall -q src/python
+        run: python -m compileall -q 90_Source_Code/03_Python

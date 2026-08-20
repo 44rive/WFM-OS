@@ -4,13 +4,16 @@
 *.xlk
 *.bak
 
-# Runtime data and generated artifacts
-data/**
-!data/README.md
-outputs/**
-!outputs/README.md
-backups/**
-!backups/README.md
+# Runtime data and generated artifacts. Preserve numbered landing-zone READMEs.
+03_Data/**
+!03_Data/**/
+!03_Data/**/README.md
+04_Outputs/**
+!04_Outputs/**/
+!04_Outputs/**/README.md
+05_Backups/**
+!05_Backups/**/
+!05_Backups/**/README.md
 
 # Local configuration and secrets
 .env
