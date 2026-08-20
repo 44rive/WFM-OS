@@ -39,7 +39,8 @@ python3 tools/validate_workbook.py
 
 For release builds, supply an explicit build date. The generator records the
 current Git commit automatically and normalizes OOXML timestamps, so identical
-inputs produce an identical workbook.
+inputs produce an identical workbook. `BUILD_PROVENANCE.json` records the exact
+release inputs and SHA-256 checksum; CI rebuilds the file and compares its bytes.
 
 ## Desktop Excel release gate
 

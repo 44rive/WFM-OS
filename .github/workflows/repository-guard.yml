@@ -29,5 +29,18 @@ jobs:
         run: python -m unittest discover -s 91_Tests -p 'test_*.py'
       - name: Install workbook build dependency
         run: python -m pip install --requirement requirements-build.txt
-      - name: Validate committed workbook and provenance
+      - name: Rebuild committed workbook from recorded provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_date="$(python -c 'import json; print(json.load(open("01_Application/BUILD_PROVENANCE.json"))["build_date"])')"
+          git_commit="$(python -c 'import json; print(json.load(open("01_Application/BUILD_PROVENANCE.json"))["git_commit"])')"
+          release="$(python -c 'import json; print(json.load(open("01_Application/BUILD_PROVENANCE.json"))["release"])')"
+          python tools/build_workbook.py \
+            --output /tmp/WFM_OS.xlsx \
+            --build-date "$build_date" \
+            --git-commit "$git_commit" \
+            --version "$release"
+          cmp --silent 01_Application/WFM_OS.xlsx /tmp/WFM_OS.xlsx
+      - name: Validate committed workbook structure and provenance
         run: python tools/validate_workbook.py

@@ -6,10 +6,8 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import json
 import re
-import subprocess
-import sys
-import tempfile
 import zipfile
 from pathlib import Path
 
@@ -25,7 +23,7 @@ except ImportError as exc:  # pragma: no cover - dependency message is intention
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_WORKBOOK = ROOT / "01_Application" / "WFM_OS.xlsx"
-GENERATOR = ROOT / "tools" / "build_workbook.py"
+DEFAULT_PROVENANCE = ROOT / "01_Application" / "BUILD_PROVENANCE.json"
 
 REQUIRED_SHEETS = {
     "00_HOME",
@@ -228,39 +226,27 @@ def validate_workbook(path: Path) -> dict[str, object]:
         workbook.close()
 
 
-def validate_reproducible(path: Path, info: dict[str, object]) -> None:
-    with tempfile.TemporaryDirectory(prefix="wfm_os_verify_") as temp_dir:
-        rebuilt = Path(temp_dir) / "WFM_OS.xlsx"
-        command = [
-            sys.executable,
-            str(GENERATOR),
-            "--output",
-            str(rebuilt),
-            "--build-date",
-            str(info["Build date"]),
-            "--git-commit",
-            str(info["Git commit"]),
-            "--version",
-            str(info["Release"]),
-        ]
-        subprocess.run(command, cwd=ROOT, check=True, capture_output=True, text=True)
-        expected_hash = sha256(path)
-        rebuilt_hash = sha256(rebuilt)
-        if rebuilt_hash != expected_hash:
-            fail(
-                "Workbook is not reproducible from its recorded provenance: "
-                f"committed={expected_hash}, rebuilt={rebuilt_hash}"
-            )
+def validate_provenance(path: Path, info: dict[str, object], provenance_path: Path) -> None:
+    with provenance_path.open(encoding="utf-8") as source:
+        provenance = json.load(source)
+    expected = {
+        "artifact": path.name,
+        "build_date": str(info["Build date"]),
+        "git_commit": str(info["Git commit"]),
+        "release": str(info["Release"]),
+        "sha256": sha256(path),
+    }
+    if provenance != expected:
+        fail(
+            "Workbook provenance drift: "
+            f"expected {expected!r}, found {provenance!r}"
+        )
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workbook", type=Path, default=DEFAULT_WORKBOOK)
-    parser.add_argument(
-        "--skip-rebuild",
-        action="store_true",
-        help="Run structural checks without byte-for-byte provenance verification.",
-    )
+    parser.add_argument("--provenance", type=Path, default=DEFAULT_PROVENANCE)
     return parser.parse_args()
 
 
@@ -268,8 +254,11 @@ def main() -> None:
     args = parse_args()
     workbook_path = args.workbook.resolve()
     results = validate_workbook(workbook_path)
-    if not args.skip_rebuild:
-        validate_reproducible(workbook_path, results["build_info"])
+    validate_provenance(
+        workbook_path,
+        results["build_info"],
+        args.provenance.resolve(),
+    )
     print(
         "Validated WFM_OS.xlsx · "
         f"sha256={sha256(workbook_path)} · "
