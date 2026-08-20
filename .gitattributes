@@ -1,0 +1,9 @@
+*.pq text eol=lf
+*.dax text eol=lf
+*.py text eol=lf
+*.bas text eol=crlf
+*.cls text eol=crlf
+*.frm text eol=crlf
+*.xlsx binary
+*.xlsm binary
+*.xlsb binary

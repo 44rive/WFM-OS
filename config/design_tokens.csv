@@ -1,0 +1,23 @@
+Token,Hex,Usage
+ink-900,111827,Primary text and figures
+ink-700,334155,Secondary text and labels
+ink-500,64748B,Metadata and subtitles
+shell-950,081824,Application header and navigation
+shell-900,0B2233,Dark cards and header variation
+pearl-050,F6F7F9,Workbook canvas
+paper-000,FFFFFF,Cards and report surfaces
+line-200,D8DEE7,Structural rules
+line-100,E9EDF2,Subtle separators
+primary-700,0B6670,Selected states and primary action
+primary-500,168A96,Primary chart series and active accent
+primary-100,DCEFF1,Controlled input surface
+copper-600,A4663F,Planning and scenario accent
+copper-100,F2E6DD,Planning and scenario surface
+success-600,18794E,Healthy state
+success-100,DDF3E8,Healthy state surface
+warning-600,B7791F,Nonblocking attention
+warning-100,FFF1D6,Warning surface
+danger-600,B83A4B,Blocking actionable exception
+danger-100,FBE4E8,Blocking error surface
+info-600,315E9B,Neutral information
+info-100,E2EBF7,Informational surface

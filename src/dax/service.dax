@@ -1,0 +1,27 @@
+// Base measures combine the fast live lane and finalized closed lane.
+
+Contacts Offered :=
+    SUM ( fact_ContactClosed[Offered] )
+        + SUM ( fact_ContactLive[Offered] )
+
+Contacts Handled :=
+    SUM ( fact_ContactClosed[Handled] )
+        + SUM ( fact_ContactLive[Handled] )
+
+Contacts Answered Within SL :=
+    SUM ( fact_ContactClosed[AnsweredWithinSL] )
+        + SUM ( fact_ContactLive[AnsweredWithinSL] )
+
+SL Eligible Offered :=
+    SUM ( fact_ContactClosed[SLEligibleOffered] )
+        + SUM ( fact_ContactLive[SLEligibleOffered] )
+
+Service Level % :=
+    DIVIDE ( [Contacts Answered Within SL], [SL Eligible Offered] )
+
+Handle Seconds :=
+    SUM ( fact_ContactClosed[HandleSeconds] )
+        + SUM ( fact_ContactLive[HandleSeconds] )
+
+AHT Seconds :=
+    DIVIDE ( [Handle Seconds], [Contacts Handled] )

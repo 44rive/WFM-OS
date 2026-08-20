@@ -1,0 +1,2 @@
+ActivityKey,ActivityName,Channel,Timezone,ValidFrom,ValidTo,Enabled
+EXAMPLE_VOICE,Example Voice,Voice,Europe/Berlin,2026-01-01,,FALSE

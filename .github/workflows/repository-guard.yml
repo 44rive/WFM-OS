@@ -1,0 +1,30 @@
+name: Repository guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject runtime data and temporary Excel files
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden="$(git ls-files \
+            'data/raw/**' \
+            'data/approved/**' \
+            'data/quarantine/**' \
+            'data/snapshots/**' \
+            'outputs/**' \
+            'backups/**' \
+            '~$*' | grep -v '/README.md$' || true)"
+          if [[ -n "$forbidden" ]]; then
+            echo "Forbidden runtime artifacts are tracked:"
+            echo "$forbidden"
+            exit 1
+          fi
+      - name: Compile Python source
+        run: python -m compileall -q src/python

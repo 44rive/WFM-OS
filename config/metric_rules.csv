@@ -1,0 +1,3 @@
+MetricKey,RuleName,Value,Unit,ValidFrom,ValidTo,Approved
+SERVICE_LEVEL,Threshold,20,seconds,2026-01-01,,FALSE
+ABANDON_RATE,ShortAbandonThreshold,5,seconds,2026-01-01,,FALSE

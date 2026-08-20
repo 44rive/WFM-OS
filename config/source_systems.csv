@@ -1,0 +1,2 @@
+Profile,SourceRole,Adapter,PathPattern,Format,Enabled
+example-enterprise,ContactPlatform,GenericContacts,Data/Contacts/*.csv,csv,FALSE

@@ -1,0 +1,2 @@
+Profile,Entity,SourceField,CanonicalField,Required,Enabled
+example-enterprise,Contact,source_contact_id,SourceContactID,TRUE,FALSE
