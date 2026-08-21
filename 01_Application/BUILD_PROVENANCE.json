@@ -1,7 +1,7 @@
 {
   "artifact": "WFM_OS.xlsx",
   "build_date": "2026-08-21",
-  "git_commit": "1216b4a27056",
-  "release": "0.4.0-shell",
-  "sha256": "347d29943dc994f7b1845980e98dc0c288524116c67fc55bbd8afb526d1a02c4"
+  "git_commit": "02fcec304d8f",
+  "release": "0.5.0-shell",
+  "sha256": "9a7c7195d82845e795ce0862d3dbc2a544233963cc16ce0ec4e5a8ede4e5ee64"
 }
