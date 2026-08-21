@@ -4,6 +4,10 @@
 
 Accepted.
 
+Extended by ADR 0004 for intraday scenarios, paid supply, and hiring. ADR 0004
+also permits multiple approved planning scenarios while reserving operational
+forecast and staffing facts for `BASE`.
+
 ## Context
 
 Forecasting and capacity planning combine refreshable actuals, analytical model

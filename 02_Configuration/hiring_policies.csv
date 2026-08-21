@@ -1,0 +1,2 @@
+Profile,PolicyKey,ActivityKey,RecruitmentLeadDays,TrainingLeadDays,NestingLeadDays,ExpectedYield,FTEPerHead,MaxTrainingSeats,BufferPaidFTE,ValidFrom,ValidTo,Approved
+example-enterprise,EXAMPLE_STANDARD_HIRING,EXAMPLE_VOICE,28,14,7,0.8,1,20,0,2026-01-01,,FALSE

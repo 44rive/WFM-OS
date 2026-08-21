@@ -1,7 +1,7 @@
 let
     Source = Table.SelectRows(
         stg_ForecastVersions,
-        each [ApprovedFlag] and [ValidationStatus] = "VALID"
+        each [ApprovedFlag] and [ValidationStatus] = "VALID" and [Scenario] = "BASE"
     ),
     Selected = Table.SelectColumns(
         Source,

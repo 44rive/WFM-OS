@@ -1,14 +1,16 @@
 """Thin Python-in-Excel adapters around the governed planning calculation core.
 
 This module intentionally contains table-shaping code only. It expects
-``forecast.py`` and ``capacity.py`` to have been evaluated in earlier Python
-cells, following the workbook Python manifest and row-major calculation order.
+``forecast.py``, ``capacity.py``, ``planning.py``, and ``supply.py`` to have
+been evaluated in earlier Python cells, following the workbook Python manifest
+and row-major calculation order.
 """
 
 from __future__ import annotations
 
 from collections import defaultdict
 from datetime import date, datetime
+from decimal import Decimal
 
 
 def _is_missing(value: object) -> bool:
@@ -71,6 +73,18 @@ def _truth(value: object, field: str) -> bool:
     if isinstance(value, str) and value.strip().upper() in {"TRUE", "FALSE"}:
         return value.strip().upper() == "TRUE"
     raise ValueError(f"{field} must be TRUE or FALSE")
+
+
+def _plain(value: object) -> object:
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    return value
+
+
+def _plain_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    return [{key: _plain(value) for key, value in row.items()} for row in rows]
 
 
 def parameter_value_excel(parameter_frame: object, parameter_name: str) -> object:
@@ -209,6 +223,7 @@ def run_forecast_excel(
 
     volume_baseline: list[dict[str, object]] = []
     aht_baseline: list[dict[str, object]] = []
+    intraday_profile_by_group: dict[tuple[str, str], str] = {}
     for (activity, channel), rows in sorted(by_group.items()):
         policy = _active_policy(
             policy_rows,
@@ -221,6 +236,10 @@ def run_forecast_excel(
             raise ValueError("Only SEASONAL_NAIVE is implemented in the governed baseline")
         if str(policy.get("Frequency", "")).strip().upper() != "DAILY":
             raise ValueError("Only DAILY forecast frequency is implemented")
+        intraday_profile = str(policy.get("IntradayProfileKey", "")).strip()
+        if not intraday_profile:
+            raise ValueError(f"Forecast policy requires IntradayProfileKey for {activity}|{channel}")
+        intraday_profile_by_group[(activity, channel)] = intraday_profile
         history_periods = int(policy.get("HistoryPeriods"))
         horizon_periods = int(policy.get("HorizonPeriods"))
         season_length = int(policy.get("SeasonLength"))
@@ -276,6 +295,10 @@ def run_forecast_excel(
                 "Date": volume_row["Date"],
                 "ActivityKey": volume_row["ActivityKey"],
                 "ChannelKey": volume_row["ChannelKey"],
+                "Grain": "DAILY",
+                "IntradayProfileKey": intraday_profile_by_group[
+                    (volume_row["ActivityKey"], volume_row["ChannelKey"])
+                ],
                 "Method": "SEASONAL_NAIVE",
                 "ForecastVolume": volume_row["FinalForecast"],
                 "ForecastAHTSeconds": aht_row["FinalForecast"],
@@ -291,12 +314,14 @@ def run_forecast_excel(
 def run_capacity_excel(
     forecast_frame: object,
     policy_frame: object,
+    scenario_frame: object | None = None,
     *,
     profile: str,
 ) -> list[dict[str, object]]:
     """Return capacity candidates for approved interval forecast rows."""
     forecasts = _records(forecast_frame)
     policies = _records(policy_frame)
+    scenario_rows = _records(scenario_frame) if scenario_frame is not None else []
     output: list[dict[str, object]] = []
     for forecast in forecasts:
         if "ApprovalStatus" in forecast and str(forecast.get("ApprovalStatus", "")).strip().upper() != "APPROVED":
@@ -314,6 +339,36 @@ def run_capacity_excel(
             as_of_date=interval_text[:10],
         )
         method = str(policy.get("Method", "")).strip().upper()
+        scenario_key = str(
+            forecast.get("ScenarioKey", forecast.get("Scenario", "BASE")) or "BASE"
+        ).strip().upper()
+        shrinkage_change = 0.0
+        if scenario_key != "BASE":
+            interval_date = interval_text[:10]
+            matches = []
+            for scenario in scenario_rows:
+                if str(scenario.get("Profile", "")).strip() != profile:
+                    continue
+                if str(scenario.get("ScenarioKey", "")).strip().upper() != scenario_key:
+                    continue
+                if str(scenario.get("ApprovalStatus", "")).strip().upper() != "APPROVED":
+                    continue
+                if str(scenario.get("ActivityKey", "")).strip() != activity:
+                    continue
+                if str(scenario.get("ChannelKey", "")).strip() != channel:
+                    continue
+                start = _date_text(scenario.get("StartDate"), "StartDate")
+                end = _date_text(scenario.get("EndDate"), "EndDate")
+                if start <= interval_date <= end:
+                    matches.append(scenario)
+            if len(matches) != 1:
+                raise ValueError(
+                    f"Expected one approved scenario scope for {scenario_key}|{activity}|{channel}|{interval_date}; found {len(matches)}"
+                )
+            shrinkage_change = float(matches[0].get("ShrinkageChangePct") or 0)
+        shrinkage = float(policy.get("ShrinkagePct")) * (1.0 + shrinkage_change / 100.0)
+        if not 0 <= shrinkage < 1:
+            raise ValueError(f"Scenario {scenario_key} produces invalid shrinkage")
         calculation_row = {
             "Method": method,
             "Volume": forecast.get("ForecastVolume"),
@@ -323,7 +378,7 @@ def run_capacity_excel(
             "AnswerTimeSeconds": policy.get("AnswerTimeSeconds"),
             "Occupancy": policy.get("MaxOccupancy"),
             "Concurrency": policy.get("Concurrency"),
-            "Shrinkage": policy.get("ShrinkagePct"),
+            "Shrinkage": shrinkage,
             "FTEPerHead": policy.get("FTEPerHead"),
         }
         result = calculate_capacity_row(calculation_row)
@@ -332,13 +387,14 @@ def run_capacity_excel(
             raise ValueError("Capacity input requires ForecastVersionKey")
         policy_key = str(policy.get("PolicyKey", "")).strip()
         compact_interval = interval_text.replace("-", "").replace(":", "").replace("T", "")[:12]
-        requirement_key = "|".join((forecast_version, policy_key, compact_interval, activity))
+        requirement_key = "|".join((forecast_version, scenario_key, policy_key, compact_interval, activity))
         output.append(
             {
                 "RequirementKey": requirement_key,
                 "Profile": profile,
                 "ForecastVersionKey": forecast_version,
                 "CapacityPolicyKey": policy_key,
+                "ScenarioKey": scenario_key,
                 "IntervalStart": interval_text,
                 "ActivityKey": activity,
                 "ChannelKey": channel,
@@ -347,11 +403,146 @@ def run_capacity_excel(
                 "RequiredFTE": result["ProductiveFTE"],
                 "PaidFTE": result["PaidFTE"],
                 "RequiredHeads": result["RequiredHeads"],
-                "ShrinkagePct": policy.get("ShrinkagePct"),
-                "RequirementVersion": f"{forecast_version}|{policy_key}",
+                "ShrinkagePct": shrinkage,
+                "RequirementVersion": f"{forecast_version}|{scenario_key}|{policy_key}",
                 "Method": result["Method"],
                 "AchievedOccupancy": result["AchievedOccupancy"],
                 "AchievedServiceLevel": result["AchievedServiceLevel"],
             }
         )
     return output
+
+
+def run_intraday_excel(
+    daily_frame: object,
+    profile_frame: object,
+    scenario_frame: object,
+    *,
+    profile: str,
+) -> list[dict[str, object]]:
+    """Return complete BASE and approved scenario interval candidates."""
+    daily_rows = []
+    for row in _records(daily_frame):
+        if str(row.get("Profile", "")).strip() not in {"", profile}:
+            continue
+        if "ApprovalStatus" in row:
+            approved = str(row.get("ApprovalStatus", "")).strip().upper() == "APPROVED"
+        elif "ApprovedFlag" in row:
+            approved = _truth(row.get("ApprovedFlag"), "ApprovedFlag")
+        elif "Approved" in row:
+            approved = _truth(row.get("Approved"), "Approved")
+        else:
+            approved = True
+        daily_rows.append(
+            {
+                **row,
+                "ForecastAHT": row.get("ForecastAHTSeconds"),
+                "Shrinkage": 0,
+                "ApprovedFlag": approved,
+            }
+        )
+    profiles = [
+        {
+            **row,
+            "ApprovedFlag": row.get("Approved"),
+        }
+        for row in _records(profile_frame)
+        if str(row.get("Profile", "")).strip() == profile
+    ]
+    scenarios = [
+        {
+            **row,
+            "ApprovedFlag": str(row.get("ApprovalStatus", "")).strip().upper() == "APPROVED",
+        }
+        for row in _records(scenario_frame)
+        if str(row.get("Profile", "")).strip() == profile
+    ]
+    intervals = intervalize_daily_candidates(daily_rows, profiles)
+    scenario_intervals = apply_approved_scenarios(intervals, scenarios)
+    output: list[dict[str, object]] = []
+    for row in scenario_intervals:
+        candidate = dict(row)
+        candidate["Profile"] = profile
+        candidate["Scenario"] = candidate.pop("ScenarioKey")
+        candidate["ForecastAHTSeconds"] = candidate.pop("ForecastAHT")
+        candidate.pop("Shrinkage", None)
+        output.append(candidate)
+    return _plain_rows(output)
+
+
+def run_supply_excel(
+    requirement_frame: object,
+    workforce_snapshot_frame: object,
+    assumption_frame: object,
+    policy_frame: object,
+    *,
+    profile: str,
+    as_of_date: object,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Return weekly supply/gap and hiring-wave candidates from approved requirements."""
+    requirements = _records(requirement_frame)
+    weekly = aggregate_weekly_peak_capacity(requirements)
+    weeks_by_activity: dict[str, set[str]] = defaultdict(set)
+    for row in weekly:
+        weeks_by_activity[str(row["ActivityKey"])].add(str(row["PeriodStart"]))
+
+    snapshot: dict[str, float] = {}
+    for row in _records(workforce_snapshot_frame):
+        activity = str(row.get("ActivityKey", "")).strip()
+        if not activity:
+            continue
+        if activity in snapshot:
+            raise ValueError(f"Duplicate workforce supply snapshot for {activity}")
+        snapshot[activity] = float(row.get("OpeningPaidFTE"))
+
+    approved_assumptions: dict[tuple[str, str], dict[str, object]] = {}
+    for row in _records(assumption_frame):
+        if str(row.get("Profile", "")).strip() != profile:
+            continue
+        if str(row.get("ApprovalStatus", "")).strip().upper() != "APPROVED":
+            continue
+        activity = str(row.get("ActivityKey", "")).strip()
+        period = _date_text(row.get("PeriodStart"), "PeriodStart")
+        key = (activity, period)
+        if key in approved_assumptions:
+            raise ValueError(f"Duplicate approved supply assumption for {activity}|{period}")
+        approved_assumptions[key] = row
+
+    core_assumptions: list[dict[str, object]] = []
+    for activity, periods in sorted(weeks_by_activity.items()):
+        ordered_periods = sorted(periods)
+        if activity not in snapshot:
+            raise ValueError(f"Workforce supply snapshot is missing {activity}")
+        for index, period in enumerate(ordered_periods):
+            source = approved_assumptions.get((activity, period), {})
+            opening = source.get("OpeningPaidFTE")
+            if index == 0 and _is_missing(opening):
+                opening = snapshot[activity]
+            core_assumptions.append(
+                {
+                    "PeriodStart": period,
+                    "ActivityKey": activity,
+                    "OpeningPaidFTE": opening if index == 0 else source.get("OpeningPaidFTE"),
+                    "TransfersInFTE": source.get("TransfersInFTE") or 0,
+                    "TransfersOutFTE": source.get("TransfersOutFTE") or 0,
+                    "LeaversFTE": source.get("LeaversFTE") or 0,
+                    "OtherChangeFTE": source.get("OtherChangeFTE") or 0,
+                    "ApprovedFlag": True,
+                }
+            )
+    base_supply = project_base_paid_supply(core_assumptions)
+    policies = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _records(policy_frame)
+        if str(row.get("Profile", "")).strip() == profile
+    ]
+    supply_rows, hiring_rows = plan_hiring(
+        weekly,
+        base_supply,
+        policies,
+        as_of_date=_date_text(as_of_date, "as_of_date"),
+    )
+    return (
+        _plain_rows([{**row, "Profile": profile} for row in supply_rows]),
+        _plain_rows([{**row, "Profile": profile} for row in hiring_rows]),
+    )

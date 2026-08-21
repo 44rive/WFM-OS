@@ -13,8 +13,10 @@ The shell contains:
   `tblParameters`, `tblSourceSystems`, `tblFieldMapping`, `tblValueMapping`,
   `tblPeople`, `tblIdentityMapping`, `tblActivities`, `tblQueueMapping`,
   `tblStateMapping`, `tblMetricRules`, `tblCalendarEvents`,
-  `tblForecastPolicies`, and `tblCapacityPolicies`;
-- controlled forecast-version and staffing-requirement approval tables;
+  `tblForecastPolicies`, `tblIntradayProfiles`, `tblCapacityPolicies`, and
+  `tblHiringPolicies`;
+- controlled forecast, requirement, supply-assumption, hiring, and supply-plan
+  tables;
 - controlled close-day input, bounded snapshot-ready output, and an append-only
   snapshot-store reservation;
 - hidden, clearly labelled reservations for future analytical and technical

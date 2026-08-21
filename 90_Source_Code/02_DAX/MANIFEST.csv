@@ -37,3 +37,13 @@ InstallOrder,MeasureName,HomeTable,SourceFile,FormatString,DisplayFolder,Descrip
 56,Forecast WAPE %,fact_ForecastAccuracy,planning.dax,0.0%,Planning\Accuracy,Absolute forecast error divided by scored actual volume,TRUE
 57,Forecast Signed Bias %,fact_ForecastAccuracy,planning.dax,+0.0%;-0.0%;—,Planning\Accuracy,Signed forecast error divided by scored actual volume; positive means over-forecast,TRUE
 58,Forecast Intervals Scored,fact_ForecastAccuracy,planning.dax,"#,##0",Planning\Accuracy,Count of forecast intervals with observed actual demand,TRUE
+60,Approved Required Paid FTE,fact_SupplyPlan,supply.dax,"#,##0.00",Planning\Supply,Approved paid FTE required at the governed weekly planning grain,TRUE
+61,Approved Buffer Paid FTE,fact_SupplyPlan,supply.dax,"#,##0.00",Planning\Supply,Approved paid-FTE buffer above the requirement,TRUE
+62,Approved Baseline Paid FTE,fact_SupplyPlan,supply.dax,"#,##0.00",Planning\Supply,Approved paid FTE available before planned hiring,TRUE
+63,Approved Planned Hire Paid FTE,fact_SupplyPlan,supply.dax,"#,##0.00",Planning\Supply,Cumulative approved expected paid FTE from hiring waves proficient by the period,TRUE
+64,Approved Projected Paid FTE,fact_SupplyPlan,supply.dax,"#,##0.00",Planning\Supply,Approved baseline plus planned-hire paid FTE,TRUE
+65,Approved Residual Gap Paid FTE,fact_SupplyPlan,supply.dax,"#,##0.00",Planning\Supply,Remaining approved paid-FTE gap after baseline and planned hiring,TRUE
+66,Supply Coverage %,fact_SupplyPlan,supply.dax,0.0%,Planning\Supply,Approved projected paid FTE divided by approved requirement plus buffer,TRUE
+67,Approved Hiring Heads,fact_HiringPlan,supply.dax,"#,##0",Planning\Hiring,Approved planned hiring heads across governed waves,TRUE
+68,Approved Hiring Expected Paid FTE,fact_HiringPlan,supply.dax,"#,##0.00",Planning\Hiring,Approved expected paid FTE after yield and FTE-per-head assumptions,TRUE
+69,Late Hiring Waves,fact_HiringPlan,supply.dax,"#,##0",Planning\Hiring,Approved hiring waves whose required recruitment start precedes the plan as-of date,TRUE

@@ -1,2 +1,2 @@
-Profile,PolicyKey,ActivityKey,ChannelKey,Method,Frequency,HistoryPeriods,HorizonPeriods,SeasonLength,MinimumHistory,ValidFrom,ValidTo,Approved
-example-enterprise,EXAMPLE_DAILY_SEASONAL,EXAMPLE_VOICE,VOICE,SEASONAL_NAIVE,DAILY,56,28,7,28,2026-01-01,,FALSE
+Profile,PolicyKey,ActivityKey,ChannelKey,IntradayProfileKey,Method,Frequency,HistoryPeriods,HorizonPeriods,SeasonLength,MinimumHistory,ValidFrom,ValidTo,Approved
+example-enterprise,EXAMPLE_DAILY_SEASONAL,EXAMPLE_VOICE,VOICE,EXAMPLE_STANDARD_30M,SEASONAL_NAIVE,DAILY,56,28,7,28,2026-01-01,,FALSE

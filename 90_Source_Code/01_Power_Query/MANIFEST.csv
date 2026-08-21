@@ -23,6 +23,7 @@ InstallOrder,QueryName,Kind,SourceFile,LoadDestination,RefreshLane,Required
 34,p_SLThresholdSeconds,parameter,00_Parameters/p_SLThresholdSeconds.pq,ConnectionOnly,Shared,TRUE
 35,p_ShortAbandonThresholdSeconds,parameter,00_Parameters/p_ShortAbandonThresholdSeconds.pq,ConnectionOnly,Shared,TRUE
 36,p_ExcludeShortAbandons,parameter,00_Parameters/p_ExcludeShortAbandons.pq,ConnectionOnly,Shared,TRUE
+37,p_StandardWeeklyHours,parameter,00_Parameters/p_StandardWeeklyHours.pq,ConnectionOnly,Shared,TRUE
 40,src_Contacts,source,02_Staging/src_Contacts.pq,ConnectionOnly,Shared,TRUE
 41,stg_Contacts,staging,02_Staging/stg_Contacts.pq,ConnectionOnly,Shared,TRUE
 42,src_Schedules,source,02_Staging/src_Schedules.pq,ConnectionOnly,Shared,TRUE
@@ -40,6 +41,8 @@ InstallOrder,QueryName,Kind,SourceFile,LoadDestination,RefreshLane,Required
 54,stg_ForecastVersions,staging,02_Staging/stg_ForecastVersions.pq,ConnectionOnly,Shared,TRUE
 55,stg_RequirementApprovals,staging,02_Staging/stg_RequirementApprovals.pq,ConnectionOnly,Shared,TRUE
 56,stg_AllStaffingRequirements,staging,02_Staging/stg_AllStaffingRequirements.pq,ConnectionOnly,Shared,TRUE
+57,stg_HiringPlanVersions,staging,02_Staging/stg_HiringPlanVersions.pq,ConnectionOnly,Shared,TRUE
+58,stg_SupplyPlanVersions,staging,02_Staging/stg_SupplyPlanVersions.pq,ConnectionOnly,Shared,TRUE
 60,dim_Date,dimension,03_Dimensions/dim_Date.pq,DataModel,Shared,TRUE
 61,dim_Interval,dimension,03_Dimensions/dim_Interval.pq,DataModel,Shared,TRUE
 62,dim_Activity,dimension,03_Dimensions/dim_Activity.pq,DataModel,Shared,TRUE
@@ -55,6 +58,8 @@ InstallOrder,QueryName,Kind,SourceFile,LoadDestination,RefreshLane,Required
 75,fact_StaffingRequirementLive,fact,04_Facts/fact_StaffingRequirementLive.pq,DataModel,Live,TRUE
 76,fact_Forecast,fact,04_Facts/fact_Forecast.pq,DataModel,Shared,TRUE
 77,fact_ForecastAccuracy,fact,04_Facts/fact_ForecastAccuracy.pq,DataModel,Closed,TRUE
+78,fact_SupplyPlan,fact,04_Facts/fact_SupplyPlan.pq,DataModel,Shared,TRUE
+79,fact_HiringPlan,fact,04_Facts/fact_HiringPlan.pq,DataModel,Shared,TRUE
 80,dq_Contacts,output,05_Outputs/dq_Contacts.pq,Worksheet:02_DATA_QUALITY!dq_Contacts,Shared,TRUE
 81,out_ContactReconciliation,output,05_Outputs/out_ContactReconciliation.pq,Worksheet:95_QUERY_OUTPUTS!out_ContactReconciliation,Shared,TRUE
 82,dq_OperationalMappings,output,05_Outputs/dq_OperationalMappings.pq,Worksheet:02_DATA_QUALITY!dq_OperationalMappings,Shared,TRUE
@@ -68,3 +73,7 @@ InstallOrder,QueryName,Kind,SourceFile,LoadDestination,RefreshLane,Required
 90,out_ForecastHistory,output,05_Outputs/out_ForecastHistory.pq,Worksheet:95_QUERY_OUTPUTS!out_ForecastHistory,Closed,TRUE
 91,out_ForecastAccuracy,output,05_Outputs/out_ForecastAccuracy.pq,Worksheet:95_QUERY_OUTPUTS!out_ForecastAccuracy,Closed,TRUE
 92,out_ApprovedForecast,output,05_Outputs/out_ApprovedForecast.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedForecast,Shared,TRUE
+93,out_ApprovedRequirementPlan,output,05_Outputs/out_ApprovedRequirementPlan.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedRequirementPlan,Shared,TRUE
+94,out_WorkforceSupplySnapshot,output,05_Outputs/out_WorkforceSupplySnapshot.pq,Worksheet:95_QUERY_OUTPUTS!out_WorkforceSupplySnapshot,Shared,TRUE
+95,out_ApprovedSupplyPlan,output,05_Outputs/out_ApprovedSupplyPlan.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedSupplyPlan,Shared,TRUE
+96,out_ApprovedHiringPlan,output,05_Outputs/out_ApprovedHiringPlan.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedHiringPlan,Shared,TRUE

@@ -262,6 +262,7 @@ class PlanningCycleTest(unittest.TestCase):
             "PolicyKey": "FC_BASE",
             "ActivityKey": "ACT_SUPPORT",
             "ChannelKey": "VOICE",
+            "IntradayProfileKey": "STANDARD_30M",
             "Method": "SEASONAL_NAIVE",
             "Frequency": "DAILY",
             "HistoryPeriods": 7,

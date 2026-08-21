@@ -44,11 +44,17 @@ closed interval demand
   -> Erlang C or workload capacity candidates
   -> reviewed requirement approvals
   -> shared closed/live staffing-requirement facts
+  -> weekly PEAK paid-FTE requirements
+  -> recursive paid-supply projection
+  -> recruitment and training-wave candidates
+  -> separate hiring and reconciled supply approvals
+  -> approved supply and hiring facts
 ```
 
 Daily forecast output is deliberately not treated as interval demand. A
-reviewed intraday profile must reconcile daily totals into interval rows before
-capacity is run.
+complete, approved, effective-dated intraday profile must reconcile daily totals
+into 48 interval rows before capacity is run. Supply publication is blocked
+unless planned-hire FTE reconciles to approved hiring waves.
 
 ## Install Power Query
 
@@ -111,6 +117,10 @@ fact_ForecastAccuracy[BusinessDate] -> dim_Date[Date]
 fact_ForecastAccuracy[IntervalKey]   -> dim_Interval[IntervalKey]
 fact_ForecastAccuracy[ActivityKey]   -> dim_Activity[ActivityKey]
 fact_ForecastAccuracy[ChannelKey]    -> dim_Channel[ChannelKey]
+fact_SupplyPlan[PeriodStart]         -> dim_Date[Date]
+fact_SupplyPlan[ActivityKey]         -> dim_Activity[ActivityKey]
+fact_HiringPlan[ProficiencyDate]     -> dim_Date[Date]
+fact_HiringPlan[ActivityKey]         -> dim_Activity[ActivityKey]
 ```
 
 Mark `dim_Date` as the Date Table using its `Date` column. Do not create a
@@ -120,7 +130,8 @@ relationship between the live and closed facts.
 
 Install `90_Source_Code/02_DAX/service.dax` and
 `90_Source_Code/02_DAX/operational_control.dax` and
-`90_Source_Code/02_DAX/planning.dax` as explicit measures. Business
+`90_Source_Code/02_DAX/planning.dax` and
+`90_Source_Code/02_DAX/supply.dax` as explicit measures. Business
 pages must consume these measures rather than recreate them with worksheet
 formulas. Use `90_Source_Code/02_DAX/MANIFEST.csv` for home tables, formats,
 display folders, and descriptions. Measures labelled `· Interval` require
@@ -129,10 +140,10 @@ interval-grain filter context.
 ## Install Python in Excel
 
 Follow `01_Application/01-03_PYTHON_INSTALL.md` and
-`90_Source_Code/03_Python/MANIFEST.csv`. Install the three definition cells and
-two entrypoint cells in exact order. Forecast and capacity outputs remain
-candidates until they are reviewed and pasted into `tblForecastVersions` and
-`tblRequirementApprovals` with complete approval evidence.
+`90_Source_Code/03_Python/MANIFEST.csv`. Install the five definition cells and
+five analytical cells in exact order. Forecast, scenario, capacity, supply, and
+hiring outputs remain candidates until they are reviewed and pasted into their
+controlled approval tables with complete evidence.
 
 ## Install close day
 
@@ -174,6 +185,12 @@ The release remains blocked until:
 - forecast candidates cannot bypass `tblForecastVersions`, and requirements
   cannot bypass `tblRequirementApprovals`;
 - daily forecast totals reconcile exactly to the reviewed interval profile;
+- approved scenarios retain a complete interval horizon;
+- weekly requirements reconcile to approved interval capacity by the governed
+  PEAK rule;
+- recursive paid supply and hiring waves match the golden fixtures;
+- approved supply planned-hire FTE reconciles to cumulative approved proficient
+  hiring-wave FTE;
 - the close-day controller is idempotent and creates no duplicate final keys;
 - a second refresh produces identical finalized results;
 - the workbook passes visual inspection in desktop Excel.

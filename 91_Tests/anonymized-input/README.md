@@ -16,3 +16,8 @@ The workforce-cycle fixture contains:
   interval;
 - an existing closed snapshot containing one prior day and one deliberately
   stale current-day row for close-day replacement testing.
+
+The planning-to-supply fixtures add fabricated daily candidates, effective
+`ALL` and weekday interval profiles, approved/draft scenarios, interval
+capacity, weekly supply movements, and two nonoverlapping hiring policies. They
+contain no enterprise data.

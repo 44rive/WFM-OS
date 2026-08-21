@@ -1,0 +1,5 @@
+PeriodStart,ActivityKey,OpeningPaidFTE,TransfersInFTE,TransfersOutFTE,LeaversFTE,OtherChangeFTE,BasePaidFTE
+2026-02-02,ACT_SUPPORT,6,0,0,0,0,6
+2026-02-09,ACT_SUPPORT,,1,0,0.5,0,6.5
+2026-02-16,ACT_SUPPORT,,0,0.5,0,0,6
+2026-02-23,ACT_SUPPORT,,0,0,0,1,7

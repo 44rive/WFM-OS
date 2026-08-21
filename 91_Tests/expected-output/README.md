@@ -14,3 +14,7 @@ The workforce-cycle outputs declare:
 
 Rate fields use six decimal places. Count, second, and minute fields are exact
 integers.
+
+Planning outputs declare exact daily-to-interval reconciliation, complete
+scenario totals, weekly PEAK paid-FTE requirements, recursive base supply, and
+lead-time/seat-bounded hiring waves with their projected residual gaps.

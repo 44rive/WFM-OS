@@ -16,6 +16,10 @@ measures. Signed forecast error is forecast minus actual, so positive bias means
 over-forecast. Capacity algorithms remain in Python; DAX reports their approved
 staffing-requirement results through the existing operational measures.
 
+`supply.dax` owns approved weekly paid-supply, residual-gap, coverage, and
+hiring-wave measures. Hiring expected FTE is a governed yield-adjusted planning
+quantity; it is not actual payroll or attendance.
+
 Use `MANIFEST.csv` as the installation contract for measure order, home table,
 format, display folder, and business description. Use `RELATIONSHIPS.csv` as
 the canonical relationship contract; fact columns are foreign keys and

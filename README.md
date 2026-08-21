@@ -79,17 +79,20 @@ tools/windows/      Fail-closed desktop Excel preflight and source installer
 
 ## Status
 
-The repository currently contains the v0.3 architecture, a deterministic
+The repository currently contains the v0.4 architecture, a deterministic
 premium `.xlsx` application shell, the contact-service slice, and the
 schedule-led operational-control spine. It now also contains the governed
-planning foundation:
+planning-to-supply engine:
 
-`closed actuals -> forecast history -> Python daily candidate -> reviewed interval forecast approval -> capacity candidate -> requirement approval -> canonical staffing facts`.
+`closed actuals -> daily candidate -> effective-dated intraday profile -> complete scenarios -> interval forecast approval -> capacity candidate -> requirement approval -> weekly paid-supply gap -> hiring/training waves -> hiring approval -> reconciled supply approval`.
 
 Python candidates can never become facts merely because a cell calculated.
-The daily baseline must be reviewed and shaped to approved intervals before
-capacity is calculated. Hiring, shift generation, and leave optimization remain
-future planning slices. The shell remains explicitly
+The daily baseline reconciles exactly to an approved 48-interval profile before
+capacity is calculated. Hiring waves honor lead time, yield, FTE per head, and
+training-seat limits; supply publication is blocked unless its planned-hire FTE
+reconciles to approved waves. Shift generation, schedule optimization, and
+leave allowance remain future planning slices, so this is not yet the entire
+WFM lifecycle. The shell remains explicitly
 non-operational until its Power Query, Power Pivot, and controlled VBA engines
 are installed and validated in desktop Excel:
 
@@ -98,7 +101,7 @@ are installed and validated in desktop Excel:
 `people/identity mappings + schedules + logins + states + requirements -> interval staffing + attendance + adherence + governed close day`.
 
 The Windows installer can validate the committed artifact and install all
-reviewed Power Query definitions on a staged copy. Query loads, 32
-relationships, 38 DAX measures, five ordered Python cells, Date Table marking,
+reviewed Power Query definitions on a staged copy. Query loads, 36
+relationships, 48 DAX measures, ten ordered Python cells, Date Table marking,
 refresh, and release validation remain explicit desktop Excel gates; see
 [`01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md`](01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md).

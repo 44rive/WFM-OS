@@ -1,0 +1,2 @@
+Profile,ProfileKey,DayType,IntervalKey,VolumeWeight,AHTFactor,ValidFrom,ValidTo,Approved
+example-enterprise,EXAMPLE_STANDARD_30M,ALL,I00,1,1,2026-01-01,,FALSE

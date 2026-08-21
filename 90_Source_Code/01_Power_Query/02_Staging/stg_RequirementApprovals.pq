@@ -4,8 +4,8 @@ let
         Source,
         {
             "RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey",
-            "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE",
-            "PaidFTE", "RequiredHeads", "ShrinkagePct", "RequirementVersion",
+            "ScenarioKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "ChannelKey", "RequiredFTE",
+            "PaidFTE", "RequirementVersion",
             "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"
         },
         "tblRequirementApprovals"
@@ -19,10 +19,9 @@ let
         {
             {"RequirementKey", type text}, {"Profile", type text},
             {"ForecastVersionKey", type nullable text}, {"CapacityPolicyKey", type text},
-            {"ApprovalStatus", type text}, {"IntervalStart", type nullable datetime},
-            {"ActivityKey", type text}, {"RequiredFTE", type nullable number},
-            {"PaidFTE", type nullable number}, {"RequiredHeads", Int64.Type},
-            {"ShrinkagePct", type nullable number}, {"RequirementVersion", type text},
+            {"ScenarioKey", type text}, {"ApprovalStatus", type text}, {"IntervalStart", type nullable datetime},
+            {"ActivityKey", type text}, {"ChannelKey", type text}, {"RequiredFTE", type nullable number},
+            {"PaidFTE", type nullable number}, {"RequirementVersion", type text},
             {"ApprovedAt", type nullable datetime}, {"ApprovedBy", type nullable text},
             {"SourceRunKey", type nullable text}, {"Notes", type nullable text}
         }
@@ -30,7 +29,10 @@ let
     ProfileRows = Table.SelectRows(Typed, each Text.From([Profile]) = p_Profile),
     NormalizedStatus = Table.TransformColumns(
         ProfileRows,
-        {{"ApprovalStatus", each Text.Upper(Text.Trim(Text.From(_))), type text}}
+        {
+            {"ApprovalStatus", each Text.Upper(Text.Trim(Text.From(_))), type text},
+            {"ScenarioKey", each Text.Upper(Text.Trim(Text.From(_))), type text}
+        }
     ),
     WithApprovedFlag = Table.AddColumn(
         NormalizedStatus,
@@ -59,12 +61,12 @@ let
             ),
         type nullable text
     ),
-    ActivityScope = Table.SelectColumns(dim_Activity, {"ActivityKey"}),
+    ActivityScope = Table.SelectColumns(dim_Activity, {"ActivityKey", "ChannelKey"}),
     WithActivity = Table.NestedJoin(
         WithIntervalKey,
-        {"ActivityKey"},
+        {"ActivityKey", "ChannelKey"},
         ActivityScope,
-        {"ActivityKey"},
+        {"ActivityKey", "ChannelKey"},
         "ActivityMatch",
         JoinKind.LeftOuter
     ),
@@ -80,8 +82,11 @@ let
         "MappingStatus",
         each
             if not [ApprovedFlag] then "NOT_APPLICABLE"
+            else if [ForecastVersionKey] = null or Text.Trim([ForecastVersionKey]) = "" then "MISSING_FORECAST_VERSION"
+            else if [ScenarioKey] = null or Text.Trim([ScenarioKey]) = "" then "MISSING_SCENARIO_KEY"
             else if [ActivityKey] = null or Text.Trim([ActivityKey]) = "" then "MISSING_ACTIVITY_KEY"
-            else if [ActivityMatchCount] <> 1 then "UNKNOWN_ACTIVITY_KEY"
+            else if [ChannelKey] = null or Text.Trim([ChannelKey]) = "" then "MISSING_CHANNEL_KEY"
+            else if [ActivityMatchCount] <> 1 then "UNKNOWN_ACTIVITY_CHANNEL"
             else if [CapacityPolicyKey] = null or Text.Trim([CapacityPolicyKey]) = "" then "MISSING_CAPACITY_POLICY"
             else if [RequirementVersion] = null or Text.Trim([RequirementVersion]) = "" then "MISSING_REQUIREMENT_VERSION"
             else if [IntervalStart] = null then "MISSING_INTERVAL_START"
@@ -89,8 +94,6 @@ let
             else if Time.Second(Time.From([IntervalStart])) <> 0 then "INVALID_INTERVAL_START"
             else if [RequiredFTE] = null or [RequiredFTE] < 0 then "INVALID_REQUIRED_FTE"
             else if [PaidFTE] = null or [PaidFTE] < [RequiredFTE] then "INVALID_PAID_FTE"
-            else if [RequiredHeads] = null or [RequiredHeads] < 0 then "INVALID_REQUIRED_HEADS"
-            else if [ShrinkagePct] = null or [ShrinkagePct] < 0 or [ShrinkagePct] >= 1 then "INVALID_SHRINKAGE"
             else if [ApprovedAt] = null then "MISSING_APPROVAL_TIMESTAMP"
             else if [ApprovedBy] = null or Text.Trim(Text.From([ApprovedBy])) = "" then "MISSING_APPROVER"
             else if [SourceRunKey] = null or Text.Trim(Text.From([SourceRunKey])) = "" then "MISSING_SOURCE_RUN"
@@ -109,14 +112,14 @@ let
     ),
     ApprovedCounts = Table.Group(
         ValidApproved,
-        {"BusinessDate", "IntervalStart", "ActivityKey"},
+        {"ScenarioKey", "BusinessDate", "IntervalStart", "ActivityKey"},
         {{"ApprovedGrainCount", each Table.RowCount(_), Int64.Type}}
     ),
     WithCounts = Table.NestedJoin(
         WithMappingValue,
-        {"BusinessDate", "IntervalStart", "ActivityKey"},
+        {"ScenarioKey", "BusinessDate", "IntervalStart", "ActivityKey"},
         ApprovedCounts,
-        {"BusinessDate", "IntervalStart", "ActivityKey"},
+        {"ScenarioKey", "BusinessDate", "IntervalStart", "ActivityKey"},
         "ApprovedCounts",
         JoinKind.LeftOuter
     ),

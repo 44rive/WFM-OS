@@ -9,8 +9,12 @@ let
         Columns,
         MissingField.UseNull
     ),
-    ApprovedWorkbook = Table.SelectColumns(
+    ApprovedBaseRows = Table.SelectRows(
         stg_RequirementApprovals,
+        each [ScenarioKey] = "BASE"
+    ),
+    ApprovedWorkbook = Table.SelectColumns(
+        ApprovedBaseRows,
         Columns,
         MissingField.UseNull
     ),

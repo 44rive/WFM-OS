@@ -13,9 +13,10 @@ tools or be recycled over time. `state_mapping.csv` governs presence,
 productivity, and adherence behavior without embedding external state names in
 facts or measures.
 
-`forecast_policies.csv`, `capacity_policies.csv`, and `calendar_events.csv`
-govern the planning slice. Forecast and capacity methods are selected by
+`forecast_policies.csv`, `intraday_profiles.csv`, `capacity_policies.csv`,
+`hiring_policies.csv`, and `calendar_events.csv` govern the planning slice.
+Forecast, interval-shape, capacity, and hiring behavior is selected by
 effective-dated policy; calendar impacts are approved inputs. The repository
-rows are fabricated and disabled. Approved forecast versions and staffing
-requirements are operational decisions and therefore are not stored in these
-configuration files.
+rows are fabricated and disabled. Approved forecast, requirement, hiring, and
+supply versions are operational decisions and therefore are not stored in
+these configuration files.

@@ -1,0 +1,35 @@
+Approved Required Paid FTE :=
+    SUM ( fact_SupplyPlan[RequiredPaidFTE] )
+
+Approved Buffer Paid FTE :=
+    SUM ( fact_SupplyPlan[BufferPaidFTE] )
+
+Approved Baseline Paid FTE :=
+    SUM ( fact_SupplyPlan[BaselinePaidFTE] )
+
+Approved Planned Hire Paid FTE :=
+    SUM ( fact_SupplyPlan[PlannedHirePaidFTE] )
+
+Approved Projected Paid FTE :=
+    SUM ( fact_SupplyPlan[ProjectedPaidFTE] )
+
+Approved Residual Gap Paid FTE :=
+    SUM ( fact_SupplyPlan[ResidualGapPaidFTE] )
+
+Supply Coverage % :=
+    DIVIDE (
+        [Approved Projected Paid FTE],
+        [Approved Required Paid FTE] + [Approved Buffer Paid FTE]
+    )
+
+Approved Hiring Heads :=
+    SUM ( fact_HiringPlan[PlannedHeads] )
+
+Approved Hiring Expected Paid FTE :=
+    SUM ( fact_HiringPlan[ExpectedPaidFTE] )
+
+Late Hiring Waves :=
+    CALCULATE (
+        COUNTROWS ( fact_HiringPlan ),
+        fact_HiringPlan[TimingStatus] = "LATE_TO_PLAN"
+    )

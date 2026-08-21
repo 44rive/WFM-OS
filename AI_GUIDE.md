@@ -82,6 +82,14 @@ position or paste source from an uncommitted working copy.
   without a stable version, source-run evidence, named approver, and timestamp.
 - Never send a daily forecast total directly into an interval capacity formula;
   first reconcile it to an approved intraday profile.
+- Never create a partial scenario horizon; each approved scenario must retain
+  every BASE interval and change only its governed scope.
+- Never publish a supply plan whose planned-hire FTE does not reconcile to
+  approved hiring waves for the same plan version, scenario, activity, and
+  proficiency period.
+- Never rename a source product into the canonical model. Describe its role,
+  such as `SchedulingTool` or `ContactPlatform`, and keep product-specific
+  fields inside the adapter profile.
 
 ## Decide the smallest correct change
 
@@ -143,9 +151,23 @@ versioned in controlled Excel tables before downstream use.
 
 Core calculations belong in dependency-free modules and must accept ordinary
 records so Linux CI can prove their behavior. `excel_adapter.py` may shape
-DataFrames but must not redefine forecast or capacity mathematics. Update the
-Python manifest and `01_Application/01-03_PYTHON_INSTALL.md` whenever a Python
-cell, anchor, source file, or entrypoint changes.
+DataFrames but must not redefine forecast, profile, scenario, capacity, supply,
+or hiring mathematics. Update the Python manifest and
+`01_Application/01-03_PYTHON_INSTALL.md` whenever a Python cell, anchor, source
+file, or entrypoint changes.
+
+For the planning-to-supply chain, preserve these invariants:
+
+1. active intraday profiles contain exactly 48 unique intervals and reconcile
+   both volume weight and volume-weighted AHT factor to one;
+2. weekday profiles take precedence over `ALL` only when a complete effective
+   weekday set exists;
+3. weekly requirements use the documented aggregation policy, currently PEAK;
+4. base supply is recursive, first-period opening FTE is explicit, and later
+   movements cannot make it negative;
+5. hiring waves honor lead times, yield, FTE per head, and training-seat caps;
+6. hiring approval precedes supply approval, and Power Query must block any
+   paid-FTE mismatch.
 
 ### VBA change
 

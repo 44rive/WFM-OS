@@ -58,10 +58,16 @@ Python in Excel consumes named Power Query results for forecast backtesting,
 statistical models, scenarios, schedule experiments, and anomaly analysis.
 Approved outputs are versioned before they affect operational decisions.
 
-The planning cycle follows ADR 0003. Power Query supplies closed actuals;
-Python creates forecast and capacity candidates; controlled approval tables
-publish immutable versions back into canonical forecast and staffing facts.
-Python output never enters an operational fact merely because a cell recalculated.
+The planning cycle follows ADRs 0003 and 0004. Power Query supplies closed
+actuals; Python creates forecast, interval scenario, capacity, supply, and
+hiring candidates; controlled approval tables publish immutable versions into
+canonical forecast, staffing, supply, and hiring facts. Python output never
+enters an operational fact merely because a cell recalculated.
+
+Daily demand is reconciled through approved, effective-dated 48-interval
+profiles before capacity. Approved weekly requirements are compared with a
+recursive paid-supply projection. Hiring waves and the resulting supply plan
+have separate approvals and a blocking paid-FTE reconciliation.
 
 ## Workbook sheet groups
 

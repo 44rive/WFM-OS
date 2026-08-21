@@ -1,0 +1,4 @@
+PolicyKey,ActivityKey,ValidFrom,ValidTo,RecruitmentLeadDays,TrainingLeadDays,NestingLeadDays,ExpectedYield,FTEPerHead,MaxTrainingSeats,BufferPaidFTE,ApprovedFlag
+POLICY_OLD,ACT_SUPPORT,2026-01-01,2026-02-08,14,7,7,0.5,1,2,0,TRUE
+POLICY_NEW,ACT_SUPPORT,2026-02-09,,14,7,7,1,1,3,0,TRUE
+POLICY_DRAFT,ACT_SUPPORT,2026-01-01,,0,0,0,0,0,0,-1,FALSE

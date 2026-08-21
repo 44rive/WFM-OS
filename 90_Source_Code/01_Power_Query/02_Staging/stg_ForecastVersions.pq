@@ -30,7 +30,15 @@ let
     ProfileRows = Table.SelectRows(Typed, each Text.From([Profile]) = p_Profile),
     NormalizedStatus = Table.TransformColumns(
         ProfileRows,
-        {{"ApprovalStatus", each Text.Upper(Text.Trim(Text.From(_))), type text}}
+        {
+            {"ApprovalStatus", each Text.Upper(Text.Trim(Text.From(_))), type text},
+            {
+                "Scenario",
+                each let Value = if _ = null then "" else Text.Upper(Text.Trim(Text.From(_)))
+                in if Value = "" then "BASE" else Value,
+                type text
+            }
+        }
     ),
     WithApprovedFlag = Table.AddColumn(
         NormalizedStatus,
@@ -101,14 +109,14 @@ let
     ),
     ApprovedCounts = Table.Group(
         ApprovedValid,
-        {"BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"},
+        {"Scenario", "BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"},
         {{"ApprovedGrainCount", each Table.RowCount(_), Int64.Type}}
     ),
     WithCounts = Table.NestedJoin(
         WithRowValidation,
-        {"BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"},
+        {"Scenario", "BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"},
         ApprovedCounts,
-        {"BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"},
+        {"Scenario", "BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"},
         "ApprovedCounts",
         JoinKind.LeftOuter
     ),

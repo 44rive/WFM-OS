@@ -1,7 +1,7 @@
 {
-  "contractVersion": "1.1.0",
-  "installerVersion": "0.2.0",
-  "workbookRelease": "0.3.0-shell",
+  "contractVersion": "1.2.0",
+  "installerVersion": "0.3.0",
+  "workbookRelease": "0.4.0-shell",
   "inputArtifact": "01_Application/WFM_OS.xlsx",
   "buildProvenance": "01_Application/BUILD_PROVENANCE.json",
   "queryManifest": "90_Source_Code/01_Power_Query/MANIFEST.csv",
@@ -19,8 +19,11 @@
     "90_Source_Code/02_DAX/service.dax",
     "90_Source_Code/02_DAX/operational_control.dax",
     "90_Source_Code/02_DAX/planning.dax",
+    "90_Source_Code/02_DAX/supply.dax",
     "90_Source_Code/03_Python/forecast.py",
     "90_Source_Code/03_Python/capacity.py",
+    "90_Source_Code/03_Python/planning.py",
+    "90_Source_Code/03_Python/supply.py",
     "90_Source_Code/03_Python/excel_adapter.py"
   ],
   "requiredWorkbookTables": [
@@ -58,11 +61,19 @@
     },
     {
       "name": "tblForecastPolicies",
-      "columns": ["Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "Frequency", "HistoryPeriods", "HorizonPeriods", "SeasonLength", "MinimumHistory", "ValidFrom", "ValidTo", "Approved"]
+      "columns": ["Profile", "PolicyKey", "ActivityKey", "ChannelKey", "IntradayProfileKey", "Method", "Frequency", "HistoryPeriods", "HorizonPeriods", "SeasonLength", "MinimumHistory", "ValidFrom", "ValidTo", "Approved"]
     },
     {
       "name": "tblCapacityPolicies",
       "columns": ["Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "IntervalMinutes", "TargetServiceLevel", "AnswerTimeSeconds", "MaxOccupancy", "ShrinkagePct", "Concurrency", "FTEPerHead", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblIntradayProfiles",
+      "columns": ["Profile", "ProfileKey", "DayType", "IntervalKey", "VolumeWeight", "AHTFactor", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblHiringPolicies",
+      "columns": ["Profile", "PolicyKey", "ActivityKey", "RecruitmentLeadDays", "TrainingLeadDays", "NestingLeadDays", "ExpectedYield", "FTEPerHead", "MaxTrainingSeats", "BufferPaidFTE", "ValidFrom", "ValidTo", "Approved"]
     },
     {
       "name": "tblDQChecks",
@@ -89,8 +100,24 @@
       "columns": ["ForecastRowKey", "Profile", "ForecastVersionKey", "ApprovalStatus", "Scenario", "Method", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHTSeconds", "CreatedAt", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
     },
     {
+      "name": "tblScenarioInputs",
+      "columns": ["ScenarioRowKey", "Profile", "ScenarioKey", "ScenarioName", "ActivityKey", "ChannelKey", "StartDate", "EndDate", "VolumeChangePct", "AHTChangePct", "ShrinkageChangePct", "ApprovalStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
       "name": "tblRequirementApprovals",
-      "columns": ["RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "PaidFTE", "RequiredHeads", "ShrinkagePct", "RequirementVersion", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+      "columns": ["RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey", "ScenarioKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "ChannelKey", "RequiredFTE", "PaidFTE", "RequirementVersion", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblSupplyAssumptions",
+      "columns": ["SupplyRowKey", "Profile", "ActivityKey", "PeriodStart", "OpeningPaidFTE", "TransfersInFTE", "TransfersOutFTE", "LeaversFTE", "OtherChangeFTE", "ApprovalStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblSupplyPlanVersions",
+      "columns": ["PlanRowKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "PeriodStart", "ActivityKey", "RequiredPaidFTE", "BufferPaidFTE", "BaselinePaidFTE", "PlannedHirePaidFTE", "ProjectedPaidFTE", "ResidualGapPaidFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey"]
+    },
+    {
+      "name": "tblHiringPlanVersions",
+      "columns": ["WaveKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "ActivityKey", "RecruitmentStart", "TrainingStart", "NestingStart", "ProficiencyDate", "PlannedHeads", "ExpectedPaidFTE", "TimingStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey"]
     },
     {
       "name": "tblBuildInfo",

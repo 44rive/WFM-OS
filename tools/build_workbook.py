@@ -131,7 +131,7 @@ BUSINESS_PAGES: tuple[Page, ...] = (
         ("HIRING NEED", "IN PIPELINE", "RAMPING FTE", "RESIDUAL GAP"),
         "Hiring funnel, training waves, and proficiency",
         "Workforce actions requiring commitment",
-        ("Wave", "Activity", "Hire date", "Training start", "Proficiency date", "Planned heads", "Expected yield", "Status"),
+        ("Wave", "Activity", "Recruitment start", "Training start", "Proficiency date", "Planned heads", "Expected yield", "Status"),
     ),
     Page(
         "24_SCHEDULE_DESIGN",
@@ -254,9 +254,13 @@ CONFIG_SHEETS = (
     ("71_METRIC_RULES", "Metric rules", "Store effective-dated policy parameters; DAX remains the metric engine.", "tblMetricRules",
      ("Profile", "MetricKey", "RuleName", "Value", "Unit", "ValidFrom", "ValidTo", "Approved")),
     ("72_FORECAST_POLICIES", "Forecast policies", "Govern forecast method, grain, history, horizon, and seasonal behavior by operating scope.", "tblForecastPolicies",
-     ("Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "Frequency", "HistoryPeriods", "HorizonPeriods", "SeasonLength", "MinimumHistory", "ValidFrom", "ValidTo", "Approved")),
+     ("Profile", "PolicyKey", "ActivityKey", "ChannelKey", "IntradayProfileKey", "Method", "Frequency", "HistoryPeriods", "HorizonPeriods", "SeasonLength", "MinimumHistory", "ValidFrom", "ValidTo", "Approved")),
     ("73_CAPACITY_POLICIES", "Capacity policies", "Govern queueing or workload assumptions before requirements can be approved.", "tblCapacityPolicies",
      ("Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "IntervalMinutes", "TargetServiceLevel", "AnswerTimeSeconds", "MaxOccupancy", "ShrinkagePct", "Concurrency", "FTEPerHead", "ValidFrom", "ValidTo", "Approved")),
+    ("74_INTRADAY_PROFILES", "Intraday profiles", "Distribute approved daily demand into reconciled 30-minute arrival and handle-time shapes.", "tblIntradayProfiles",
+     ("Profile", "ProfileKey", "DayType", "IntervalKey", "VolumeWeight", "AHTFactor", "ValidFrom", "ValidTo", "Approved")),
+    ("75_HIRING_POLICIES", "Hiring policies", "Govern recruitment, training, nesting, yield, seat, and paid-FTE planning assumptions.", "tblHiringPolicies",
+     ("Profile", "PolicyKey", "ActivityKey", "RecruitmentLeadDays", "TrainingLeadDays", "NestingLeadDays", "ExpectedYield", "FTEPerHead", "MaxTrainingSeats", "BufferPaidFTE", "ValidFrom", "ValidTo", "Approved")),
 )
 
 
@@ -268,13 +272,19 @@ INPUT_SHEETS = (
     ("82_ACTION_INPUT", "Action input", "Maintain the controlled operational action register.", "tblActionInput",
      ("ActionKey", "OpenedAt", "Module", "Severity", "Action", "Owner", "DueAt", "Status", "Outcome", "ClosedAt")),
     ("83_SCENARIO_INPUTS", "Scenario inputs", "Define versioned assumptions for planning and simulation.", "tblScenarioInputs",
-     ("ScenarioKey", "Profile", "ScenarioName", "ForecastPolicyKey", "CapacityPolicyKey", "ActivityKey", "ChannelKey", "StartDate", "EndDate", "VolumeChangePct", "AHTChangePct", "ShrinkagePct", "Notes", "Status")),
+     ("ScenarioRowKey", "Profile", "ScenarioKey", "ScenarioName", "ActivityKey", "ChannelKey", "StartDate", "EndDate", "VolumeChangePct", "AHTChangePct", "ShrinkageChangePct", "ApprovalStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
     ("84_CLOSE_DAY", "Close day", "Approve one business date for a complete, reconciled, append-only operational snapshot.", "tblCloseDayInput",
      ("CloseKey", "Profile", "BusinessDate", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt", "SnapshotStatus", "SnapshotAt", "SourceRunKey", "Notes")),
     ("85_FORECAST_APPROVAL", "Forecast approval", "Publish stable forecast versions only after analytical review and reconciliation.", "tblForecastVersions",
      ("ForecastRowKey", "Profile", "ForecastVersionKey", "ApprovalStatus", "Scenario", "Method", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHTSeconds", "CreatedAt", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
     ("86_REQUIREMENT_APPROVAL", "Requirement approval", "Publish capacity candidates into the operational staffing-requirement contract.", "tblRequirementApprovals",
-     ("RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "PaidFTE", "RequiredHeads", "ShrinkagePct", "RequirementVersion", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+     ("RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey", "ScenarioKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "ChannelKey", "RequiredFTE", "PaidFTE", "RequirementVersion", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("87_SUPPLY_ASSUMPTIONS", "Supply assumptions", "Record approved weekly workforce movements without changing analytical source code.", "tblSupplyAssumptions",
+     ("SupplyRowKey", "Profile", "ActivityKey", "PeriodStart", "OpeningPaidFTE", "TransfersInFTE", "TransfersOutFTE", "LeaversFTE", "OtherChangeFTE", "ApprovalStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("88_SUPPLY_APPROVAL", "Supply approval", "Publish one traceable supply-and-gap version after hiring-wave reconciliation.", "tblSupplyPlanVersions",
+     ("PlanRowKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "PeriodStart", "ActivityKey", "RequiredPaidFTE", "BufferPaidFTE", "BaselinePaidFTE", "PlannedHirePaidFTE", "ProjectedPaidFTE", "ResidualGapPaidFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey")),
+    ("89_HIRING_APPROVAL", "Hiring approval", "Approve bounded recruitment and training waves linked to one supply-plan version.", "tblHiringPlanVersions",
+     ("WaveKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "ActivityKey", "RecruitmentStart", "TrainingStart", "NestingStart", "ProficiencyDate", "PlannedHeads", "ExpectedPaidFTE", "TimingStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey")),
 )
 
 
@@ -662,8 +672,10 @@ def add_data_quality(wb: Workbook) -> None:
         ("DQ-004", "Canonical keys unique", "Model", "Dimension and fact keys must be unique at their declared grain.", "NOT RUN", 0, "Model owner", "Validate canonical build"),
         ("DQ-005", "Live and closed do not overlap", "Model", "No business date may exist in both refresh lanes.", "NOT RUN", 0, "Model owner", "Validate date boundary"),
         ("DQ-006", "Source totals reconcile", "Reconciliation", "Source totals must reconcile to canonical facts before approval.", "NOT RUN", 0, "WFM owner", "Run reconciliation"),
-        ("DQ-007", "Forecast approvals are unique", "Planning", "Only one valid approved forecast row may exist at each interval, activity, and channel grain.", "NOT RUN", 0, "Planning owner", "Resolve dq_PlanningApprovals"),
+        ("DQ-007", "Forecast approvals are unique", "Planning", "Only one valid approved forecast row may exist per scenario, interval, activity, and channel grain.", "NOT RUN", 0, "Planning owner", "Resolve dq_PlanningApprovals"),
         ("DQ-008", "Requirements are approved", "Planning", "Only evidence-backed, valid approved requirements may enter canonical staffing facts.", "NOT RUN", 0, "Capacity owner", "Resolve dq_PlanningApprovals"),
+        ("DQ-009", "Intraday profiles reconcile", "Planning", "Each active profile must contain 48 intervals and reconcile volume and AHT factors.", "NOT RUN", 0, "Forecast owner", "Validate the Python interval run"),
+        ("DQ-010", "Hiring reconciles to supply", "Planning", "Approved proficient hiring FTE must equal planned-hire FTE in the approved supply plan.", "NOT RUN", 0, "Workforce owner", "Resolve dq_PlanningApprovals"),
     )
     style_table(ws, 18, 2, ("CheckKey", "Check", "Domain", "Requirement", "Status", "IssueCount", "Owner", "NextAction"), checks, "tblDQChecks")
     add_list_validation(ws, "F19", "F500", "DQ_STATUS_LIST", "Choose the validation outcome.")
@@ -709,6 +721,7 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
             ("EnterpriseProfile", "BLANK_DEPLOYMENT", "text", "Active deployment profile; replace before enabling sources"),
             ("AsOfDate", "", "date", "Operational date used by the live refresh lane"),
             ("HistoryMonths", 13, "number", "Closed-history retention window"),
+            ("StandardWeeklyHours", 40, "number", "Paid hours represented by one full-time equivalent"),
         )
     elif name == "60_SOURCE_SYSTEMS":
         rows = SOURCE_ROLES
@@ -737,7 +750,7 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
     elif name == "72_FORECAST_POLICIES":
         rows = (
             (
-                "BLANK_DEPLOYMENT", "DAILY_SEASONAL_BASELINE", "", "",
+                "BLANK_DEPLOYMENT", "DAILY_SEASONAL_BASELINE", "", "", "STANDARD_30M",
                 "SEASONAL_NAIVE", "DAILY", 56, 28, 7, 28, "", "", False,
             ),
         )
@@ -750,6 +763,21 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
             (
                 "BLANK_DEPLOYMENT", "ASYNCHRONOUS_STANDARD", "", "EMAIL",
                 "WORKLOAD", 30, "", "", 0.85, 0.2, 1, 1, "", "", False,
+            ),
+        )
+    elif name == "74_INTRADAY_PROFILES":
+        rows = tuple(
+            (
+                "BLANK_DEPLOYMENT", "STANDARD_30M", "ALL", f"I{index:02d}",
+                1 / 48, 1, "", "", False,
+            )
+            for index in range(48)
+        )
+    elif name == "75_HIRING_POLICIES":
+        rows = (
+            (
+                "BLANK_DEPLOYMENT", "STANDARD_HIRING", "", 28, 14, 7,
+                0.8, 1, 20, 0, "", "", False,
             ),
         )
     style_table(ws, 13, 2, headers, rows, table_name, input_table=True, max_input_row=1000)
@@ -789,6 +817,12 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
     if "ImpactType" in headers:
         col = get_column_letter(2 + headers.index("ImpactType"))
         add_list_validation(ws, f"{col}14", f"{col}1000", "PLANNING_IMPACT_LIST", "Choose the governed impact domain.")
+    if "DayType" in headers:
+        col = get_column_letter(2 + headers.index("DayType"))
+        add_list_validation(ws, f"{col}14", f"{col}1000", "DAY_TYPE_LIST", "Choose ALL or an exact weekday profile.")
+    if "TimingStatus" in headers:
+        col = get_column_letter(2 + headers.index("TimingStatus"))
+        add_list_validation(ws, f"{col}14", f"{col}1000", "HIRING_TIMING_LIST", "Keep the analytical timing result unchanged.")
     for index, header in enumerate(headers, start=2):
         width = 14
         if header in {"Notes", "Reason", "DecisionReason", "EvidenceReference", "Outcome", "PathPattern", "TransformHint"}:
@@ -818,6 +852,8 @@ def add_lookup_sheet(wb: Workbook) -> None:
         "CAPACITY_METHOD_LIST": ("ERLANG_C", "WORKLOAD"),
         "FORECAST_FREQUENCY_LIST": ("DAILY",),
         "PLANNING_IMPACT_LIST": ("VOLUME_PCT", "AHT_PCT", "SHRINKAGE_PCT"),
+        "DAY_TYPE_LIST": ("ALL", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
+        "HIRING_TIMING_LIST": ("ON_TIME", "LATE_TO_PLAN"),
     }
     for col, (name, values) in enumerate(lists.items(), start=1):
         ws.cell(1, col, name).font = font(9, "ink-700", True)
@@ -854,6 +890,7 @@ def add_test_harness(wb: Workbook) -> None:
         ("T-005", "Python in Excel executable", "Engine", "Analytical cells execute in declared order", "NOT IMPLEMENTED", "Desktop Excel release step"),
         ("T-006", "VBA controller executable", "Engine", "Signed refresh and publication controls execute", "NOT IMPLEMENTED", "Macro-enabled release step"),
         ("T-007", "Planning Python deterministic", "Planning", "Forecast, adjustment, accuracy, and capacity fixtures match", "PASS", "91_Tests/test_planning_cycle.py"),
+        ("T-008", "Planning supply deterministic", "Planning", "Intraday reconciliation, scenarios, supply, and hiring waves match", "PASS", "91_Tests/test_planning_supply.py"),
     )
     style_table(ws, 6, 2, ("TestKey", "Test", "Domain", "Expected", "Status", "Evidence"), tests, "tblTestHarness")
     ws.sheet_state = "hidden"
@@ -930,7 +967,7 @@ def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str)
         ("Operational status", "NOT OPERATIONAL", "Do not use for workforce decisions yet"),
         ("Build date", build_date, "UTC date supplied to the generator"),
         ("Git commit", git_commit, "Source revision used for this build"),
-        ("Canonical contracts", "1.2.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
+        ("Canonical contracts", "1.3.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
         ("Design system", "1.0.0", "Obsidian & Pearl"),
         ("Power Query", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
         ("Power Pivot / DAX", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
@@ -1014,7 +1051,10 @@ def build(output: Path, build_date: str, git_commit: str, version: str) -> None:
 
     technical_sheet(wb, "91_PY_INIT", "Python initialization", "Reserved for shared imports, deterministic settings, and analytical execution order.", "NOT EMBEDDED IN THIS SHELL. Install genuine Python in Excel cells only in the desktop Excel release workflow.")
     technical_sheet(wb, "92_PY_FORECAST", "Python forecast lab", "Reserved for forecast backtesting and statistical candidate models fed by governed Excel or query outputs.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
-    technical_sheet(wb, "93_PY_SCENARIOS", "Python scenario lab", "Reserved for simulation and optimization experiments; approved results must be versioned before use.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93A_PY_INTERVAL", "Python interval lab", "Reserved for exact daily-to-interval reconciliation and governed scenario shaping.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93B_PY_CAPACITY", "Python capacity lab", "Reserved for interval capacity candidates sourced from approved forecasts.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93C_PY_SUPPLY", "Python supply lab", "Reserved for weekly paid-supply and residual-gap candidates.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93D_PY_HIRING", "Python hiring lab", "Reserved for recruitment, training, and proficiency-wave candidates.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     add_snapshot_store(wb)
     add_query_outputs(wb)
     technical_sheet(wb, "96_PIVOT_SUPPORT", "Pivot support", "Reserved for technical PivotTables that drive controlled business layouts and slicers.", "POWER PIVOT AND PIVOTTABLES ARE NOT EMBEDDED IN THIS SHELL.")
@@ -1069,7 +1109,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=default_root / "01_Application" / "WFM_OS.xlsx")
     parser.add_argument("--build-date", default=os.environ.get("SOURCE_DATE", datetime.now(timezone.utc).date().isoformat()))
     parser.add_argument("--git-commit", default=None)
-    parser.add_argument("--version", default="0.3.0-shell")
+    parser.add_argument("--version", default="0.4.0-shell")
     return parser.parse_args()
 
 

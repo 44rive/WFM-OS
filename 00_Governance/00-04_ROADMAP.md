@@ -26,12 +26,13 @@ gate before this milestone can be called operational.
 - Add interval capacity, shrinkage, hiring, training waves, and scenarios.
 - Add shift coverage, schedule proposals, and leave allowance planning.
 
-Source status: the governed forecast/capacity foundation is implemented in
-v0.3. It includes versioned approval tables, forecast accuracy, a deterministic
-daily seasonal-naive baseline, governed event/override precedence, and Erlang C
-or workload capacity candidates. Desktop Excel execution and interval-profile
-reconciliation remain release gates. Hiring, training waves, schedule
-generation, and leave allowance are not yet implemented.
+Source status: v0.4 implements forecast-to-paid-supply planning: versioned
+forecast and requirement approvals, effective-dated intraday reconciliation,
+complete scenarios, Erlang C or workload capacity, weekly PEAK requirements,
+recursive paid supply, bounded recruitment/training waves, and separate
+hiring/supply approvals. Desktop Excel engine execution remains a release gate.
+Shift generation, schedule optimization/publication, and leave allowance are
+not yet implemented.
 
 ## Milestone 4 — performance and publication
 

@@ -31,3 +31,7 @@ InstallOrder,ForeignTable,ForeignColumn,LookupTable,LookupColumn,Cardinality,Cro
 45,fact_ForecastAccuracy,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
 46,fact_ForecastAccuracy,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
 47,fact_ForecastAccuracy,ChannelKey,dim_Channel,ChannelKey,ManyToOne,Single,TRUE,TRUE
+50,fact_SupplyPlan,PeriodStart,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+51,fact_SupplyPlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+52,fact_HiringPlan,ProficiencyDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+53,fact_HiringPlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE

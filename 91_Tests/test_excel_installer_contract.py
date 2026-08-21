@@ -95,7 +95,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
                 actual.add((dax_path.name, name.strip()))
         self.assertEqual(declared, actual)
         self.assertEqual(len(rows), len({row["InstallOrder"] for row in rows}))
-        self.assertEqual(len(rows), 38)
+        self.assertEqual(len(rows), 48)
         self.assertTrue(all(row["HomeTable"] in model_tables for row in rows))
         self.assertTrue(all(row["FormatString"] for row in rows))
         self.assertEqual({row["Required"] for row in rows}, {"TRUE"})
@@ -113,7 +113,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
             for row in rows
         }
         self.assertEqual(len(rows), len(keys))
-        self.assertEqual(len(rows), 32)
+        self.assertEqual(len(rows), 36)
         self.assertTrue(all(row["ForeignTable"].startswith("fact_") for row in rows))
         self.assertTrue(all(row["LookupTable"].startswith("dim_") for row in rows))
         self.assertTrue(all(row["ForeignTable"] in model_tables for row in rows))
@@ -128,7 +128,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
         manifest_path = ROOT / self.contract["pythonManifest"]
         with manifest_path.open(newline="", encoding="utf-8") as source:
             rows = list(csv.DictReader(source))
-        self.assertEqual(len(rows), 5)
+        self.assertEqual(len(rows), 10)
         self.assertEqual(
             [int(row["InstallOrder"]) for row in rows],
             sorted(int(row["InstallOrder"]) for row in rows),

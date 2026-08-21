@@ -38,6 +38,11 @@ precedence, future-data leakage prevention, Python-in-Excel table adapters,
 Erlang C, asynchronous workload capacity, shrinkage, concurrency, and invalid
 planning parameters.
 
+`test_planning_supply.py` covers effective-dated 48-interval profiles, exact
+daily-volume reconciliation, complete approved scenarios, weekly PEAK capacity,
+recursive paid supply, effective hiring policy, lead-time and seat-bounded
+training waves, Excel adapter integration, and fail-closed planning boundaries.
+
 ## Reference definitions
 
 All fixture times are local, timezone-consistent ISO timestamps. Production

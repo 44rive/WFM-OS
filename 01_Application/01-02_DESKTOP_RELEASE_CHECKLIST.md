@@ -82,7 +82,7 @@ display folder, and description. Use the referenced `.dax` file for the formula.
 
 After installation:
 
-1. compare all 38 measure names to the manifest;
+1. compare all 48 measure names to the manifest;
 2. confirm there are no implicit measures on business pages;
 3. test blank and zero denominators for every ratio;
 4. validate measures labelled `· Interval` only at 30-minute interval grain;
@@ -92,12 +92,13 @@ After installation:
 
 ## 6 · Install governed Python cells
 
-Follow `01_Application/01-03_PYTHON_INSTALL.md` and install all five rows from
+Follow `01_Application/01-03_PYTHON_INSTALL.md` and install all ten rows from
 `90_Source_Code/03_Python/MANIFEST.csv` in exact order. Confirm each definition
 cell calculates before installing the next cell. Capture evidence that the
 forecast adapter excludes history after `AsOfDate`, the daily forecast is
 reconciled to an interval profile before approval, and the capacity adapter
-reads only approved interval forecasts.
+reads only approved interval forecasts. Also prove weekly supply recursion,
+hiring-wave seat splitting and timing, and hiring-to-supply reconciliation.
 
 Neither spilled candidate output is a canonical fact. Approval requires stable
 keys, source-run evidence, approver, timestamp, and successful
@@ -130,10 +131,10 @@ All evidence is required:
 | Refresh | Shared, live, and closed lanes complete without repair or privacy prompts |
 | Data quality | Unknowns remain visible; every blocking check is zero or resolved |
 | Reconciliation | Source counts and governed totals tie to the accepted fixture outputs |
-| Semantic model | 32 required relationships exist with one intended filter path |
-| Measures | 38 explicit measures match name, formula, format, and expected result |
-| Planning Python | Five ordered cells execute; candidate/approval boundaries and as-of behavior pass |
-| Planning reconciliation | Daily forecast equals reviewed interval totals; approved requirements trace to forecast and policy versions |
+| Semantic model | 36 required relationships exist with one intended filter path |
+| Measures | 48 explicit measures match name, formula, format, and expected result |
+| Planning Python | Ten ordered cells execute; candidate/approval boundaries and as-of behavior pass |
+| Planning reconciliation | Daily forecast equals interval totals; requirements trace to forecast/policy; hiring FTE reconciles to supply |
 | Close day | Approval controls pass; repeat close is idempotent and duplicate-free |
 | Repeatability | A second refresh returns identical finalized results |
 | Visual inspection | Pages pass the design-system checklist at 100% zoom |

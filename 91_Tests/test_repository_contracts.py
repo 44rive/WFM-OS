@@ -99,6 +99,23 @@ class RepositoryContractTest(unittest.TestCase):
         ]
         self.assertEqual(len(identity_keys), len(set(identity_keys)))
 
+        parameters = rows(ROOT / "02_Configuration" / "parameters.csv")
+        self.assertEqual(
+            len(parameters),
+            len({row["Parameter"] for row in parameters}),
+        )
+
+        profiles = rows(ROOT / "02_Configuration" / "intraday_profiles.csv")
+        profile_grains = [
+            (row["Profile"], row["ProfileKey"], row["DayType"], row["ValidFrom"], row["IntervalKey"])
+            for row in profiles
+        ]
+        self.assertEqual(len(profile_grains), len(set(profile_grains)))
+
+        hiring = rows(ROOT / "02_Configuration" / "hiring_policies.csv")
+        hiring_keys = [(row["Profile"], row["PolicyKey"]) for row in hiring]
+        self.assertEqual(len(hiring_keys), len(set(hiring_keys)))
+
     def test_dax_measure_names_are_unique(self) -> None:
         measure_pattern = re.compile(r"^([^/\n][^\n]*?)\s*:=\s*$", re.MULTILINE)
         names: list[str] = []
@@ -127,7 +144,10 @@ class RepositoryContractTest(unittest.TestCase):
             {(row["Role"], row["Entrypoint"]) for row in manifest if row["Role"] != "DEFINITIONS"},
             {
                 ("FORECAST_ENTRYPOINT", "run_forecast_excel"),
+                ("INTERVAL_ENTRYPOINT", "run_intraday_excel"),
                 ("CAPACITY_ENTRYPOINT", "run_capacity_excel"),
+                ("SUPPLY_ENTRYPOINT", "run_supply_excel"),
+                ("HIRING_OUTPUT", "hiring_candidates"),
             },
         )
 
@@ -150,6 +170,31 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("APPROVED", requirement_approval_source)
         self.assertIn("MappingStatus", requirement_approval_source)
         self.assertIn("BLOCKING", dq_source)
+
+        forecast_staging = (
+            PQ_ROOT / "02_Staging" / "stg_ForecastVersions.pq"
+        ).read_text(encoding="utf-8")
+        forecast_fact = (
+            PQ_ROOT / "04_Facts" / "fact_Forecast.pq"
+        ).read_text(encoding="utf-8")
+        all_requirements = (
+            PQ_ROOT / "02_Staging" / "stg_AllStaffingRequirements.pq"
+        ).read_text(encoding="utf-8")
+        supply_staging = (
+            PQ_ROOT / "02_Staging" / "stg_SupplyPlanVersions.pq"
+        ).read_text(encoding="utf-8")
+        hiring_fact = (
+            PQ_ROOT / "04_Facts" / "fact_HiringPlan.pq"
+        ).read_text(encoding="utf-8")
+        supply_fact = (
+            PQ_ROOT / "04_Facts" / "fact_SupplyPlan.pq"
+        ).read_text(encoding="utf-8")
+        self.assertIn('{"Scenario", "BusinessDate", "IntervalKey", "ActivityKey", "ChannelKey"}', forecast_staging)
+        self.assertIn('[Scenario] = "BASE"', forecast_fact)
+        self.assertIn('[ScenarioKey] = "BASE"', all_requirements)
+        self.assertIn("HIRING_RECONCILIATION_MISMATCH", supply_staging)
+        self.assertIn("stg_HiringPlanVersions", hiring_fact)
+        self.assertIn("stg_SupplyPlanVersions", supply_fact)
 
     def test_close_day_module_targets_governed_tables(self) -> None:
         source = (ROOT / "90_Source_Code" / "04_VBA" / "modCloseDay.bas").read_text(encoding="utf-8")

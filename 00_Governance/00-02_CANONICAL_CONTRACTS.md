@@ -1,6 +1,6 @@
 # Canonical data contracts
 
-Contract version: `1.2.0`.
+Contract version: `1.3.0`.
 
 These are logical contracts. Physical types and required/optional status will be
 implemented and tested in Power Query.
@@ -77,10 +77,54 @@ zero, while absolute error, MAE, and RMSE remain defined.
 ## Capacity candidate
 
 ```text
-RequirementKey, Profile, ForecastVersionKey, CapacityPolicyKey, IntervalStart,
-ActivityKey, ChannelKey, Method, ForecastVolume, ForecastAHTSeconds, RequiredFTE,
+RequirementKey, Profile, ForecastVersionKey, CapacityPolicyKey, ScenarioKey,
+IntervalStart, ActivityKey, ChannelKey, Method, ForecastVolume, ForecastAHTSeconds, RequiredFTE,
 PaidFTE, RequiredHeads, ShrinkagePct, RequirementVersion, AchievedOccupancy,
 AchievedServiceLevel
+```
+
+## Intraday profile
+
+```text
+Profile, ProfileKey, DayType, IntervalKey, VolumeWeight, AHTFactor,
+ValidFrom, ValidTo, Approved
+```
+
+The stable grain is `Profile + ProfileKey + DayType + ValidFrom + IntervalKey`.
+An active profile has exactly 48 unique 30-minute intervals, volume weights
+that sum to one, and volume-weighted AHT factors that sum to one.
+
+## Scenario input
+
+```text
+ScenarioRowKey, Profile, ScenarioKey, ScenarioName, ActivityKey, ChannelKey,
+StartDate, EndDate, VolumeChangePct, AHTChangePct, ShrinkageChangePct,
+ApprovalStatus, ApprovedAt, ApprovedBy, SourceRunKey
+```
+
+## Weekly supply assumption
+
+```text
+SupplyRowKey, Profile, ActivityKey, PeriodStart, OpeningPaidFTE,
+TransfersInFTE, TransfersOutFTE, LeaversFTE, OtherChangeFTE, ApprovalStatus,
+ApprovedAt, ApprovedBy, SourceRunKey
+```
+
+## Supply plan
+
+```text
+PlanRowKey, Profile, PlanVersionKey, ScenarioKey, PolicyKey, ApprovalStatus,
+PeriodStart, ActivityKey, RequiredPaidFTE, BufferPaidFTE, BaselinePaidFTE,
+PlannedHirePaidFTE, ProjectedPaidFTE, ResidualGapPaidFTE, ApprovedAt,
+ApprovedBy, SourceRunKey
+```
+
+## Hiring wave
+
+```text
+WaveKey, Profile, PlanVersionKey, ScenarioKey, PolicyKey, ApprovalStatus,
+ActivityKey, RecruitmentStart, TrainingStart, NestingStart, ProficiencyDate, PlannedHeads,
+ExpectedPaidFTE, TimingStatus, ApprovedAt, ApprovedBy, SourceRunKey
 ```
 
 ## Agent operational interval
@@ -119,9 +163,20 @@ NetProductiveFTE, Status, ClosedAt, ClosedBy, SourceRunKey
 - Overlapping schedule, login, or state events for one agent: expose and block
   operational approval.
 - Snapshot duplicate grain or unapproved close request: refuse the close.
-- Duplicate approved forecast grain: quarantine the rows and block publication.
-- Duplicate approved staffing-requirement grain: quarantine the rows and block
-  planning publication.
+- Duplicate approved forecast grain within one scenario: quarantine the rows
+  and block publication. Only `BASE` publishes to the operational forecast fact.
+- Duplicate approved staffing-requirement grain within one scenario: quarantine
+  the rows and block planning publication. Only `BASE` publishes to operational
+  staffing facts.
+- Intraday profile missing an interval, containing a duplicate interval, or
+  failing volume/AHT reconciliation: fail the candidate run.
+- Duplicate or overlapping approved scenario scope: fail the candidate run.
+- Weekly supply period not Monday, noncontiguous supply assumptions, or negative
+  projected base supply: block supply publication.
+- Missing or overlapping effective hiring policy: fail the hiring run.
+- Duplicate approved hiring wave or supply grain: block publication.
+- Supply planned-hire FTE not equal to cumulative approved proficient hiring
+  FTE for the same version/scenario/activity: block publication.
 - Invalid or unmatched planning adjustment: fail the analytical candidate run.
 - Python candidate without a stable version and approval evidence: exclude it
   from canonical facts.
