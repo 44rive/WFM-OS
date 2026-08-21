@@ -87,6 +87,13 @@ position or paste source from an uncommitted working copy.
 - Never publish a supply plan whose planned-hire FTE does not reconcile to
   approved hiring waves for the same plan version, scenario, activity, and
   proficiency period.
+- Never turn an anonymous schedule candidate into named-agent assignments.
+  Named rosters require a separate canonical contract, privacy review, and ADR.
+- Never calculate leave capacity from an unapproved Python coverage spill.
+  Leave candidates must consume independently expanded approved schedule
+  coverage from Power Query.
+- Never describe interval leave capacity as an employee leave request,
+  approval, entitlement, or balance.
 - Never rename a source product into the canonical model. Describe its role,
   such as `SchedulingTool` or `ContactPlatform`, and keep product-specific
   fields inside the adapter profile.
@@ -152,7 +159,7 @@ versioned in controlled Excel tables before downstream use.
 Core calculations belong in dependency-free modules and must accept ordinary
 records so Linux CI can prove their behavior. `excel_adapter.py` may shape
 DataFrames but must not redefine forecast, profile, scenario, capacity, supply,
-or hiring mathematics. Update the Python manifest and
+hiring, schedule, coverage, or leave mathematics. Update the Python manifest and
 `01_Application/01-03_PYTHON_INSTALL.md` whenever a Python cell, anchor, source
 file, or entrypoint changes.
 
@@ -168,6 +175,19 @@ For the planning-to-supply chain, preserve these invariants:
 5. hiring waves honor lead times, yield, FTE per head, and training-seat caps;
 6. hiring approval precedes supply approval, and Power Query must block any
    paid-FTE mismatch.
+7. shift-pattern segments use half-open 30-minute offsets, productive segments
+   are paid, weekday definitions take precedence over `ALL`, and cross-midnight
+   patterns are expanded from their pattern business date;
+8. the current schedule method is exactly `GREEDY_DEFICIT_V1`; preserve its
+   documented deterministic objective and never call it globally optimal;
+9. schedule candidates remain anonymous pattern counts until separately
+   approved, and Power Query independently recomputes their paid/productive
+   hours and interval coverage;
+10. leave allowance has unique schedule-version/scenario/interval/activity
+    grain, is bounded by coverage floor, reserve, percentage cap, and increment,
+    and approved allowance cannot exceed the recomputed maximum;
+11. named-agent assignment, employee leave requests, fairness, labor-law rules,
+    skill matching, swaps, and roster publication remain outside this contract.
 
 ### VBA change
 

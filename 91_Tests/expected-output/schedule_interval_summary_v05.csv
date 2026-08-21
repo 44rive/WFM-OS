@@ -1,0 +1,6 @@
+IntervalKey,RequiredFTE,ScheduledPaidFTE,ScheduledProductiveFTE,GapFTE,OverFTE,CoverageStatus
+I00,1,1,1,0,0,COVERED
+I04,1,2,2,0,1,COVERED
+I08,1,1,1,0,0,COVERED
+I12,0,0,0,0,0,COVERED
+I47,0,0,0,0,0,COVERED

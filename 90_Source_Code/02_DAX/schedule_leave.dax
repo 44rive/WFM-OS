@@ -1,0 +1,47 @@
+// Schedule measures aggregate approved anonymous pattern plans and their independently expanded coverage.
+// Leave measures report approved interval capacity, not named employee requests or outcomes.
+
+Approved Pattern Instances :=
+    SUM ( fact_SchedulePlan[PatternCount] )
+
+Approved Schedule Paid Hours :=
+    SUM ( fact_SchedulePlan[PaidHours] )
+
+Approved Schedule Productive Hours :=
+    SUM ( fact_SchedulePlan[ProductiveHours] )
+
+Scheduled Paid FTE Intervals :=
+    SUM ( fact_ScheduleCoverage[ScheduledPaidFTE] )
+
+Scheduled Productive FTE Intervals :=
+    SUM ( fact_ScheduleCoverage[ScheduledProductiveFTE] )
+
+Required FTE Intervals · Schedule :=
+    SUM ( fact_ScheduleCoverage[RequiredFTE] )
+
+Schedule Gap FTE Intervals :=
+    SUM ( fact_ScheduleCoverage[GapFTE] )
+
+Schedule Over FTE Intervals :=
+    SUM ( fact_ScheduleCoverage[OverFTE] )
+
+Covered Schedule Intervals % :=
+    DIVIDE (
+        CALCULATE (
+            COUNTROWS ( fact_ScheduleCoverage ),
+            fact_ScheduleCoverage[CoverageStatus] = "COVERED"
+        ),
+        COUNTROWS ( fact_ScheduleCoverage )
+    )
+
+Calculated Leave Allowance Hours :=
+    SUM ( fact_LeavePlan[CalculatedAllowanceHours] )
+
+Approved Leave Allowance Hours :=
+    SUM ( fact_LeavePlan[ApprovedAllowanceHours] )
+
+Leave Capacity Utilization % :=
+    DIVIDE (
+        [Approved Leave Allowance Hours],
+        [Calculated Leave Allowance Hours]
+    )

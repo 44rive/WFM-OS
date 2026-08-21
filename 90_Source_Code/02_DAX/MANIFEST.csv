@@ -47,3 +47,15 @@ InstallOrder,MeasureName,HomeTable,SourceFile,FormatString,DisplayFolder,Descrip
 67,Approved Hiring Heads,fact_HiringPlan,supply.dax,"#,##0",Planning\Hiring,Approved planned hiring heads across governed waves,TRUE
 68,Approved Hiring Expected Paid FTE,fact_HiringPlan,supply.dax,"#,##0.00",Planning\Hiring,Approved expected paid FTE after yield and FTE-per-head assumptions,TRUE
 69,Late Hiring Waves,fact_HiringPlan,supply.dax,"#,##0",Planning\Hiring,Approved hiring waves whose required recruitment start precedes the plan as-of date,TRUE
+70,Approved Pattern Instances,fact_SchedulePlan,schedule_leave.dax,"#,##0",Planning\Schedule,Approved anonymous shift-pattern instances across schedule-plan rows,TRUE
+71,Approved Schedule Paid Hours,fact_SchedulePlan,schedule_leave.dax,"#,##0.00",Planning\Schedule,Approved paid hours represented by anonymous shift patterns,TRUE
+72,Approved Schedule Productive Hours,fact_SchedulePlan,schedule_leave.dax,"#,##0.00",Planning\Schedule,Approved productive hours represented by anonymous shift patterns,TRUE
+73,Scheduled Paid FTE Intervals,fact_ScheduleCoverage,schedule_leave.dax,"#,##0.00",Planning\Coverage,Scheduled paid FTE summed across approved schedule intervals,TRUE
+74,Scheduled Productive FTE Intervals,fact_ScheduleCoverage,schedule_leave.dax,"#,##0.00",Planning\Coverage,Scheduled productive FTE summed across approved schedule intervals,TRUE
+75,Required FTE Intervals · Schedule,fact_ScheduleCoverage,schedule_leave.dax,"#,##0.00",Planning\Coverage,Required FTE summed at the approved schedule-coverage grain,TRUE
+76,Schedule Gap FTE Intervals,fact_ScheduleCoverage,schedule_leave.dax,"#,##0.00",Planning\Coverage,Uncovered required FTE summed across approved schedule intervals,TRUE
+77,Schedule Over FTE Intervals,fact_ScheduleCoverage,schedule_leave.dax,"#,##0.00",Planning\Coverage,Productive FTE above requirement summed across approved schedule intervals,TRUE
+78,Covered Schedule Intervals %,fact_ScheduleCoverage,schedule_leave.dax,0.0%,Planning\Coverage,Share of approved schedule intervals whose productive coverage meets requirement,TRUE
+79,Calculated Leave Allowance Hours,fact_LeavePlan,schedule_leave.dax,"#,##0.00",Planning\Leave,Maximum governed removable staff-hours across approved leave-plan intervals,TRUE
+80,Approved Leave Allowance Hours,fact_LeavePlan,schedule_leave.dax,"#,##0.00",Planning\Leave,Approved removable staff-hours across leave-plan intervals,TRUE
+81,Leave Capacity Utilization %,fact_LeavePlan,schedule_leave.dax,0.0%,Planning\Leave,Approved leave allowance divided by calculated leave capacity,TRUE

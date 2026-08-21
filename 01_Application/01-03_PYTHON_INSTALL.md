@@ -40,7 +40,9 @@ The source order is deliberate:
 3. `planning.py` — intraday allocation, complete scenarios, and weekly PEAK
    requirement aggregation.
 4. `supply.py` — recursive paid supply and deterministic hiring waves.
-5. `excel_adapter.py` — DataFrame-to-record boundary only.
+5. `scheduling.py` — anonymous pattern fitting and interval coverage.
+6. `leave.py` — interval leave-capacity ceilings.
+7. `excel_adapter.py` — DataFrame-to-record boundary only.
 
 ## Install forecast entrypoint
 
@@ -136,11 +138,64 @@ matching supply rows into `tblSupplyPlanVersions`. Hiring must be approved
 first: supply approval is blocked unless cumulative proficient approved hiring
 FTE equals `PlannedHirePaidFTE` at each plan/scenario/activity/period grain.
 
+## Install schedule and coverage entrypoints
+
+After approved requirements refresh, install this Python cell at
+`93E_PY_SCHEDULE!B15` and return the schedule candidate:
+
+```python
+parameters = xl("tblParameters[#All]", headers=True)
+schedule_candidates, schedule_coverage_candidates = run_schedule_excel(
+    xl("out_ApprovedRequirementPlan[#All]", headers=True),
+    xl("tblShiftPatterns[#All]", headers=True),
+    xl("tblShiftRules[#All]", headers=True),
+    profile=str(parameter_value_excel(parameters, "EnterpriseProfile")),
+)
+pd.DataFrame(schedule_candidates)
+```
+
+At `93F_PY_COVERAGE!B15`, expose the coverage half of that same deterministic
+run for review:
+
+```python
+pd.DataFrame(schedule_coverage_candidates)
+```
+
+The output is anonymous pattern count, not a named-agent roster. Review the
+pattern mix, uncovered and overcovered FTE intervals, cross-midnight effects,
+and the `GREEDY_DEFICIT_V1` method. The method is deterministic and transparent;
+it is not globally optimal. Paste reviewed pattern rows into
+`tblSchedulePlanVersions` on `89A_SCHEDULE_APPROVAL`, add one stable schedule
+version and complete approval evidence, then refresh. Power Query independently
+recomputes pattern hours and expands approved rows into
+`out_ApprovedScheduleCoverage`.
+
+## Install leave-capacity entrypoint
+
+Only after approved schedule coverage refreshes, install this Python cell at
+`93G_PY_LEAVE!B15`:
+
+```python
+parameters = xl("tblParameters[#All]", headers=True)
+leave_candidates = run_leave_excel(
+    xl("out_ApprovedScheduleCoverage[#All]", headers=True),
+    xl("tblLeavePolicies[#All]", headers=True),
+    profile=str(parameter_value_excel(parameters, "EnterpriseProfile")),
+)
+pd.DataFrame(leave_candidates)
+```
+
+Review the calculated interval ceilings and paste only the selected allowance
+rows into `tblLeavePlanVersions` on `89B_LEAVE_APPROVAL`, with a stable leave
+version, the exact approved schedule version, and complete evidence. An
+approved allowance may be between zero and the calculated ceiling. This module
+does not contain employee leave requests, balances, identities, or decisions.
+
 ## Release evidence
 
 Record screenshots or exported evidence showing:
 
-- all ten manifest cells calculate without errors;
+- all 15 manifest cells calculate without errors;
 - all candidate DataFrames have stable headers and nonnegative values;
 - future history beyond `p_AsOfDate` does not affect the forecast;
 - a draft forecast cannot become a canonical fact;
@@ -151,6 +206,12 @@ Record screenshots or exported evidence showing:
 - weekly supply is recursive and hiring waves honor lead times, yield, FTE per
   head, and training-seat limits;
 - supply publication fails when approved hiring-wave FTE does not reconcile;
+- schedule fitting is repeatable, keeps infeasible coverage visible, and
+  preserves half-open cross-midnight pattern semantics;
+- draft schedule rows cannot enter facts and approved pattern hours are
+  independently recomputed before schedule coverage is published;
+- leave candidates consume only approved schedule coverage and approved leave
+  allowance never exceeds the recomputed interval ceiling;
 - refresh and model validation still pass after the Python cells are saved.
 
 Set the Python release gate to passed only after this evidence exists. Never

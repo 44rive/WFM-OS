@@ -1,9 +1,9 @@
 """Thin Python-in-Excel adapters around the governed planning calculation core.
 
 This module intentionally contains table-shaping code only. It expects
-``forecast.py``, ``capacity.py``, ``planning.py``, and ``supply.py`` to have
-been evaluated in earlier Python cells, following the workbook Python manifest
-and row-major calculation order.
+``forecast.py``, ``capacity.py``, ``planning.py``, ``supply.py``,
+``scheduling.py``, and ``leave.py`` to have been evaluated in earlier Python
+cells, following the workbook Python manifest and row-major calculation order.
 """
 
 from __future__ import annotations
@@ -545,4 +545,63 @@ def run_supply_excel(
     return (
         _plain_rows([{**row, "Profile": profile} for row in supply_rows]),
         _plain_rows([{**row, "Profile": profile} for row in hiring_rows]),
+    )
+
+
+def run_schedule_excel(
+    requirement_frame: object,
+    pattern_frame: object,
+    rule_frame: object,
+    *,
+    profile: str,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """Return anonymous pattern-count and interval-coverage candidates."""
+    requirements: list[dict[str, object]] = []
+    for row in _records(requirement_frame):
+        row_profile = str(row.get("Profile") or "").strip()
+        if row_profile not in {"", profile}:
+            continue
+        if "ApprovalStatus" in row and str(row.get("ApprovalStatus") or "").strip().upper() != "APPROVED":
+            raise ValueError("Schedule inputs must be approved interval requirement rows")
+        requirements.append(row)
+
+    patterns = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _records(pattern_frame)
+        if str(row.get("Profile") or "").strip() == profile
+    ]
+    rules = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _records(rule_frame)
+        if str(row.get("Profile") or "").strip() == profile
+    ]
+    plan_rows, coverage_rows = fit_shift_patterns(requirements, patterns, rules)
+    return (
+        _plain_rows([{**row, "Profile": profile} for row in plan_rows]),
+        _plain_rows([{**row, "Profile": profile} for row in coverage_rows]),
+    )
+
+
+def run_leave_excel(
+    schedule_coverage_frame: object,
+    policy_frame: object,
+    *,
+    profile: str,
+) -> list[dict[str, object]]:
+    """Return interval leave-capacity candidates from approved schedule coverage."""
+    coverage: list[dict[str, object]] = []
+    for row in _records(schedule_coverage_frame):
+        row_profile = str(row.get("Profile") or "").strip()
+        if row_profile not in {"", profile}:
+            continue
+        if "ApprovalStatus" in row and str(row.get("ApprovalStatus") or "").strip().upper() != "APPROVED":
+            raise ValueError("Leave inputs must be approved schedule coverage rows")
+        coverage.append(row)
+    policies = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _records(policy_frame)
+        if str(row.get("Profile") or "").strip() == profile
+    ]
+    return _plain_rows(
+        [{**row, "Profile": profile} for row in calculate_leave_allowance(coverage, policies)]
     )

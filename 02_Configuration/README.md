@@ -14,9 +14,11 @@ productivity, and adherence behavior without embedding external state names in
 facts or measures.
 
 `forecast_policies.csv`, `intraday_profiles.csv`, `capacity_policies.csv`,
-`hiring_policies.csv`, and `calendar_events.csv` govern the planning slice.
+`hiring_policies.csv`, `shift_patterns.csv`, `shift_rules.csv`,
+`leave_policies.csv`, and `calendar_events.csv` govern the planning slice.
 Forecast, interval-shape, capacity, and hiring behavior is selected by
 effective-dated policy; calendar impacts are approved inputs. The repository
 rows are fabricated and disabled. Approved forecast, requirement, hiring, and
 supply versions are operational decisions and therefore are not stored in
-these configuration files.
+these configuration files. Schedule and leave approvals also remain controlled
+workbook decisions, not configuration rows.

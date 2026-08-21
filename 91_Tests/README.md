@@ -43,6 +43,11 @@ daily-volume reconciliation, complete approved scenarios, weekly PEAK capacity,
 recursive paid supply, effective hiring policy, lead-time and seat-bounded
 training waves, Excel adapter integration, and fail-closed planning boundaries.
 
+`test_schedule_leave.py` covers deterministic anonymous shift-pattern fitting,
+complete 48-interval coverage, visible infeasibility, rule and segment failure
+boundaries, cross-midnight expansion, profile-scoped Excel adapters, and
+interval leave capacity with duplicate-grain and unsafe-policy rejection.
+
 ## Reference definitions
 
 All fixture times are local, timezone-consistent ISO timestamps. Production

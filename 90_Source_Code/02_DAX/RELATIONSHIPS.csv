@@ -35,3 +35,11 @@ InstallOrder,ForeignTable,ForeignColumn,LookupTable,LookupColumn,Cardinality,Cro
 51,fact_SupplyPlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
 52,fact_HiringPlan,ProficiencyDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
 53,fact_HiringPlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+60,fact_SchedulePlan,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+61,fact_SchedulePlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+62,fact_ScheduleCoverage,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+63,fact_ScheduleCoverage,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
+64,fact_ScheduleCoverage,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+65,fact_LeavePlan,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+66,fact_LeavePlan,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
+67,fact_LeavePlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE

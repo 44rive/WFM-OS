@@ -1,0 +1,4 @@
+PatternVersionKey,PatternKey,PatternName,ActivityKey,DayType,SegmentKey,StartMinute,EndMinute,ScheduleTypeKey,PaidFlag,ProductiveFlag,ValidFrom,ValidTo,ApprovedFlag
+PV1,P_EARLY,Early pattern,ACT_SUPPORT,MONDAY,WORK,0,240,WORK,TRUE,TRUE,2026-01-01,,TRUE
+PV1,P_LATE,Late pattern,ACT_SUPPORT,MONDAY,WORK,120,360,WORK,TRUE,TRUE,2026-01-01,,TRUE
+PV_DRAFT,P_DRAFT,Draft pattern,ACT_SUPPORT,MONDAY,WORK,0,1440,WORK,TRUE,TRUE,2026-01-01,,FALSE

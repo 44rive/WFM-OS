@@ -249,8 +249,8 @@ CONFIG_SHEETS = (
      ("TargetKey", "MetricKey", "ActivityKey", "Channel", "TargetValue", "Unit", "ValidFrom", "ValidTo", "Approved", "Owner")),
     ("69_CALENDAR_EVENTS", "Calendar events", "Record dated events and quantified demand or capacity effects.", "tblCalendarEvents",
      ("Profile", "EventKey", "EventName", "EventType", "ActivityKey", "ChannelKey", "StartAt", "EndAt", "ImpactType", "ImpactValue", "Approved", "Owner", "Notes")),
-    ("70_SHIFT_RULES", "Shift rules", "Define contract, shift, break, and coverage constraints.", "tblShiftRules",
-     ("RuleKey", "RuleType", "ScopeKey", "Value", "Unit", "ValidFrom", "ValidTo", "Enabled", "Owner", "Notes")),
+    ("70_SHIFT_RULES", "Shift rules", "Govern deterministic pattern-count boundaries and preference cost by activity.", "tblShiftRules",
+     ("Profile", "RuleKey", "ActivityKey", "RuleType", "PatternKey", "Value", "Unit", "ValidFrom", "ValidTo", "Approved", "Owner", "Notes")),
     ("71_METRIC_RULES", "Metric rules", "Store effective-dated policy parameters; DAX remains the metric engine.", "tblMetricRules",
      ("Profile", "MetricKey", "RuleName", "Value", "Unit", "ValidFrom", "ValidTo", "Approved")),
     ("72_FORECAST_POLICIES", "Forecast policies", "Govern forecast method, grain, history, horizon, and seasonal behavior by operating scope.", "tblForecastPolicies",
@@ -261,6 +261,10 @@ CONFIG_SHEETS = (
      ("Profile", "ProfileKey", "DayType", "IntervalKey", "VolumeWeight", "AHTFactor", "ValidFrom", "ValidTo", "Approved")),
     ("75_HIRING_POLICIES", "Hiring policies", "Govern recruitment, training, nesting, yield, seat, and paid-FTE planning assumptions.", "tblHiringPolicies",
      ("Profile", "PolicyKey", "ActivityKey", "RecruitmentLeadDays", "TrainingLeadDays", "NestingLeadDays", "ExpectedYield", "FTEPerHead", "MaxTrainingSeats", "BufferPaidFTE", "ValidFrom", "ValidTo", "Approved")),
+    ("76_SHIFT_PATTERNS", "Shift patterns", "Define effective-dated anonymous paid and productive pattern segments at 30-minute boundaries.", "tblShiftPatterns",
+     ("Profile", "PatternVersionKey", "PatternKey", "PatternName", "ActivityKey", "DayType", "SegmentKey", "StartMinute", "EndMinute", "ScheduleTypeKey", "PaidFlag", "ProductiveFlag", "ValidFrom", "ValidTo", "Approved")),
+    ("77_LEAVE_POLICIES", "Leave policies", "Govern interval leave headroom without adjudicating named employee requests.", "tblLeavePolicies",
+     ("Profile", "PolicyKey", "ActivityKey", "CoverageFloorPct", "ReserveFTE", "MaxLeavePctOfScheduled", "AllowanceIncrementHours", "ValidFrom", "ValidTo", "Approved")),
 )
 
 
@@ -285,6 +289,10 @@ INPUT_SHEETS = (
      ("PlanRowKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "PeriodStart", "ActivityKey", "RequiredPaidFTE", "BufferPaidFTE", "BaselinePaidFTE", "PlannedHirePaidFTE", "ProjectedPaidFTE", "ResidualGapPaidFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey")),
     ("89_HIRING_APPROVAL", "Hiring approval", "Approve bounded recruitment and training waves linked to one supply-plan version.", "tblHiringPlanVersions",
      ("WaveKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "ActivityKey", "RecruitmentStart", "TrainingStart", "NestingStart", "ProficiencyDate", "PlannedHeads", "ExpectedPaidFTE", "TimingStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey")),
+    ("89A_SCHEDULE_APPROVAL", "Schedule approval", "Approve anonymous pattern-count candidates before interval coverage is published.", "tblSchedulePlanVersions",
+     ("SchedulePlanRowKey", "Profile", "SchedulePlanVersionKey", "ScenarioKey", "ApprovalStatus", "BusinessDate", "ActivityKey", "PatternVersionKey", "PatternKey", "PatternCount", "PaidHours", "ProductiveHours", "CoverageMethod", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("89B_LEAVE_APPROVAL", "Leave approval", "Approve interval leave capacity against one approved schedule plan; this is not an employee leave-request ledger.", "tblLeavePlanVersions",
+     ("LeavePlanRowKey", "Profile", "LeavePlanVersionKey", "SchedulePlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "ScheduledProductiveFTE", "CalculatedAllowanceHours", "ApprovedAllowanceHours", "RemainingCoverageFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
 )
 
 
@@ -780,6 +788,20 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
                 0.8, 1, 20, 0, "", "", False,
             ),
         )
+    elif name == "70_SHIFT_RULES":
+        rows = (
+            ("BLANK_DEPLOYMENT", "EXAMPLE_PATTERN_MIN", "", "MIN_PATTERN_COUNT", "", 0, "patterns/day", "", "", False, "", "Disabled template"),
+            ("BLANK_DEPLOYMENT", "EXAMPLE_PATTERN_MAX", "", "MAX_PATTERN_COUNT", "", 0, "patterns/day", "", "", False, "", "Disabled template"),
+            ("BLANK_DEPLOYMENT", "EXAMPLE_PATTERN_COST", "", "PREFERENCE_COST", "", 1, "weight", "", "", False, "", "Disabled template"),
+        )
+    elif name == "76_SHIFT_PATTERNS":
+        rows = (
+            ("BLANK_DEPLOYMENT", "EXAMPLE_V1", "EXAMPLE_PATTERN", "Example pattern", "", "ALL", "WORK", 0, 480, "WORK", True, True, "", "", False),
+        )
+    elif name == "77_LEAVE_POLICIES":
+        rows = (
+            ("BLANK_DEPLOYMENT", "EXAMPLE_LEAVE_CAPACITY", "", 1, 0, 0, 0.5, "", "", False),
+        )
     style_table(ws, 13, 2, headers, rows, table_name, input_table=True, max_input_row=1000)
     end_col = get_column_letter(1 + len(headers))
     if "Enabled" in headers:
@@ -820,6 +842,13 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
     if "DayType" in headers:
         col = get_column_letter(2 + headers.index("DayType"))
         add_list_validation(ws, f"{col}14", f"{col}1000", "DAY_TYPE_LIST", "Choose ALL or an exact weekday profile.")
+    if "RuleType" in headers:
+        col = get_column_letter(2 + headers.index("RuleType"))
+        add_list_validation(ws, f"{col}14", f"{col}1000", "SHIFT_RULE_TYPE_LIST", "Choose an implemented deterministic scheduling rule.")
+    for flag_header in ("PaidFlag", "ProductiveFlag"):
+        if flag_header in headers:
+            col = get_column_letter(2 + headers.index(flag_header))
+            add_list_validation(ws, f"{col}14", f"{col}1000", "BOOLEAN_LIST", f"Set {flag_header} explicitly.")
     if "TimingStatus" in headers:
         col = get_column_letter(2 + headers.index("TimingStatus"))
         add_list_validation(ws, f"{col}14", f"{col}1000", "HIRING_TIMING_LIST", "Keep the analytical timing result unchanged.")
@@ -854,6 +883,7 @@ def add_lookup_sheet(wb: Workbook) -> None:
         "PLANNING_IMPACT_LIST": ("VOLUME_PCT", "AHT_PCT", "SHRINKAGE_PCT"),
         "DAY_TYPE_LIST": ("ALL", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
         "HIRING_TIMING_LIST": ("ON_TIME", "LATE_TO_PLAN"),
+        "SHIFT_RULE_TYPE_LIST": ("MIN_PATTERN_COUNT", "MAX_PATTERN_COUNT", "PREFERENCE_COST"),
     }
     for col, (name, values) in enumerate(lists.items(), start=1):
         ws.cell(1, col, name).font = font(9, "ink-700", True)
@@ -891,6 +921,7 @@ def add_test_harness(wb: Workbook) -> None:
         ("T-006", "VBA controller executable", "Engine", "Signed refresh and publication controls execute", "NOT IMPLEMENTED", "Macro-enabled release step"),
         ("T-007", "Planning Python deterministic", "Planning", "Forecast, adjustment, accuracy, and capacity fixtures match", "PASS", "91_Tests/test_planning_cycle.py"),
         ("T-008", "Planning supply deterministic", "Planning", "Intraday reconciliation, scenarios, supply, and hiring waves match", "PASS", "91_Tests/test_planning_supply.py"),
+        ("T-009", "Schedule and leave deterministic", "Planning", "Pattern fit, interval coverage, and leave headroom fixtures match", "PASS", "91_Tests/test_schedule_leave.py"),
     )
     style_table(ws, 6, 2, ("TestKey", "Test", "Domain", "Expected", "Status", "Evidence"), tests, "tblTestHarness")
     ws.sheet_state = "hidden"
@@ -967,7 +998,7 @@ def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str)
         ("Operational status", "NOT OPERATIONAL", "Do not use for workforce decisions yet"),
         ("Build date", build_date, "UTC date supplied to the generator"),
         ("Git commit", git_commit, "Source revision used for this build"),
-        ("Canonical contracts", "1.3.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
+        ("Canonical contracts", "1.4.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
         ("Design system", "1.0.0", "Obsidian & Pearl"),
         ("Power Query", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
         ("Power Pivot / DAX", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
@@ -1055,6 +1086,9 @@ def build(output: Path, build_date: str, git_commit: str, version: str) -> None:
     technical_sheet(wb, "93B_PY_CAPACITY", "Python capacity lab", "Reserved for interval capacity candidates sourced from approved forecasts.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     technical_sheet(wb, "93C_PY_SUPPLY", "Python supply lab", "Reserved for weekly paid-supply and residual-gap candidates.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     technical_sheet(wb, "93D_PY_HIRING", "Python hiring lab", "Reserved for recruitment, training, and proficiency-wave candidates.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93E_PY_SCHEDULE", "Python schedule lab", "Reserved for deterministic anonymous shift-pattern count candidates from approved requirements.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93F_PY_COVERAGE", "Python coverage lab", "Reserved for the interval coverage output of the same scheduling candidate run.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93G_PY_LEAVE", "Python leave lab", "Reserved for interval leave-capacity candidates sourced from approved schedule coverage.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     add_snapshot_store(wb)
     add_query_outputs(wb)
     technical_sheet(wb, "96_PIVOT_SUPPORT", "Pivot support", "Reserved for technical PivotTables that drive controlled business layouts and slicers.", "POWER PIVOT AND PIVOTTABLES ARE NOT EMBEDDED IN THIS SHELL.")
@@ -1109,7 +1143,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=default_root / "01_Application" / "WFM_OS.xlsx")
     parser.add_argument("--build-date", default=os.environ.get("SOURCE_DATE", datetime.now(timezone.utc).date().isoformat()))
     parser.add_argument("--git-commit", default=None)
-    parser.add_argument("--version", default="0.4.0-shell")
+    parser.add_argument("--version", default="0.5.0-shell")
     return parser.parse_args()
 
 

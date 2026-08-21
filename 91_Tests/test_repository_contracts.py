@@ -116,6 +116,24 @@ class RepositoryContractTest(unittest.TestCase):
         hiring_keys = [(row["Profile"], row["PolicyKey"]) for row in hiring]
         self.assertEqual(len(hiring_keys), len(set(hiring_keys)))
 
+        shift_rules = rows(ROOT / "02_Configuration" / "shift_rules.csv")
+        shift_rule_keys = [(row["Profile"], row["RuleKey"]) for row in shift_rules]
+        self.assertEqual(len(shift_rule_keys), len(set(shift_rule_keys)))
+
+        shift_patterns = rows(ROOT / "02_Configuration" / "shift_patterns.csv")
+        shift_pattern_grains = [
+            (
+                row["Profile"], row["PatternVersionKey"], row["PatternKey"],
+                row["DayType"], row["SegmentKey"], row["ValidFrom"],
+            )
+            for row in shift_patterns
+        ]
+        self.assertEqual(len(shift_pattern_grains), len(set(shift_pattern_grains)))
+
+        leave = rows(ROOT / "02_Configuration" / "leave_policies.csv")
+        leave_keys = [(row["Profile"], row["PolicyKey"]) for row in leave]
+        self.assertEqual(len(leave_keys), len(set(leave_keys)))
+
     def test_dax_measure_names_are_unique(self) -> None:
         measure_pattern = re.compile(r"^([^/\n][^\n]*?)\s*:=\s*$", re.MULTILINE)
         names: list[str] = []
@@ -148,6 +166,9 @@ class RepositoryContractTest(unittest.TestCase):
                 ("CAPACITY_ENTRYPOINT", "run_capacity_excel"),
                 ("SUPPLY_ENTRYPOINT", "run_supply_excel"),
                 ("HIRING_OUTPUT", "hiring_candidates"),
+                ("SCHEDULE_ENTRYPOINT", "run_schedule_excel"),
+                ("SCHEDULE_COVERAGE_OUTPUT", "schedule_coverage_candidates"),
+                ("LEAVE_ENTRYPOINT", "run_leave_excel"),
             },
         )
 
@@ -195,6 +216,31 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("HIRING_RECONCILIATION_MISMATCH", supply_staging)
         self.assertIn("stg_HiringPlanVersions", hiring_fact)
         self.assertIn("stg_SupplyPlanVersions", supply_fact)
+
+        schedule_staging = (
+            PQ_ROOT / "02_Staging" / "stg_SchedulePlanVersions.pq"
+        ).read_text(encoding="utf-8")
+        schedule_fact = (
+            PQ_ROOT / "04_Facts" / "fact_SchedulePlan.pq"
+        ).read_text(encoding="utf-8")
+        coverage_fact = (
+            PQ_ROOT / "04_Facts" / "fact_ScheduleCoverage.pq"
+        ).read_text(encoding="utf-8")
+        leave_staging = (
+            PQ_ROOT / "02_Staging" / "stg_LeavePlanVersions.pq"
+        ).read_text(encoding="utf-8")
+        leave_fact = (
+            PQ_ROOT / "04_Facts" / "fact_LeavePlan.pq"
+        ).read_text(encoding="utf-8")
+        self.assertIn("PATTERN_COUNT_OUTSIDE_RULE", schedule_staging)
+        self.assertIn("OVERLAPPING_PATTERN_SEGMENTS", schedule_staging)
+        self.assertIn("stg_SchedulePlanVersions", schedule_fact)
+        self.assertIn("tblShiftPatterns", coverage_fact)
+        self.assertIn("out_ApprovedRequirementPlan", coverage_fact)
+        self.assertIn("fact_ScheduleCoverage", leave_staging)
+        self.assertIn("APPROVED_ALLOWANCE_OUT_OF_RANGE", leave_staging)
+        self.assertIn("stg_LeavePlanVersions", leave_fact)
+        self.assertIn("APPROVED_SCHEDULE_UNDERCOVERED", dq_source)
 
     def test_close_day_module_targets_governed_tables(self) -> None:
         source = (ROOT / "90_Source_Code" / "04_VBA" / "modCloseDay.bas").read_text(encoding="utf-8")

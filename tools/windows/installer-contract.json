@@ -1,7 +1,7 @@
 {
-  "contractVersion": "1.2.0",
-  "installerVersion": "0.3.0",
-  "workbookRelease": "0.4.0-shell",
+  "contractVersion": "1.3.0",
+  "installerVersion": "0.4.0",
+  "workbookRelease": "0.5.0-shell",
   "inputArtifact": "01_Application/WFM_OS.xlsx",
   "buildProvenance": "01_Application/BUILD_PROVENANCE.json",
   "queryManifest": "90_Source_Code/01_Power_Query/MANIFEST.csv",
@@ -20,10 +20,13 @@
     "90_Source_Code/02_DAX/operational_control.dax",
     "90_Source_Code/02_DAX/planning.dax",
     "90_Source_Code/02_DAX/supply.dax",
+    "90_Source_Code/02_DAX/schedule_leave.dax",
     "90_Source_Code/03_Python/forecast.py",
     "90_Source_Code/03_Python/capacity.py",
     "90_Source_Code/03_Python/planning.py",
     "90_Source_Code/03_Python/supply.py",
+    "90_Source_Code/03_Python/scheduling.py",
+    "90_Source_Code/03_Python/leave.py",
     "90_Source_Code/03_Python/excel_adapter.py"
   ],
   "requiredWorkbookTables": [
@@ -76,6 +79,18 @@
       "columns": ["Profile", "PolicyKey", "ActivityKey", "RecruitmentLeadDays", "TrainingLeadDays", "NestingLeadDays", "ExpectedYield", "FTEPerHead", "MaxTrainingSeats", "BufferPaidFTE", "ValidFrom", "ValidTo", "Approved"]
     },
     {
+      "name": "tblShiftRules",
+      "columns": ["Profile", "RuleKey", "ActivityKey", "RuleType", "PatternKey", "Value", "Unit", "ValidFrom", "ValidTo", "Approved", "Owner", "Notes"]
+    },
+    {
+      "name": "tblShiftPatterns",
+      "columns": ["Profile", "PatternVersionKey", "PatternKey", "PatternName", "ActivityKey", "DayType", "SegmentKey", "StartMinute", "EndMinute", "ScheduleTypeKey", "PaidFlag", "ProductiveFlag", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblLeavePolicies",
+      "columns": ["Profile", "PolicyKey", "ActivityKey", "CoverageFloorPct", "ReserveFTE", "MaxLeavePctOfScheduled", "AllowanceIncrementHours", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
       "name": "tblDQChecks",
       "columns": ["CheckKey", "Check", "Domain", "Requirement", "Status", "IssueCount", "Owner", "NextAction"]
     },
@@ -118,6 +133,14 @@
     {
       "name": "tblHiringPlanVersions",
       "columns": ["WaveKey", "Profile", "PlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "ActivityKey", "RecruitmentStart", "TrainingStart", "NestingStart", "ProficiencyDate", "PlannedHeads", "ExpectedPaidFTE", "TimingStatus", "ApprovedAt", "ApprovedBy", "SourceRunKey"]
+    },
+    {
+      "name": "tblSchedulePlanVersions",
+      "columns": ["SchedulePlanRowKey", "Profile", "SchedulePlanVersionKey", "ScenarioKey", "ApprovalStatus", "BusinessDate", "ActivityKey", "PatternVersionKey", "PatternKey", "PatternCount", "PaidHours", "ProductiveHours", "CoverageMethod", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblLeavePlanVersions",
+      "columns": ["LeavePlanRowKey", "Profile", "LeavePlanVersionKey", "SchedulePlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "ScheduledProductiveFTE", "CalculatedAllowanceHours", "ApprovedAllowanceHours", "RemainingCoverageFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
     },
     {
       "name": "tblBuildInfo",

@@ -71,7 +71,71 @@ let
             {"ValidationStatus", "Issue"}, {"ProficiencyDate", "IntervalStart"}
         }
     ),
-    Combined = Table.Combine({ForecastRenamed, RequirementRenamed, SupplyRenamed, HiringRenamed}),
+    ScheduleIssues = Table.SelectRows(
+        stg_SchedulePlanVersions,
+        each [ApprovedFlag] and [ValidationStatus] <> "VALID"
+    ),
+    ScheduleEntity = Table.AddColumn(ScheduleIssues, "Entity", each "SchedulePlan", type text),
+    ScheduleChannel = Table.AddColumn(ScheduleEntity, "ChannelKey", each null, type nullable text),
+    ScheduleRows = Table.SelectColumns(
+        ScheduleChannel,
+        {
+            "Entity", "SchedulePlanRowKey", "SchedulePlanVersionKey", "ApprovalStatus",
+            "ValidationStatus", "BusinessDate", "ActivityKey", "ChannelKey"
+        }
+    ),
+    ScheduleRenamed = Table.RenameColumns(
+        ScheduleRows,
+        {
+            {"SchedulePlanRowKey", "RowKey"}, {"SchedulePlanVersionKey", "VersionKey"},
+            {"ValidationStatus", "Issue"}, {"BusinessDate", "IntervalStart"}
+        }
+    ),
+    LeaveIssues = Table.SelectRows(
+        stg_LeavePlanVersions,
+        each [ApprovedFlag] and [ValidationStatus] <> "VALID"
+    ),
+    LeaveEntity = Table.AddColumn(LeaveIssues, "Entity", each "LeavePlan", type text),
+    LeaveChannel = Table.AddColumn(LeaveEntity, "ChannelKey", each null, type nullable text),
+    LeaveRows = Table.SelectColumns(
+        LeaveChannel,
+        {
+            "Entity", "LeavePlanRowKey", "LeavePlanVersionKey", "ApprovalStatus",
+            "ValidationStatus", "IntervalStart", "ActivityKey", "ChannelKey"
+        }
+    ),
+    LeaveRenamed = Table.RenameColumns(
+        LeaveRows,
+        {
+            {"LeavePlanRowKey", "RowKey"}, {"LeavePlanVersionKey", "VersionKey"},
+            {"ValidationStatus", "Issue"}
+        }
+    ),
+    Undercovered = Table.SelectRows(fact_ScheduleCoverage, each [CoverageStatus] = "UNCOVERED"),
+    UndercoveredWithEntity = Table.AddColumn(Undercovered, "Entity", each "ScheduleCoverage", type text),
+    UndercoveredWithRowKey = Table.AddColumn(
+        UndercoveredWithEntity,
+        "RowKey",
+        each Text.Combine(
+            {[SchedulePlanVersionKey], [ScenarioKey], DateTime.ToText([IntervalStart], "yyyyMMddHHmm"), [ActivityKey]},
+            "|"
+        ),
+        type text
+    ),
+    UndercoveredWithApproval = Table.AddColumn(UndercoveredWithRowKey, "ApprovalStatus", each "APPROVED", type text),
+    UndercoveredWithIssue = Table.AddColumn(UndercoveredWithApproval, "Issue", each "APPROVED_SCHEDULE_UNDERCOVERED", type text),
+    UndercoveredWithChannel = Table.AddColumn(UndercoveredWithIssue, "ChannelKey", each null, type nullable text),
+    UndercoveredRows = Table.SelectColumns(
+        UndercoveredWithChannel,
+        {"Entity", "RowKey", "SchedulePlanVersionKey", "ApprovalStatus", "Issue", "IntervalStart", "ActivityKey", "ChannelKey"}
+    ),
+    UndercoveredRenamed = Table.RenameColumns(UndercoveredRows, {{"SchedulePlanVersionKey", "VersionKey"}}),
+    Combined = Table.Combine(
+        {
+            ForecastRenamed, RequirementRenamed, SupplyRenamed, HiringRenamed,
+            ScheduleRenamed, LeaveRenamed, UndercoveredRenamed
+        }
+    ),
     Severity = Table.AddColumn(Combined, "Severity", each "BLOCKING", type text),
     Result = Table.ReorderColumns(
         Severity,

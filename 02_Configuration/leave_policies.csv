@@ -1,0 +1,2 @@
+Profile,PolicyKey,ActivityKey,CoverageFloorPct,ReserveFTE,MaxLeavePctOfScheduled,AllowanceIncrementHours,ValidFrom,ValidTo,Approved
+example-enterprise,EXAMPLE_LEAVE_CAPACITY,EXAMPLE_ACTIVITY,1,0,0,0.5,2026-01-01,,FALSE

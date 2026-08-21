@@ -1,6 +1,6 @@
 # Canonical data contracts
 
-Contract version: `1.3.0`.
+Contract version: `1.4.0`.
 
 These are logical contracts. Physical types and required/optional status will be
 implemented and tested in Power Query.
@@ -127,6 +127,63 @@ ActivityKey, RecruitmentStart, TrainingStart, NestingStart, ProficiencyDate, Pla
 ExpectedPaidFTE, TimingStatus, ApprovedAt, ApprovedBy, SourceRunKey
 ```
 
+## Shift rule
+
+```text
+Profile, RuleKey, ActivityKey, RuleType, PatternKey, Value, Unit,
+ValidFrom, ValidTo, Approved, Owner, Notes
+```
+
+Implemented rule types are `MIN_PATTERN_COUNT`, `MAX_PATTERN_COUNT`, and
+`PREFERENCE_COST`. Each approved pattern occurrence date requires exactly one
+effective rule of each type.
+
+## Shift-pattern segment
+
+```text
+Profile, PatternVersionKey, PatternKey, PatternName, ActivityKey, DayType,
+SegmentKey, StartMinute, EndMinute, ScheduleTypeKey, PaidFlag,
+ProductiveFlag, ValidFrom, ValidTo, Approved
+```
+
+Offsets are minutes from the pattern business date, use half-open bounds, align
+to 30-minute intervals, and may range from 0 through 2880. Segments inside one
+selected pattern must not overlap.
+
+## Schedule plan
+
+```text
+SchedulePlanRowKey, Profile, SchedulePlanVersionKey, ScenarioKey,
+ApprovalStatus, BusinessDate, ActivityKey, PatternVersionKey, PatternKey,
+PatternCount, PaidHours, ProductiveHours, CoverageMethod, ApprovedAt,
+ApprovedBy, SourceRunKey, Notes
+```
+
+## Schedule coverage
+
+```text
+SchedulePlanVersionKey, ScenarioKey, BusinessDate, IntervalStart, IntervalKey,
+ActivityKey, RequiredFTE, ScheduledPaidFTE, ScheduledProductiveFTE, GapFTE,
+OverFTE, CoverageStatus
+```
+
+## Leave policy
+
+```text
+Profile, PolicyKey, ActivityKey, CoverageFloorPct, ReserveFTE,
+MaxLeavePctOfScheduled, AllowanceIncrementHours, ValidFrom, ValidTo, Approved
+```
+
+## Leave plan
+
+```text
+LeavePlanRowKey, Profile, LeavePlanVersionKey, SchedulePlanVersionKey,
+ScenarioKey, PolicyKey, ApprovalStatus, IntervalStart, ActivityKey,
+RequiredFTE, ScheduledProductiveFTE, CalculatedAllowanceHours,
+ApprovedAllowanceHours, RemainingCoverageFTE, ApprovedAt, ApprovedBy,
+SourceRunKey, Notes
+```
+
 ## Agent operational interval
 
 ```text
@@ -177,6 +234,15 @@ NetProductiveFTE, Status, ClosedAt, ClosedBy, SourceRunKey
 - Duplicate approved hiring wave or supply grain: block publication.
 - Supply planned-hire FTE not equal to cumulative approved proficient hiring
   FTE for the same version/scenario/activity: block publication.
+- Missing, overlapping, misaligned, or inconsistent shift-pattern segments:
+  fail the candidate run and block schedule publication.
+- Missing or overlapping effective shift count rule: fail the candidate run.
+- Noninteger or out-of-bounds approved pattern count, altered derived hours,
+  mixed approved schedule versions, or uncovered approved requirement: block
+  schedule publication.
+- Leave policy outside its numeric bounds, duplicate approved leave interval,
+  allowance above the independently calculated maximum, invalid increment, or
+  negative remaining coverage: block leave publication.
 - Invalid or unmatched planning adjustment: fail the analytical candidate run.
 - Python candidate without a stable version and approval evidence: exclude it
   from canonical facts.

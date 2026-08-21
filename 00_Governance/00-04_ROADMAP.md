@@ -26,13 +26,16 @@ gate before this milestone can be called operational.
 - Add interval capacity, shrinkage, hiring, training waves, and scenarios.
 - Add shift coverage, schedule proposals, and leave allowance planning.
 
-Source status: v0.4 implements forecast-to-paid-supply planning: versioned
+Source status: v0.5 implements forecast-to-paid-supply planning: versioned
 forecast and requirement approvals, effective-dated intraday reconciliation,
 complete scenarios, Erlang C or workload capacity, weekly PEAK requirements,
 recursive paid supply, bounded recruitment/training waves, and separate
-hiring/supply approvals. Desktop Excel engine execution remains a release gate.
-Shift generation, schedule optimization/publication, and leave allowance are
-not yet implemented.
+hiring/supply approvals. It also implements anonymous effective-dated shift
+patterns, deterministic pattern-count candidates, governed schedule approval,
+independent interval coverage expansion, and interval leave-capacity approval.
+Desktop Excel engine execution remains a release gate. Named-agent roster
+assignment, individual leave-request adjudication, skills/fairness/labor-law
+constraints, swaps, and roster publication are not yet implemented.
 
 ## Milestone 4 — performance and publication
 

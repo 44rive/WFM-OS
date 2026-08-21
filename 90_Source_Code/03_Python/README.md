@@ -9,9 +9,10 @@ consume named queries or tables through `xl()` and return candidate results.
 Operational decisions use approved/versioned Excel tables, not an unapproved
 recalculating Python result.
 
-`forecast.py`, `capacity.py`, `planning.py`, and `supply.py` are dependency-free
-calculation contracts. `excel_adapter.py` is a thin table adapter for Python in
-Excel and must not duplicate their formulas. Install definitions and
+`forecast.py`, `capacity.py`, `planning.py`, `supply.py`, `scheduling.py`, and
+`leave.py` are dependency-free calculation contracts. `excel_adapter.py` is a
+thin table adapter for Python in Excel and must not duplicate their formulas.
+Install definitions and
 entrypoints in `MANIFEST.csv` order because Python cells calculate in workbook
 row-major order.
 
@@ -25,3 +26,9 @@ intraday allocation, approved scenario, capacity candidate, approved
 requirement, paid-supply projection, hiring candidate, then separate hiring and
 supply approvals. A hiring plan must be approved before the corresponding
 supply plan so Power Query can reconcile cumulative expected paid FTE.
+
+The scheduling extension remains anonymous: approved requirements plus
+effective shift patterns and rules produce pattern-count candidates. Approved
+pattern counts are expanded independently by Power Query into schedule
+coverage. Only that approved coverage can produce leave-capacity candidates.
+Neither engine assigns named agents or adjudicates employee leave requests.

@@ -40,15 +40,22 @@ REQUIRED_SHEETS = {
     "73_CAPACITY_POLICIES",
     "74_INTRADAY_PROFILES",
     "75_HIRING_POLICIES",
+    "76_SHIFT_PATTERNS",
+    "77_LEAVE_POLICIES",
     "85_FORECAST_APPROVAL",
     "86_REQUIREMENT_APPROVAL",
     "87_SUPPLY_ASSUMPTIONS",
     "88_SUPPLY_APPROVAL",
     "89_HIRING_APPROVAL",
+    "89A_SCHEDULE_APPROVAL",
+    "89B_LEAVE_APPROVAL",
     "93A_PY_INTERVAL",
     "93B_PY_CAPACITY",
     "93C_PY_SUPPLY",
     "93D_PY_HIRING",
+    "93E_PY_SCHEDULE",
+    "93F_PY_COVERAGE",
+    "93G_PY_LEAVE",
     "99_BUILD_INFO",
 }
 
@@ -68,6 +75,9 @@ CONFIG_TABLES = {
     "tblCapacityPolicies": ROOT / "02_Configuration" / "capacity_policies.csv",
     "tblIntradayProfiles": ROOT / "02_Configuration" / "intraday_profiles.csv",
     "tblHiringPolicies": ROOT / "02_Configuration" / "hiring_policies.csv",
+    "tblShiftRules": ROOT / "02_Configuration" / "shift_rules.csv",
+    "tblShiftPatterns": ROOT / "02_Configuration" / "shift_patterns.csv",
+    "tblLeavePolicies": ROOT / "02_Configuration" / "leave_policies.csv",
 }
 
 FORBIDDEN_CELL_TERMS = (
@@ -87,6 +97,8 @@ REQUIRED_CONTROL_TABLES = {
     "tblSupplyAssumptions",
     "tblSupplyPlanVersions",
     "tblHiringPlanVersions",
+    "tblSchedulePlanVersions",
+    "tblLeavePlanVersions",
 }
 
 
@@ -167,7 +179,7 @@ def validate_workbook(path: Path) -> dict[str, object]:
 
         visible = [sheet for sheet in workbook.worksheets if sheet.sheet_state == "visible"]
         hidden = [sheet for sheet in workbook.worksheets if sheet.sheet_state != "visible"]
-        if len(workbook.sheetnames) != 59 or len(visible) != 47 or len(hidden) != 12:
+        if len(workbook.sheetnames) != 66 or len(visible) != 51 or len(hidden) != 15:
             fail(
                 "Unexpected workbook surface: "
                 f"{len(workbook.sheetnames)} sheets, {len(visible)} visible, {len(hidden)} hidden"

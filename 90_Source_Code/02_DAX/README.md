@@ -20,6 +20,10 @@ staffing-requirement results through the existing operational measures.
 hiring-wave measures. Hiring expected FTE is a governed yield-adjusted planning
 quantity; it is not actual payroll or attendance.
 
+`schedule_leave.dax` owns approved anonymous schedule-plan, interval-coverage,
+and leave-capacity measures. Leave capacity is a removable-hours ceiling, not
+an employee leave request, decision, or balance.
+
 Use `MANIFEST.csv` as the installation contract for measure order, home table,
 format, display folder, and business description. Use `RELATIONSHIPS.csv` as
 the canonical relationship contract; fact columns are foreign keys and

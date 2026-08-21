@@ -1,0 +1,3 @@
+ScheduleCandidateKey,ScenarioKey,BusinessDate,ActivityKey,PatternVersionKey,PatternKey,PatternCount,PaidHours,ProductiveHours,CoverageMethod,CoverageStatus,UncoveredFTEIntervals,OvercoveredFTEIntervals
+BASE|ACT_SUPPORT|2026-02-02|PV1|P_EARLY,BASE,2026-02-02,ACT_SUPPORT,PV1,P_EARLY,1,4,4,GREEDY_DEFICIT_V1,COMPLETE,0,4
+BASE|ACT_SUPPORT|2026-02-02|PV1|P_LATE,BASE,2026-02-02,ACT_SUPPORT,PV1,P_LATE,1,4,4,GREEDY_DEFICIT_V1,COMPLETE,0,4

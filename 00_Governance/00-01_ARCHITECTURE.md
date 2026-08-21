@@ -69,6 +69,13 @@ profiles before capacity. Approved weekly requirements are compared with a
 recursive paid-supply projection. Hiring waves and the resulting supply plan
 have separate approvals and a blocking paid-FTE reconciliation.
 
+Pattern scheduling and leave capacity follow ADR 0005. Python fits anonymous
+pattern counts to approved interval requirements. Schedule approval remains
+separate from named-agent schedules; Power Query recomputes approved interval
+coverage from effective pattern segments. Leave planning then allocates an
+interval allowance against that approved coverage without creating employee
+leave decisions.
+
 ## Workbook sheet groups
 
 ```text

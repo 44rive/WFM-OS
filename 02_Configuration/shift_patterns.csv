@@ -1,0 +1,2 @@
+Profile,PatternVersionKey,PatternKey,PatternName,ActivityKey,DayType,SegmentKey,StartMinute,EndMinute,ScheduleTypeKey,PaidFlag,ProductiveFlag,ValidFrom,ValidTo,Approved
+example-enterprise,EXAMPLE_V1,EXAMPLE_PATTERN,Example pattern,EXAMPLE_ACTIVITY,ALL,WORK,0,480,WORK,TRUE,TRUE,2026-01-01,,FALSE

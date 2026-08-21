@@ -49,12 +49,18 @@ closed interval demand
   -> recruitment and training-wave candidates
   -> separate hiring and reconciled supply approvals
   -> approved supply and hiring facts
+  -> anonymous shift-pattern candidates
+  -> schedule approval and independent interval coverage
+  -> interval leave-capacity candidates and approval
 ```
 
 Daily forecast output is deliberately not treated as interval demand. A
 complete, approved, effective-dated intraday profile must reconcile daily totals
 into 48 interval rows before capacity is run. Supply publication is blocked
-unless planned-hire FTE reconciles to approved hiring waves.
+unless planned-hire FTE reconciles to approved hiring waves. Scheduling uses the
+documented deterministic `GREEDY_DEFICIT_V1` heuristic; it does not assign named
+agents or claim global optimality. Leave planning publishes interval capacity,
+not employee requests or decisions.
 
 ## Install Power Query
 
@@ -64,7 +70,7 @@ destinations. The installer adds reviewed M definitions but deliberately leaves
 loads and refresh validation as manual release gates.
 
 1. Open the generated workbook in Microsoft 365 desktop Excel.
-2. Confirm that `59_PARAMETERS` through `73_CAPACITY_POLICIES` contain the expected
+2. Confirm that `59_PARAMETERS` through `77_LEAVE_POLICIES` contain the expected
    named tables.
 3. Set an absolute `RootPath`, deployment profile, and `AsOfDate`.
 4. Install the queries in
@@ -121,6 +127,14 @@ fact_SupplyPlan[PeriodStart]         -> dim_Date[Date]
 fact_SupplyPlan[ActivityKey]         -> dim_Activity[ActivityKey]
 fact_HiringPlan[ProficiencyDate]     -> dim_Date[Date]
 fact_HiringPlan[ActivityKey]         -> dim_Activity[ActivityKey]
+fact_SchedulePlan[BusinessDate]      -> dim_Date[Date]
+fact_SchedulePlan[ActivityKey]       -> dim_Activity[ActivityKey]
+fact_ScheduleCoverage[BusinessDate]  -> dim_Date[Date]
+fact_ScheduleCoverage[IntervalKey]   -> dim_Interval[IntervalKey]
+fact_ScheduleCoverage[ActivityKey]   -> dim_Activity[ActivityKey]
+fact_LeavePlan[BusinessDate]         -> dim_Date[Date]
+fact_LeavePlan[IntervalKey]          -> dim_Interval[IntervalKey]
+fact_LeavePlan[ActivityKey]          -> dim_Activity[ActivityKey]
 ```
 
 Mark `dim_Date` as the Date Table using its `Date` column. Do not create a
@@ -131,7 +145,8 @@ relationship between the live and closed facts.
 Install `90_Source_Code/02_DAX/service.dax` and
 `90_Source_Code/02_DAX/operational_control.dax` and
 `90_Source_Code/02_DAX/planning.dax` and
-`90_Source_Code/02_DAX/supply.dax` as explicit measures. Business
+`90_Source_Code/02_DAX/supply.dax` and
+`90_Source_Code/02_DAX/schedule_leave.dax` as explicit measures. Business
 pages must consume these measures rather than recreate them with worksheet
 formulas. Use `90_Source_Code/02_DAX/MANIFEST.csv` for home tables, formats,
 display folders, and descriptions. Measures labelled `· Interval` require
@@ -140,10 +155,12 @@ interval-grain filter context.
 ## Install Python in Excel
 
 Follow `01_Application/01-03_PYTHON_INSTALL.md` and
-`90_Source_Code/03_Python/MANIFEST.csv`. Install the five definition cells and
-five analytical cells in exact order. Forecast, scenario, capacity, supply, and
-hiring outputs remain candidates until they are reviewed and pasted into their
-controlled approval tables with complete evidence.
+`90_Source_Code/03_Python/MANIFEST.csv`. Install the seven definition cells and
+eight analytical/output cells in exact order. Forecast, scenario, capacity,
+supply, hiring, schedule, coverage, and leave outputs remain candidates until
+they are reviewed and pasted into their controlled approval tables with
+complete evidence. Leave must read approved Power Query schedule coverage, not
+the unapproved Python coverage spill.
 
 ## Install close day
 
@@ -191,6 +208,10 @@ The release remains blocked until:
 - recursive paid supply and hiring waves match the golden fixtures;
 - approved supply planned-hire FTE reconciles to cumulative approved proficient
   hiring-wave FTE;
+- anonymous pattern fitting, interval coverage, cross-midnight expansion, and
+  leave ceilings match the v0.5 golden fixtures;
+- approved schedule hours and coverage are independently recomputed by Power
+  Query, undercoverage is blocking, and approved leave never exceeds capacity;
 - the close-day controller is idempotent and creates no duplicate final keys;
 - a second refresh produces identical finalized results;
 - the workbook passes visual inspection in desktop Excel.

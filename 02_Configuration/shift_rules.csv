@@ -1,0 +1,4 @@
+Profile,RuleKey,ActivityKey,RuleType,PatternKey,Value,Unit,ValidFrom,ValidTo,Approved,Owner,Notes
+example-enterprise,EXAMPLE_PATTERN_MIN,EXAMPLE_ACTIVITY,MIN_PATTERN_COUNT,EXAMPLE_PATTERN,0,patterns/day,2026-01-01,,FALSE,,Disabled example
+example-enterprise,EXAMPLE_PATTERN_MAX,EXAMPLE_ACTIVITY,MAX_PATTERN_COUNT,EXAMPLE_PATTERN,0,patterns/day,2026-01-01,,FALSE,,Disabled example
+example-enterprise,EXAMPLE_PATTERN_COST,EXAMPLE_ACTIVITY,PREFERENCE_COST,EXAMPLE_PATTERN,1,weight,2026-01-01,,FALSE,,Disabled example
