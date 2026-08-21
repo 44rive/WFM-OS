@@ -33,6 +33,8 @@ REQUIRED_SHEETS = {
     "10_STRATEGIC_PLAN",
     "20_FORECAST",
     "24_SCHEDULE_DESIGN",
+    "26_ROSTER_CONTROL",
+    "27_ROSTER_PUBLICATION",
     "30_INTRADAY",
     "40_PERFORMANCE",
     "41_EXECUTIVE",
@@ -42,6 +44,9 @@ REQUIRED_SHEETS = {
     "75_HIRING_POLICIES",
     "76_SHIFT_PATTERNS",
     "77_LEAVE_POLICIES",
+    "78_SKILLS",
+    "79C_AGENT_CONTRACTS",
+    "79H_SCHEDULE_AUTHORITY",
     "85_FORECAST_APPROVAL",
     "86_REQUIREMENT_APPROVAL",
     "87_SUPPLY_ASSUMPTIONS",
@@ -49,6 +54,10 @@ REQUIRED_SHEETS = {
     "89_HIRING_APPROVAL",
     "89A_SCHEDULE_APPROVAL",
     "89B_LEAVE_APPROVAL",
+    "89C_ROSTER_APPROVAL",
+    "89F_LEAVE_DECISIONS",
+    "89H_SWAP_DECISIONS",
+    "89I_ROSTER_PUBLICATION",
     "93A_PY_INTERVAL",
     "93B_PY_CAPACITY",
     "93C_PY_SUPPLY",
@@ -56,6 +65,9 @@ REQUIRED_SHEETS = {
     "93E_PY_SCHEDULE",
     "93F_PY_COVERAGE",
     "93G_PY_LEAVE",
+    "93H_PY_ROSTER",
+    "93L_PY_LEAVE_REQUESTS",
+    "93N_PY_SWAPS",
     "99_BUILD_INFO",
 }
 
@@ -78,6 +90,16 @@ CONFIG_TABLES = {
     "tblShiftRules": ROOT / "02_Configuration" / "shift_rules.csv",
     "tblShiftPatterns": ROOT / "02_Configuration" / "shift_patterns.csv",
     "tblLeavePolicies": ROOT / "02_Configuration" / "leave_policies.csv",
+    "tblSkills": ROOT / "02_Configuration" / "skills.csv",
+    "tblActivityEligibility": ROOT / "02_Configuration" / "activity_eligibility.csv",
+    "tblActivitySkills": ROOT / "02_Configuration" / "activity_skill_requirements.csv",
+    "tblAgentSkills": ROOT / "02_Configuration" / "agent_skills.csv",
+    "tblAgentContracts": ROOT / "02_Configuration" / "agent_contracts.csv",
+    "tblAgentAvailability": ROOT / "02_Configuration" / "agent_availability.csv",
+    "tblAgentPreferences": ROOT / "02_Configuration" / "agent_preferences.csv",
+    "tblRosterPolicies": ROOT / "02_Configuration" / "roster_policies.csv",
+    "tblLeaveTypePolicies": ROOT / "02_Configuration" / "leave_type_policies.csv",
+    "tblScheduleAuthority": ROOT / "02_Configuration" / "schedule_authority.csv",
 }
 
 FORBIDDEN_CELL_TERMS = (
@@ -99,6 +121,14 @@ REQUIRED_CONTROL_TABLES = {
     "tblHiringPlanVersions",
     "tblSchedulePlanVersions",
     "tblLeavePlanVersions",
+    "tblRosterPlanVersions",
+    "tblLeaveRequests",
+    "tblLeaveEntitlementSnapshots",
+    "tblLeaveRequestDecisions",
+    "tblSwapRequests",
+    "tblSwapDecisions",
+    "tblRosterPublications",
+    "tblRosterPublicationLog",
 }
 
 
@@ -179,7 +209,7 @@ def validate_workbook(path: Path) -> dict[str, object]:
 
         visible = [sheet for sheet in workbook.worksheets if sheet.sheet_state == "visible"]
         hidden = [sheet for sheet in workbook.worksheets if sheet.sheet_state != "visible"]
-        if len(workbook.sheetnames) != 66 or len(visible) != 51 or len(hidden) != 15:
+        if len(workbook.sheetnames) != 95 or len(visible) != 70 or len(hidden) != 25:
             fail(
                 "Unexpected workbook surface: "
                 f"{len(workbook.sheetnames)} sheets, {len(visible)} visible, {len(hidden)} hidden"

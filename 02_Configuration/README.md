@@ -22,3 +22,13 @@ rows are fabricated and disabled. Approved forecast, requirement, hiring, and
 supply versions are operational decisions and therefore are not stored in
 these configuration files. Schedule and leave approvals also remain controlled
 workbook decisions, not configuration rows.
+
+The v0.6 named-roster layer is configured through `skills.csv`,
+`activity_eligibility.csv`, `activity_skill_requirements.csv`,
+`agent_skills.csv`, `agent_contracts.csv`, `agent_availability.csv`,
+`agent_preferences.csv`, `roster_policies.csv`, `leave_type_policies.csv`, and
+`schedule_authority.csv`. Repository rows are disabled templates. These files
+must never contain real names, protected attributes, diagnoses, or production
+requests. A published roster becomes an operational schedule source only when
+one non-overlapping authority row identifies its exact roster and publication
+versions.

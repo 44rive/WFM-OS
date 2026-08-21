@@ -82,7 +82,7 @@ display folder, and description. Use the referenced `.dax` file for the formula.
 
 After installation:
 
-1. compare all 60 measure names to the manifest;
+1. compare all 80 measure names to the manifest;
 2. confirm there are no implicit measures on business pages;
 3. test blank and zero denominators for every ratio;
 4. validate measures labelled `· Interval` only at 30-minute interval grain;
@@ -92,16 +92,18 @@ After installation:
 
 ## 6 · Install governed Python cells
 
-Follow `01_Application/01-03_PYTHON_INSTALL.md` and install all 15 rows from
+Follow `01_Application/01-03_PYTHON_INSTALL.md` and install all 27 rows from
 `90_Source_Code/03_Python/MANIFEST.csv` in exact order. Confirm each definition
 cell calculates before installing the next cell. Capture evidence that the
 forecast adapter excludes history after `AsOfDate`, the daily forecast is
 reconciled to an interval profile before approval, and the capacity adapter
 reads only approved interval forecasts. Also prove weekly supply recursion,
 hiring-wave seat splitting and timing, hiring-to-supply reconciliation,
-deterministic pattern fitting, cross-midnight coverage, and leave-capacity
-ceilings. Prove that leave reads approved Power Query coverage rather than an
-unapproved Python spill.
+deterministic pattern fitting, cross-midnight coverage, leave-capacity ceilings,
+named assignment, bilateral swap revalidation, and the post-swap full-request
+leave queue. Prove that leave capacity reads approved Power Query coverage and
+that named leave reads the effective approved roster rather than an unapproved
+Python spill.
 
 Neither spilled candidate output is a canonical fact. Approval requires stable
 keys, source-run evidence, approver, timestamp, and successful
@@ -134,10 +136,10 @@ All evidence is required:
 | Refresh | Shared, live, and closed lanes complete without repair or privacy prompts |
 | Data quality | Unknowns remain visible; every blocking check is zero or resolved |
 | Reconciliation | Source counts and governed totals tie to the accepted fixture outputs |
-| Semantic model | 44 required relationships exist with one intended filter path |
-| Measures | 60 explicit measures match name, formula, format, and expected result |
-| Planning Python | 15 ordered cells execute; candidate/approval boundaries and as-of behavior pass |
-| Planning reconciliation | Daily forecast equals interval totals; requirements trace to forecast/policy; hiring FTE reconciles to supply; schedule coverage and leave ceilings independently recompute |
+| Semantic model | 54 required relationships exist with one intended filter path |
+| Measures | 80 explicit measures match name, formula, format, and expected result |
+| Planning Python | 27 ordered cells execute; candidate/approval boundaries and as-of behavior pass |
+| Planning reconciliation | Daily forecast equals interval totals; requirements trace to forecast/policy; hiring FTE reconciles to supply; schedule coverage and leave ceilings independently recompute; named roster, changes, publication, and schedule authority preserve exact lineage |
 | Close day | Approval controls pass; repeat close is idempotent and duplicate-free |
 | Repeatability | A second refresh returns identical finalized results |
 | Visual inspection | Pages pass the design-system checklist at 100% zoom |

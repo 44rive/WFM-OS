@@ -154,6 +154,26 @@ BUSINESS_PAGES: tuple[Page, ...] = (
         ("Date", "Activity", "Allowance hours", "Requested hours", "Approved hours", "Remaining hours", "Impact", "Status"),
     ),
     Page(
+        "26_ROSTER_CONTROL",
+        "Roster control",
+        "Can every approved anonymous occurrence be assigned fairly to an eligible, available agent without a hard-constraint breach?",
+        "primary-700",
+        ("OCCURRENCES", "ASSIGNED", "UNASSIGNED", "FAIRNESS REVIEW"),
+        "Named assignment, contract load, and visible exceptions",
+        "Roster candidates and blocking constraints",
+        ("Occurrence", "Business date", "Activity", "Pattern", "Agent key", "Paid hours", "Assignment status", "Constraint result"),
+    ),
+    Page(
+        "27_ROSTER_PUBLICATION",
+        "Roster publication",
+        "Is one approved BASE roster, including controlled leave and swaps, safe to publish as the schedule authority?",
+        "primary-700",
+        ("APPROVED SHIFTS", "LEAVE DECISIONS", "SWAP DECISIONS", "PUBLICATION STATE"),
+        "Publication lineage and schedule-authority gate",
+        "Items preventing controlled publication",
+        ("Publication", "Roster version", "Activity", "Start", "End", "Authority", "Approval state", "Blocking reason"),
+    ),
+    Page(
         "30_INTRADAY",
         "Intraday control",
         "What has changed today, what is the service impact, and which action should happen next?",
@@ -265,6 +285,26 @@ CONFIG_SHEETS = (
      ("Profile", "PatternVersionKey", "PatternKey", "PatternName", "ActivityKey", "DayType", "SegmentKey", "StartMinute", "EndMinute", "ScheduleTypeKey", "PaidFlag", "ProductiveFlag", "ValidFrom", "ValidTo", "Approved")),
     ("77_LEAVE_POLICIES", "Leave policies", "Govern interval leave headroom without adjudicating named employee requests.", "tblLeavePolicies",
      ("Profile", "PolicyKey", "ActivityKey", "CoverageFloorPct", "ReserveFTE", "MaxLeavePctOfScheduled", "AllowanceIncrementHours", "ValidFrom", "ValidTo", "Approved")),
+    ("78_SKILLS", "Skills", "Define portable capability keys without encoding a vendor or organizational product name.", "tblSkills",
+     ("Profile", "SkillKey", "SkillName", "ValidFrom", "ValidTo", "Enabled")),
+    ("79_ACTIVITY_ELIGIBILITY", "Activity eligibility", "Approve which pseudonymous agents may be assigned to each canonical activity.", "tblActivityEligibility",
+     ("Profile", "EligibilityKey", "AgentKey", "ActivityKey", "ValidFrom", "ValidTo", "Approved")),
+    ("79A_ACTIVITY_SKILLS", "Activity skills", "Declare AND-of-OR skill groups required by activity and optional pattern.", "tblActivitySkills",
+     ("Profile", "RequirementKey", "ActivityKey", "PatternKey", "SkillGroupKey", "SkillKey", "MinimumLevel", "ValidFrom", "ValidTo", "Approved")),
+    ("79B_AGENT_SKILLS", "Agent skills", "Record approved effective-dated proficiency against portable skill keys.", "tblAgentSkills",
+     ("Profile", "AgentSkillKey", "AgentKey", "SkillKey", "ProficiencyLevel", "ValidFrom", "ValidTo", "Approved")),
+    ("79C_AGENT_CONTRACTS", "Agent contracts", "Store enterprise-approved roster constraints; local labor and legal validation remains mandatory.", "tblAgentContracts",
+     ("Profile", "ContractKey", "AgentKey", "RosterPolicyKey", "PeriodType", "PeriodStartDay", "MinPaidHours", "TargetPaidHours", "MaxPaidHours", "MaxPaidHoursPerDay", "MaxPaidHoursPerShift", "MaxShiftSpanHours", "MinRestHours", "MaxConsecutiveWorkdays", "MaxAssignmentsPerWorkday", "ValidFrom", "ValidTo", "Approved")),
+    ("79D_AGENT_AVAILABILITY", "Agent availability", "Capture explicit dated availability and overriding unavailability windows.", "tblAgentAvailability",
+     ("Profile", "AvailabilityWindowKey", "AgentKey", "WindowStart", "WindowEnd", "AvailabilityType", "SourceRole", "Approved")),
+    ("79E_AGENT_PREFERENCES", "Agent preferences", "Capture nonnegative soft costs that influence fairness but never override eligibility.", "tblAgentPreferences",
+     ("Profile", "PreferenceKey", "AgentKey", "PatternKey", "DayType", "PreferenceCost", "UnfavorableWeight", "ValidFrom", "ValidTo", "Approved")),
+    ("79F_ROSTER_POLICIES", "Roster policies", "Govern the deterministic bounded assignment method and its explicit control modes.", "tblRosterPolicies",
+     ("Profile", "RosterPolicyKey", "ActivityKey", "AssignmentMethod", "AvailabilityMode", "FairnessMethod", "WorkdayAttributionMode", "MinimumHoursMode", "RepairDepth", "MaxCandidatePairs", "ValidFrom", "ValidTo", "Approved")),
+    ("79G_LEAVE_TYPES", "Leave types", "Route ordinary capacity-controlled leave separately from local or protected categories requiring review.", "tblLeaveTypePolicies",
+     ("Profile", "LeaveTypeKey", "CapacityDecisionMode", "EntitlementCheckMode", "PartialApprovalMode", "PaidFlag", "ValidFrom", "ValidTo", "Approved")),
+    ("79H_SCHEDULE_AUTHORITY", "Schedule authority", "Select exactly one approved source of truth: imported schedule or published WFM OS roster.", "tblScheduleAuthority",
+     ("Profile", "AuthorityKey", "ActivityKey", "ValidFrom", "ValidTo", "ScheduleAuthority", "RosterVersionKey", "PublicationVersionKey", "Approved", "Owner", "Notes")),
 )
 
 
@@ -293,6 +333,20 @@ INPUT_SHEETS = (
      ("SchedulePlanRowKey", "Profile", "SchedulePlanVersionKey", "ScenarioKey", "ApprovalStatus", "BusinessDate", "ActivityKey", "PatternVersionKey", "PatternKey", "PatternCount", "PaidHours", "ProductiveHours", "CoverageMethod", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
     ("89B_LEAVE_APPROVAL", "Leave approval", "Approve interval leave capacity against one approved schedule plan; this is not an employee leave-request ledger.", "tblLeavePlanVersions",
      ("LeavePlanRowKey", "Profile", "LeavePlanVersionKey", "SchedulePlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "ScheduledProductiveFTE", "CalculatedAllowanceHours", "ApprovedAllowanceHours", "RemainingCoverageFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("89C_ROSTER_APPROVAL", "Roster approval", "Approve named assignment candidates only after every blocking occurrence and period diagnostic is resolved.", "tblRosterPlanVersions",
+     ("RosterPlanRowKey", "AssignmentKey", "Profile", "RosterVersionKey", "SchedulePlanVersionKey", "ScenarioKey", "ApprovalStatus", "OccurrenceKey", "BusinessDate", "ActivityKey", "PatternVersionKey", "PatternKey", "OccurrenceOrdinal", "AgentKey", "ContractKey", "PaidHours", "ProductiveHours", "AssignmentMethod", "AssignmentStatus", "FairnessScore", "PreferenceCost", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("89D_LEAVE_REQUESTS", "Leave requests", "Queue full-request named leave for deterministic recommendation; approval remains separate.", "tblLeaveRequests",
+     ("LeaveRequestKey", "Profile", "AgentKey", "LeaveTypeKey", "RequestedStart", "RequestedEnd", "SubmittedAt", "PriorityRank", "RequestStatus", "ExternalReference", "Notes")),
+    ("89E_LEAVE_ENTITLEMENTS", "Leave entitlements", "Load approved external entitlement snapshots; WFM OS does not maintain balances.", "tblLeaveEntitlementSnapshots",
+     ("EntitlementSnapshotKey", "Profile", "AgentKey", "LeaveTypeKey", "AsOfDate", "AvailableHours", "SourceSystemKey", "Approved")),
+    ("89F_LEAVE_DECISIONS", "Leave decisions", "Approve or reject named leave recommendations without mutating the roster candidate.", "tblLeaveRequestDecisions",
+     ("LeaveDecisionRowKey", "Profile", "LeaveDecisionVersionKey", "RosterVersionKey", "SwapDecisionVersionKey", "LeavePlanVersionKey", "LeaveRequestKey", "ApprovalStatus", "AgentKey", "LeaveTypeKey", "RequestedStart", "RequestedEnd", "RequestedHours", "ApprovedHours", "RecommendationStatus", "DecisionReason", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("89G_SWAP_REQUESTS", "Swap requests", "Capture bilateral consent for whole-occurrence swaps only.", "tblSwapRequests",
+     ("SwapRequestKey", "Profile", "RosterVersionKey", "AssignmentKeyA", "AgentKeyA", "AssignmentKeyB", "AgentKeyB", "ConsentAAt", "ConsentBAt", "SubmittedAt", "RequestStatus", "Notes")),
+    ("89H_SWAP_DECISIONS", "Swap decisions", "Approve only swap candidates that pass complete-roster revalidation.", "tblSwapDecisions",
+     ("SwapDecisionRowKey", "Profile", "SwapDecisionVersionKey", "RosterVersionKey", "SwapRequestKey", "ApprovalStatus", "AssignmentKeyA", "AgentKeyA", "AssignmentKeyB", "AgentKeyB", "RecommendationStatus", "DecisionReason", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("89I_ROSTER_PUBLICATION", "Roster publication", "Publish one approved BASE roster with explicit leave, swap, and schedule-authority lineage.", "tblRosterPublications",
+     ("PublicationKey", "Profile", "PublicationVersionKey", "RosterVersionKey", "LeaveDecisionVersionKey", "SwapDecisionVersionKey", "ScenarioKey", "StartDate", "EndDate", "ApprovalStatus", "ApprovedAt", "ApprovedBy", "PublishedAt", "PublishedBy", "SourceRunKey", "Notes")),
 )
 
 
@@ -546,6 +600,76 @@ def business_page(ws, page: Page, previous_name: str, next_name: str) -> None:
     ws["B31"].fill = fill("pearl-050")
     style_table(ws, 33, 2, page.detail_headers, [], clean_table_name(page.name))
     ws.auto_filter.ref = None
+    if page.name == "26_ROSTER_CONTROL":
+        roster_constraint_funnel(ws)
+    elif page.name == "27_ROSTER_PUBLICATION":
+        publication_lineage_spine(ws)
+
+
+def reset_analysis_panel(ws) -> None:
+    for merged in list(ws.merged_cells.ranges):
+        if merged.min_row >= 17 and merged.max_row <= 29:
+            ws.unmerge_cells(str(merged))
+    apply_fill_to_range(ws, 17, 29, 2, 17, "pearl-050")
+    for row in range(17, 30):
+        for col in range(2, 18):
+            ws.cell(row, col).value = None
+            ws.cell(row, col).border = Border()
+
+
+def roster_constraint_funnel(ws) -> None:
+    reset_analysis_panel(ws)
+    merge_style(ws, "B17:Q17", "NAMED ROSTER · CONSTRAINT FUNNEL", cell_fill="pearl-050", cell_font=font(10, "ink-700", True))
+    cards = (
+        ("B19:E26", "01 · SCOPE", "One approved BASE schedule\nStable unit occurrences", "AWAITING APPROVED PLAN", "info-600"),
+        ("F19:I26", "02 · ELIGIBILITY", "Active · activity · skills\nExplicit availability", "AWAITING VALIDATION", "primary-700"),
+        ("J19:M26", "03 · CONSTRAINTS", "Overlap · rest · hours\nContract-period load", "AWAITING VALIDATION", "copper-600"),
+        ("N19:Q26", "04 · DECISION", "Visible unassigned rows\nSeparate roster approval", "NOT APPROVED", "warning-600"),
+    )
+    for cell_range, title, detail, status, accent in cards:
+        start, end = cell_range.split(":")
+        sc, ec, sr, er = ws[start].column, ws[end].column, ws[start].row, ws[end].row
+        apply_fill_to_range(ws, sr, er, sc, ec, "paper-000")
+        ws.merge_cells(start_row=sr, start_column=sc, end_row=sr + 1, end_column=ec)
+        ws.merge_cells(start_row=sr + 2, start_column=sc, end_row=er - 2, end_column=ec)
+        ws.merge_cells(start_row=er - 1, start_column=sc, end_row=er, end_column=ec)
+        ws.cell(sr, sc, title).font = font(9, "ink-700", True)
+        ws.cell(sr, sc).alignment = Alignment(vertical="center", indent=1)
+        ws.cell(sr + 2, sc, detail).font = font(10, "ink-900", True)
+        ws.cell(sr + 2, sc).alignment = Alignment(vertical="center", wrap_text=True, indent=1)
+        ws.cell(er - 1, sc, status).font = font(8, accent, True)
+        ws.cell(er - 1, sc).alignment = Alignment(vertical="center", indent=1)
+        for row in range(sr, er + 1):
+            ws.cell(row, sc).border = Border(left=side(accent, "medium"))
+    merge_style(ws, "B28:Q29", "METHOD · CONSTRAINED_GREEDY_REPAIR_V1  |  deterministic, bounded, explainable — never represented as globally optimal", cell_fill="primary-100", cell_font=font(8.5, "primary-700", True), alignment=Alignment(vertical="center", indent=1), border=Border(left=side("primary-500", "medium")))
+
+
+def publication_lineage_spine(ws) -> None:
+    reset_analysis_panel(ws)
+    merge_style(ws, "B17:Q17", "CONTROLLED PUBLICATION · VERSION LINEAGE", cell_fill="pearl-050", cell_font=font(10, "ink-700", True))
+    stages = (
+        ("B19:D25", "01", "ROSTER", "Approved BASE\nversion", "primary-700"),
+        ("E19:G25", "02", "SWAPS", "Bilateral +\nrevalidated", "primary-500"),
+        ("H19:J25", "03", "LEAVE", "Full request\nafter swaps", "copper-600"),
+        ("K19:M25", "04", "PUBLISH", "Immutable 30m\nsegments", "shell-900"),
+        ("N19:Q25", "05", "AUTHORITY", "Imported OR\npublished", "warning-600"),
+    )
+    for cell_range, number, label, detail, accent in stages:
+        start, end = cell_range.split(":")
+        sc, ec, sr, er = ws[start].column, ws[end].column, ws[start].row, ws[end].row
+        apply_fill_to_range(ws, sr, er, sc, ec, "paper-000")
+        ws.merge_cells(start_row=sr, start_column=sc, end_row=sr, end_column=ec)
+        ws.merge_cells(start_row=sr + 1, start_column=sc, end_row=sr + 3, end_column=ec)
+        ws.merge_cells(start_row=sr + 4, start_column=sc, end_row=er, end_column=ec)
+        ws.cell(sr, sc, number).font = font(8, accent, True)
+        ws.cell(sr, sc).alignment = Alignment(vertical="center", indent=1)
+        ws.cell(sr + 1, sc, label).font = font(12, "ink-900", True)
+        ws.cell(sr + 1, sc).alignment = Alignment(vertical="center", indent=1)
+        ws.cell(sr + 4, sc, detail).font = font(8.5, "ink-500")
+        ws.cell(sr + 4, sc).alignment = Alignment(vertical="center", wrap_text=True, indent=1)
+        for row in range(sr, er + 1):
+            ws.cell(row, sc).border = Border(left=side(accent, "medium"))
+    merge_style(ws, "B27:Q29", "RELEASE GATE · No published authority until roster diagnostics, change lineage, dq_RosterPublication, external file hash, and desktop Excel evidence all pass.", cell_fill="warning-100", cell_font=font(8.5, "warning-600", True), alignment=Alignment(vertical="center", wrap_text=True, indent=1), border=Border(left=side("warning-600", "medium")))
 
 
 def add_home(wb: Workbook, version: str) -> None:
@@ -587,7 +711,7 @@ def add_home(wb: Workbook, version: str) -> None:
     ws["B12"].fill = fill("pearl-050")
     module_groups = (
         ("B14:F21", "PLAN", "Strategy · demand · forecast\ncapacity · hiring", "10_STRATEGIC_PLAN", "copper-600"),
-        ("G14:L21", "OPERATE", "Schedule · leave · intraday\nattendance · adherence · actions", "24_SCHEDULE_DESIGN", "primary-700"),
+        ("G14:L21", "OPERATE", "Schedule · roster · publish · intraday\nattendance · adherence · actions", "24_SCHEDULE_DESIGN", "primary-700"),
         ("M14:Q21", "IMPROVE", "Performance · executive\nincentive governance", "40_PERFORMANCE", "shell-900"),
     )
     for cell_range, label, detail, target, accent in module_groups:
@@ -684,6 +808,10 @@ def add_data_quality(wb: Workbook) -> None:
         ("DQ-008", "Requirements are approved", "Planning", "Only evidence-backed, valid approved requirements may enter canonical staffing facts.", "NOT RUN", 0, "Capacity owner", "Resolve dq_PlanningApprovals"),
         ("DQ-009", "Intraday profiles reconcile", "Planning", "Each active profile must contain 48 intervals and reconcile volume and AHT factors.", "NOT RUN", 0, "Forecast owner", "Validate the Python interval run"),
         ("DQ-010", "Hiring reconciles to supply", "Planning", "Approved proficient hiring FTE must equal planned-hire FTE in the approved supply plan.", "NOT RUN", 0, "Workforce owner", "Resolve dq_PlanningApprovals"),
+        ("DQ-011", "Named roster is complete", "Roster", "Every approved BASE occurrence must have one valid named assignment.", "NOT RUN", 0, "Scheduling owner", "Resolve roster diagnostics"),
+        ("DQ-012", "Named roster constraints pass", "Roster", "Eligibility, skills, availability, overlap, rest, and contract maxima must fully revalidate.", "NOT RUN", 0, "Workforce owner", "Resolve roster diagnostics"),
+        ("DQ-013", "Leave and swaps are controlled", "Roster", "Named changes require separate approved decisions linked to the roster version.", "NOT RUN", 0, "Operations owner", "Resolve leave and swap decisions"),
+        ("DQ-014", "Schedule authority is singular", "Publication", "Imported and published schedules must never be combined for one activity and effective period.", "NOT RUN", 0, "Release owner", "Resolve schedule authority"),
     )
     style_table(ws, 18, 2, ("CheckKey", "Check", "Domain", "Requirement", "Status", "IssueCount", "Owner", "NextAction"), checks, "tblDQChecks")
     add_list_validation(ws, "F19", "F500", "DQ_STATUS_LIST", "Choose the validation outcome.")
@@ -730,6 +858,7 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
             ("AsOfDate", "", "date", "Operational date used by the live refresh lane"),
             ("HistoryMonths", 13, "number", "Closed-history retention window"),
             ("StandardWeeklyHours", 40, "number", "Paid hours represented by one full-time equivalent"),
+            ("RosterPublicationRoot", "<SET ABSOLUTE PUBLICATION PATH>", "text", "Restricted destination for controlled pseudonymous roster exports"),
         )
     elif name == "60_SOURCE_SYSTEMS":
         rows = SOURCE_ROLES
@@ -802,6 +931,29 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
         rows = (
             ("BLANK_DEPLOYMENT", "EXAMPLE_LEAVE_CAPACITY", "", 1, 0, 0, 0.5, "", "", False),
         )
+    elif name == "78_SKILLS":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_SKILL", "Disabled example skill", "", "", False),)
+    elif name == "79_ACTIVITY_ELIGIBILITY":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_ELIGIBILITY", "", "", "", "", False),)
+    elif name == "79A_ACTIVITY_SKILLS":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_REQUIREMENT", "", "ALL", "CORE", "EXAMPLE_SKILL", 1, "", "", False),)
+    elif name == "79B_AGENT_SKILLS":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_AGENT_SKILL", "", "EXAMPLE_SKILL", 1, "", "", False),)
+    elif name == "79C_AGENT_CONTRACTS":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_CONTRACT", "", "EXAMPLE_ROSTER", "WEEK", "MONDAY", 0, 40, 40, 8, 8, 10, 11, 6, 1, "", "", False),)
+    elif name == "79D_AGENT_AVAILABILITY":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_AVAILABILITY", "", "", "", "AVAILABLE", "WORKFORCE", False),)
+    elif name == "79E_AGENT_PREFERENCES":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_PREFERENCE", "", "ALL", "ALL", 0, 0, "", "", False),)
+    elif name == "79F_ROSTER_POLICIES":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_ROSTER", "", "CONSTRAINED_GREEDY_REPAIR_V1", "EXPLICIT_WINDOWS", "TARGET_LOAD_BURDEN_V1", "PATTERN_BUSINESS_DATE", "DIAGNOSTIC", 1, 250, "", "", False),)
+    elif name == "79G_LEAVE_TYPES":
+        rows = (
+            ("BLANK_DEPLOYMENT", "EXAMPLE_ANNUAL", "CAPACITY_CONTROLLED", "REQUIRED", "FULL_REQUEST_ONLY", True, "", "", False),
+            ("BLANK_DEPLOYMENT", "EXAMPLE_LOCAL_REVIEW", "ALWAYS_REVIEW", "OPTIONAL", "FULL_REQUEST_ONLY", True, "", "", False),
+        )
+    elif name == "79H_SCHEDULE_AUTHORITY":
+        rows = (("BLANK_DEPLOYMENT", "EXAMPLE_AUTHORITY", "", "", "", "IMPORTED_SCHEDULE", "", "", False, "", "Choose one authority only"),)
     style_table(ws, 13, 2, headers, rows, table_name, input_table=True, max_input_row=1000)
     end_col = get_column_letter(1 + len(headers))
     if "Enabled" in headers:
@@ -852,6 +1004,26 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
     if "TimingStatus" in headers:
         col = get_column_letter(2 + headers.index("TimingStatus"))
         add_list_validation(ws, f"{col}14", f"{col}1000", "HIRING_TIMING_LIST", "Keep the analytical timing result unchanged.")
+    controlled_lists = {
+        "PeriodType": ("PERIOD_TYPE_LIST", "Choose the implemented contract period."),
+        "PeriodStartDay": ("WEEKDAY_LIST", "Choose the enterprise contract week start."),
+        "AvailabilityType": ("AVAILABILITY_TYPE_LIST", "Unavailable windows override available windows."),
+        "AssignmentMethod": ("ROSTER_METHOD_LIST", "Choose the implemented deterministic roster method."),
+        "AvailabilityMode": ("AVAILABILITY_MODE_LIST", "Choose explicit dated availability."),
+        "FairnessMethod": ("FAIRNESS_METHOD_LIST", "Choose the documented fairness ordering."),
+        "WorkdayAttributionMode": ("WORKDAY_MODE_LIST", "Choose how cross-midnight patterns retain business date."),
+        "MinimumHoursMode": ("MINIMUM_HOURS_MODE_LIST", "Choose hard or diagnostic minimum-hour handling."),
+        "CapacityDecisionMode": ("LEAVE_CAPACITY_MODE_LIST", "Route this leave type through its approved control mode."),
+        "EntitlementCheckMode": ("ENTITLEMENT_MODE_LIST", "Choose use of the external entitlement snapshot."),
+        "PartialApprovalMode": ("PARTIAL_APPROVAL_LIST", "v0.6 supports full-request decisions only."),
+        "ScheduleAuthority": ("SCHEDULE_AUTHORITY_LIST", "Never combine imported and published schedule authority."),
+        "RequestStatus": ("REQUEST_STATUS_LIST", "Select the controlled request lifecycle state."),
+        "RecommendationStatus": ("RECOMMENDATION_STATUS_LIST", "Keep the calculated recommendation visible."),
+    }
+    for header, (list_name, prompt) in controlled_lists.items():
+        if header in headers:
+            col = get_column_letter(2 + headers.index(header))
+            add_list_validation(ws, f"{col}14", f"{col}1000", list_name, prompt)
     for index, header in enumerate(headers, start=2):
         width = 14
         if header in {"Notes", "Reason", "DecisionReason", "EvidenceReference", "Outcome", "PathPattern", "TransformHint"}:
@@ -884,6 +1056,20 @@ def add_lookup_sheet(wb: Workbook) -> None:
         "DAY_TYPE_LIST": ("ALL", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
         "HIRING_TIMING_LIST": ("ON_TIME", "LATE_TO_PLAN"),
         "SHIFT_RULE_TYPE_LIST": ("MIN_PATTERN_COUNT", "MAX_PATTERN_COUNT", "PREFERENCE_COST"),
+        "WEEKDAY_LIST": ("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
+        "PERIOD_TYPE_LIST": ("WEEK",),
+        "AVAILABILITY_TYPE_LIST": ("AVAILABLE", "UNAVAILABLE"),
+        "ROSTER_METHOD_LIST": ("CONSTRAINED_GREEDY_REPAIR_V1",),
+        "AVAILABILITY_MODE_LIST": ("EXPLICIT_WINDOWS",),
+        "FAIRNESS_METHOD_LIST": ("TARGET_LOAD_BURDEN_V1",),
+        "WORKDAY_MODE_LIST": ("PATTERN_BUSINESS_DATE",),
+        "MINIMUM_HOURS_MODE_LIST": ("DIAGNOSTIC", "HARD"),
+        "LEAVE_CAPACITY_MODE_LIST": ("CAPACITY_CONTROLLED", "INFORMATION_ONLY", "ALWAYS_REVIEW"),
+        "ENTITLEMENT_MODE_LIST": ("REQUIRED", "OPTIONAL", "NONE"),
+        "PARTIAL_APPROVAL_LIST": ("FULL_REQUEST_ONLY",),
+        "SCHEDULE_AUTHORITY_LIST": ("IMPORTED_SCHEDULE", "PUBLISHED_ROSTER"),
+        "REQUEST_STATUS_LIST": ("DRAFT", "SUBMITTED", "PENDING", "CANCELLED", "CLOSED"),
+        "RECOMMENDATION_STATUS_LIST": ("APPROVE", "DECLINE", "REVIEW_REQUIRED"),
     }
     for col, (name, values) in enumerate(lists.items(), start=1):
         ws.cell(1, col, name).font = font(9, "ink-700", True)
@@ -922,6 +1108,7 @@ def add_test_harness(wb: Workbook) -> None:
         ("T-007", "Planning Python deterministic", "Planning", "Forecast, adjustment, accuracy, and capacity fixtures match", "PASS", "91_Tests/test_planning_cycle.py"),
         ("T-008", "Planning supply deterministic", "Planning", "Intraday reconciliation, scenarios, supply, and hiring waves match", "PASS", "91_Tests/test_planning_supply.py"),
         ("T-009", "Schedule and leave deterministic", "Planning", "Pattern fit, interval coverage, and leave headroom fixtures match", "PASS", "91_Tests/test_schedule_leave.py"),
+        ("T-010", "Named roster cycle deterministic", "Roster", "Assignment, full-request leave, and bilateral swap fixtures match", "PASS", "91_Tests/test_roster_cycle.py"),
     )
     style_table(ws, 6, 2, ("TestKey", "Test", "Domain", "Expected", "Status", "Evidence"), tests, "tblTestHarness")
     ws.sheet_state = "hidden"
@@ -987,6 +1174,36 @@ def add_query_outputs(wb: Workbook) -> None:
     ws.sheet_state = "hidden"
 
 
+def add_roster_publication_log(wb: Workbook) -> None:
+    ws = wb.create_sheet("94A_ROSTER_PUBLISH_LOG")
+    set_canvas(ws, "ink-500")
+    apply_fill_to_range(ws, 2, 3, 2, 17, "shell-950")
+    merge_style(ws, "B2:E3", "WFM OS", cell_fill="shell-950", cell_font=font(18, "paper-000", True))
+    merge_style(ws, "F2:Q3", "CONTROLLED ROSTER PUBLICATION LOG", cell_fill="shell-950", cell_font=font(9, "paper-000", True))
+    merge_style(
+        ws,
+        "B5:Q8",
+        "Append-only publication evidence. A publication must remain blocked until the BASE roster, named changes, and schedule authority all pass desktop validation.",
+        cell_fill="warning-100",
+        cell_font=font(9, "warning-600", True),
+        alignment=Alignment(vertical="center", wrap_text=True, indent=1),
+        border=Border(left=side("warning-600", "medium")),
+    )
+    style_table(
+        ws,
+        10,
+        2,
+        (
+            "PublicationLogKey", "PublicationKey", "Profile", "PublicationVersionKey",
+            "RosterVersionKey", "PublishedAt", "PublishedBy", "OutputPath", "RowCount",
+            "ContentHash", "Status"
+        ),
+        [],
+        "tblRosterPublicationLog",
+    )
+    ws.sheet_state = "hidden"
+
+
 def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str) -> None:
     ws = wb.create_sheet("99_BUILD_INFO")
     page_shell(ws, ws.title, "Build information", "Confirm exactly what this artifact contains before using it for an operational decision.", "info-600", "86_REQUIREMENT_APPROVAL", "00_HOME")
@@ -998,8 +1215,8 @@ def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str)
         ("Operational status", "NOT OPERATIONAL", "Do not use for workforce decisions yet"),
         ("Build date", build_date, "UTC date supplied to the generator"),
         ("Git commit", git_commit, "Source revision used for this build"),
-        ("Canonical contracts", "1.4.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
-        ("Design system", "1.0.0", "Obsidian & Pearl"),
+        ("Canonical contracts", "1.5.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
+        ("Design system", "1.1.0", "Obsidian & Pearl"),
         ("Power Query", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
         ("Power Pivot / DAX", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
         ("Python in Excel", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
@@ -1089,7 +1306,17 @@ def build(output: Path, build_date: str, git_commit: str, version: str) -> None:
     technical_sheet(wb, "93E_PY_SCHEDULE", "Python schedule lab", "Reserved for deterministic anonymous shift-pattern count candidates from approved requirements.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     technical_sheet(wb, "93F_PY_COVERAGE", "Python coverage lab", "Reserved for the interval coverage output of the same scheduling candidate run.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     technical_sheet(wb, "93G_PY_LEAVE", "Python leave lab", "Reserved for interval leave-capacity candidates sourced from approved schedule coverage.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93H_PY_ROSTER", "Python roster lab", "Reserved for deterministic named assignment candidates from one approved BASE schedule.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93I_PY_ROSTER_SEGMENTS", "Python roster segments", "Reserved for 30-minute named roster candidate segments.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93J_PY_ROSTER_DQ", "Python roster diagnostics", "Reserved for assignment and constraint diagnostics, including visible unassigned occurrences.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93K_PY_ROSTER_PERIODS", "Python roster periods", "Reserved for contract-period load and fairness summaries.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93L_PY_LEAVE_REQUESTS", "Python leave requests", "Reserved for full-request named leave recommendations.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93M_PY_LEAVE_CONSUMPTION", "Python leave consumption", "Reserved for interval leave-capacity consumption evidence.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93N_PY_SWAPS", "Python swaps", "Reserved for bilateral whole-occurrence swap recommendations.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93O_PY_SWAP_PROPOSALS", "Python swap proposals", "Reserved for the two proposed assignment rows of each feasible swap.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
+    technical_sheet(wb, "93P_PY_SWAP_DQ", "Python swap diagnostics", "Reserved for complete-roster revalidation failures caused by swap candidates.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     add_snapshot_store(wb)
+    add_roster_publication_log(wb)
     add_query_outputs(wb)
     technical_sheet(wb, "96_PIVOT_SUPPORT", "Pivot support", "Reserved for technical PivotTables that drive controlled business layouts and slicers.", "POWER PIVOT AND PIVOTTABLES ARE NOT EMBEDDED IN THIS SHELL.")
     technical_sheet(wb, "97_MODEL_REGISTRY", "Model registry", "Reserved for the installed query, table, relationship, measure, and refresh-lane inventory.", "THE SEMANTIC MODEL IS NOT EMBEDDED IN THIS SHELL.")
@@ -1128,7 +1355,12 @@ def build(output: Path, build_date: str, git_commit: str, version: str) -> None:
 
     # Fail the build if the resulting OOXML cannot be parsed by openpyxl.
     check = load_workbook(output, read_only=False, data_only=False)
-    required = {"00_HOME", "01_CONTROL_CENTER", "02_DATA_QUALITY", "10_STRATEGIC_PLAN", "30_INTRADAY", "40_PERFORMANCE", "99_BUILD_INFO"}
+    required = {
+        "00_HOME", "01_CONTROL_CENTER", "02_DATA_QUALITY", "10_STRATEGIC_PLAN",
+        "26_ROSTER_CONTROL", "27_ROSTER_PUBLICATION", "30_INTRADAY",
+        "40_PERFORMANCE", "89C_ROSTER_APPROVAL", "89I_ROSTER_PUBLICATION",
+        "99_BUILD_INFO",
+    }
     missing = sorted(required.difference(check.sheetnames))
     if missing:
         raise RuntimeError(f"Workbook validation failed; missing sheets: {missing}")
@@ -1143,7 +1375,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=default_root / "01_Application" / "WFM_OS.xlsx")
     parser.add_argument("--build-date", default=os.environ.get("SOURCE_DATE", datetime.now(timezone.utc).date().isoformat()))
     parser.add_argument("--git-commit", default=None)
-    parser.add_argument("--version", default="0.5.0-shell")
+    parser.add_argument("--version", default="0.6.0-shell")
     return parser.parse_args()
 
 

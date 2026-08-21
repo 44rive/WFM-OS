@@ -1,0 +1,2 @@
+Profile,RequirementKey,ActivityKey,PatternKey,SkillGroupKey,SkillKey,MinimumLevel,ValidFrom,ValidTo,Approved
+ENTERPRISE_A,REQ_SUPPORT,ACT_SUPPORT,ALL,CORE,SK_SUPPORT,1,2026-01-01,,TRUE

@@ -1,0 +1,2 @@
+Profile,AuthorityKey,ActivityKey,ValidFrom,ValidTo,ScheduleAuthority,RosterVersionKey,PublicationVersionKey,Approved,Owner,Notes
+BLANK_DEPLOYMENT,EXAMPLE_AUTHORITY,,,,IMPORTED_SCHEDULE,,,FALSE,,Choose exactly one approved authority per activity and date range

@@ -4,3 +4,4 @@ EnterpriseProfile,example-enterprise,text,Active deployment profile
 AsOfDate,2026-01-16,date,Operational date used by the live refresh lane
 HistoryMonths,13,number,Closed-history retention window
 StandardWeeklyHours,40,number,Paid hours represented by one full-time equivalent
+RosterPublicationRoot,<SET ABSOLUTE PUBLICATION PATH>,text,Restricted destination for controlled pseudonymous roster exports

@@ -1,0 +1,2 @@
+Profile,EligibilityKey,AgentKey,ActivityKey,ValidFrom,ValidTo,Approved
+BLANK_DEPLOYMENT,EXAMPLE_ELIGIBILITY,,,,,FALSE

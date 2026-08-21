@@ -381,6 +381,76 @@ def expand_schedule_plan(
     return [grouped[key] for key in sorted(grouped)]
 
 
+def expand_pattern_occurrences(
+    plan_rows: Iterable[ScheduleRecord], pattern_rows: Iterable[ScheduleRecord]
+) -> list[dict[str, object]]:
+    """Expand approved pattern counts into stable unit occurrences with segments."""
+    definitions = _prepare_patterns(pattern_rows)
+    output: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for row in plan_rows:
+        schedule_version = _sched_text(row, "SchedulePlanVersionKey")
+        scenario = _sched_text(row, "ScenarioKey").upper()
+        business_date = _sched_date(row.get("BusinessDate"), "BusinessDate")
+        activity = _sched_text(row, "ActivityKey")
+        version = _sched_text(row, "PatternVersionKey")
+        pattern = _sched_text(row, "PatternKey")
+        count = _sched_integer(row.get("PatternCount"), "PatternCount", minimum=1)
+        matching = [
+            definition for definition in _patterns_for_date(definitions, activity, business_date)
+            if definition["PatternVersionKey"] == version and definition["PatternKey"] == pattern
+        ]
+        if len(matching) != 1:
+            raise ValueError(f"Approved pattern cannot be resolved for {version}/{pattern}/{business_date}")
+        definition = matching[0]
+        midnight = datetime.combine(business_date, time())
+        segments = [
+            {
+                **segment,
+                "SegmentStart": midnight + timedelta(minutes=segment["StartMinute"]),
+                "SegmentEnd": midnight + timedelta(minutes=segment["EndMinute"]),
+            }
+            for segment in definition["Segments"]
+        ]
+        paid_segments = [segment for segment in segments if segment["PaidFlag"]]
+        productive_segments = [segment for segment in segments if segment["ProductiveFlag"]]
+        for ordinal in range(1, count + 1):
+            occurrence_key = "|".join(
+                (
+                    schedule_version,
+                    scenario,
+                    business_date.isoformat(),
+                    activity,
+                    version,
+                    pattern,
+                    f"{ordinal:04d}",
+                )
+            )
+            if occurrence_key in seen:
+                raise ValueError(f"Duplicate schedule occurrence key: {occurrence_key}")
+            seen.add(occurrence_key)
+            output.append(
+                {
+                    "OccurrenceKey": occurrence_key,
+                    "SchedulePlanVersionKey": schedule_version,
+                    "ScenarioKey": scenario,
+                    "BusinessDate": business_date,
+                    "ActivityKey": activity,
+                    "PatternVersionKey": version,
+                    "PatternKey": pattern,
+                    "PatternName": definition["PatternName"],
+                    "OccurrenceOrdinal": ordinal,
+                    "PaidStart": min(segment["SegmentStart"] for segment in paid_segments),
+                    "PaidEnd": max(segment["SegmentEnd"] for segment in paid_segments),
+                    "PaidHours": definition["PaidHoursPerPattern"],
+                    "ProductiveHours": definition["ProductiveHoursPerPattern"],
+                    "Segments": segments,
+                    "ProductiveSegments": productive_segments,
+                }
+            )
+    return sorted(output, key=lambda row: (row["PaidStart"], row["OccurrenceKey"]))
+
+
 def fit_shift_patterns(
     requirement_rows: Iterable[ScheduleRecord],
     pattern_rows: Iterable[ScheduleRecord],

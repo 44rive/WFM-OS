@@ -1,5 +1,5 @@
 let
-    Schedules = stg_ScheduleIntervals,
+    Schedules = stg_AuthoritativeScheduleIntervals,
     Logins = stg_LoginIntervals,
     Events = stg_AgentEventIntervals,
     WithLoginRows = Table.NestedJoin(

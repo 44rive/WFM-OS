@@ -1,0 +1,2 @@
+Profile,AgentSkillKey,AgentKey,SkillKey,ProficiencyLevel,ValidFrom,ValidTo,Approved
+BLANK_DEPLOYMENT,EXAMPLE_AGENT_SKILL,,EXAMPLE_SKILL,1,,,FALSE

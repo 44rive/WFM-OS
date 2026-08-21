@@ -24,6 +24,11 @@ quantity; it is not actual payroll or attendance.
 and leave-capacity measures. Leave capacity is a removable-hours ceiling, not
 an employee leave request, decision, or balance.
 
+`roster_publication.dax` owns approved named-roster, full-request leave,
+bilateral swap, and published-roster measures. These facts remain pseudonymous;
+DAX must never surface display names, protected attributes, diagnoses, or
+external entitlement balances.
+
 Use `MANIFEST.csv` as the installation contract for measure order, home table,
 format, display folder, and business description. Use `RELATIONSHIPS.csv` as
 the canonical relationship contract; fact columns are foreign keys and

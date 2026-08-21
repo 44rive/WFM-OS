@@ -1,0 +1,2 @@
+Profile,ContractKey,AgentKey,RosterPolicyKey,PeriodType,PeriodStartDay,MinPaidHours,TargetPaidHours,MaxPaidHours,MaxPaidHoursPerDay,MaxPaidHoursPerShift,MaxShiftSpanHours,MinRestHours,MaxConsecutiveWorkdays,MaxAssignmentsPerWorkday,ValidFrom,ValidTo,Approved
+BLANK_DEPLOYMENT,EXAMPLE_CONTRACT,,EXAMPLE_ROSTER,WEEK,MONDAY,0,40,40,8,8,10,11,6,1,,,FALSE

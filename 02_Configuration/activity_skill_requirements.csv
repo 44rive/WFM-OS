@@ -1,0 +1,2 @@
+Profile,RequirementKey,ActivityKey,PatternKey,SkillGroupKey,SkillKey,MinimumLevel,ValidFrom,ValidTo,Approved
+BLANK_DEPLOYMENT,EXAMPLE_REQUIREMENT,,ALL,CORE,EXAMPLE_SKILL,1,,,FALSE

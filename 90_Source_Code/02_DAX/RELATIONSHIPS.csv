@@ -43,3 +43,13 @@ InstallOrder,ForeignTable,ForeignColumn,LookupTable,LookupColumn,Cardinality,Cro
 65,fact_LeavePlan,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
 66,fact_LeavePlan,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
 67,fact_LeavePlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+70,fact_RosterPlan,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+71,fact_RosterPlan,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+72,fact_RosterPlan,AgentKey,dim_Agent,AgentKey,ManyToOne,Single,TRUE,TRUE
+73,fact_LeaveRequestDecision,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+74,fact_LeaveRequestDecision,AgentKey,dim_Agent,AgentKey,ManyToOne,Single,TRUE,TRUE
+75,fact_RosterPublication,StartDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+76,fact_PublishedRosterSegment,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+77,fact_PublishedRosterSegment,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
+78,fact_PublishedRosterSegment,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+79,fact_PublishedRosterSegment,AgentKey,dim_Agent,AgentKey,ManyToOne,Single,TRUE,TRUE

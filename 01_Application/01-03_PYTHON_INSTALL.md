@@ -42,7 +42,10 @@ The source order is deliberate:
 4. `supply.py` — recursive paid supply and deterministic hiring waves.
 5. `scheduling.py` — anonymous pattern fitting and interval coverage.
 6. `leave.py` — interval leave-capacity ceilings.
-7. `excel_adapter.py` — DataFrame-to-record boundary only.
+7. `roster.py` — deterministic named assignment and complete-roster validation.
+8. `leave_requests.py` — stable full-request leave recommendation queue.
+9. `swaps.py` — bilateral whole-occurrence swap simulation.
+10. `excel_adapter.py` — DataFrame-to-record boundary only.
 
 ## Install forecast entrypoint
 
@@ -191,11 +194,118 @@ version, the exact approved schedule version, and complete evidence. An
 approved allowance may be between zero and the calculated ceiling. This module
 does not contain employee leave requests, balances, identities, or decisions.
 
+## Install named-roster entrypoints
+
+Only after one complete `BASE` schedule version and its leave-capacity plan are
+approved, install this cell at `93H_PY_ROSTER!B15`:
+
+```python
+parameters = xl("tblParameters[#All]", headers=True)
+roster_candidates = run_roster_excel(
+    xl("out_ApprovedSchedulePlan[#All]", headers=True),
+    xl("tblShiftPatterns[#All]", headers=True),
+    xl("out_ApprovedScheduleCoverage[#All]", headers=True),
+    xl("tblPeople[#All]", headers=True),
+    xl("tblRosterPolicies[#All]", headers=True),
+    xl("tblAgentContracts[#All]", headers=True),
+    xl("tblActivityEligibility[#All]", headers=True),
+    xl("tblAgentSkills[#All]", headers=True),
+    xl("tblActivitySkills[#All]", headers=True),
+    xl("tblAgentAvailability[#All]", headers=True),
+    xl("tblAgentPreferences[#All]", headers=True),
+    profile=str(parameter_value_excel(parameters, "EnterpriseProfile")),
+)
+pd.DataFrame(roster_candidates)
+```
+
+Expose the companion results in manifest order:
+
+```python
+# 93I_PY_ROSTER_SEGMENTS!B15
+pd.DataFrame(roster_segment_candidates)
+
+# 93J_PY_ROSTER_DQ!B15
+pd.DataFrame(roster_diagnostic_candidates)
+
+# 93K_PY_ROSTER_PERIODS!B15
+pd.DataFrame(roster_period_candidates)
+```
+
+Resolve every blocking diagnostic and review period minima/fairness before
+copying selected rows to `tblRosterPlanVersions`. Add stable roster and row
+keys plus complete approval evidence. Only pseudonymous `AgentKey` may enter
+the approval table. The bounded method is deterministic, not globally optimal,
+and its configured contract values still require local labor/legal review.
+
+## Install swap and named-leave entrypoints
+
+At `93N_PY_SWAPS!B15`, validate submitted bilateral whole-occurrence swaps:
+
+```python
+parameters = xl("tblParameters[#All]", headers=True)
+swap_candidates = run_swaps_excel(
+    xl("out_ApprovedRoster[#All]", headers=True),
+    xl("out_ApprovedSchedulePlan[#All]", headers=True),
+    xl("tblShiftPatterns[#All]", headers=True),
+    xl("tblSwapRequests[#All]", headers=True),
+    xl("tblPeople[#All]", headers=True),
+    xl("tblRosterPolicies[#All]", headers=True),
+    xl("tblAgentContracts[#All]", headers=True),
+    xl("tblActivityEligibility[#All]", headers=True),
+    xl("tblAgentSkills[#All]", headers=True),
+    xl("tblActivitySkills[#All]", headers=True),
+    xl("tblAgentAvailability[#All]", headers=True),
+    profile=str(parameter_value_excel(parameters, "EnterpriseProfile")),
+)
+pd.DataFrame(swap_candidates)
+```
+
+Expose `swap_proposal_candidates` at `93O_PY_SWAP_PROPOSALS!B15` and
+`swap_diagnostic_candidates` at `93P_PY_SWAP_DQ!B15`. Copy reviewed decisions
+to `tblSwapDecisions`; Python cannot approve them.
+
+After the approved swap-decision version refreshes, calculate leave at
+`93L_PY_LEAVE_REQUESTS!B15`. This order is mandatory because leave is evaluated
+against the effective post-swap assignment:
+
+```python
+parameters = xl("tblParameters[#All]", headers=True)
+leave_request_candidates = run_leave_requests_excel(
+    xl("out_ApprovedRoster[#All]", headers=True),
+    xl("out_ApprovedSchedulePlan[#All]", headers=True),
+    xl("tblShiftPatterns[#All]", headers=True),
+    xl("out_ApprovedLeavePlan[#All]", headers=True),
+    xl("tblLeaveRequests[#All]", headers=True),
+    xl("tblLeaveTypePolicies[#All]", headers=True),
+    xl("tblLeaveEntitlementSnapshots[#All]", headers=True),
+    xl("tblLeaveRequestDecisions[#All]", headers=True),
+    xl("tblSwapDecisions[#All]", headers=True),
+    profile=str(parameter_value_excel(parameters, "EnterpriseProfile")),
+)
+pd.DataFrame(leave_request_candidates)
+```
+
+Expose `leave_consumption_candidates` at
+`93M_PY_LEAVE_CONSUMPTION!B15`. Copy reviewed decisions to
+`tblLeaveRequestDecisions`, preserving the swap-decision lineage. The engine
+supports full-request decisions only. `ALWAYS_REVIEW` categories require human
+review and are never capacity-declined.
+
+## Publish with one schedule authority
+
+Approve one row in `tblRosterPublications`, with the exact roster, swap, and
+leave decision versions, then complete controlled publication evidence.
+Power Query creates `out_PublishedRosterSegments`. Approve exactly one
+non-overlapping row in `tblScheduleAuthority`: `IMPORTED_SCHEDULE`, or
+`PUBLISHED_ROSTER` with the exact roster and publication versions. Do not enable
+published authority until `dq_RosterPublication` and the complete desktop
+release checklist pass.
+
 ## Release evidence
 
 Record screenshots or exported evidence showing:
 
-- all 15 manifest cells calculate without errors;
+- all 27 manifest cells calculate without errors;
 - all candidate DataFrames have stable headers and nonnegative values;
 - future history beyond `p_AsOfDate` does not affect the forecast;
 - a draft forecast cannot become a canonical fact;
@@ -212,6 +322,12 @@ Record screenshots or exported evidence showing:
   independently recomputed before schedule coverage is published;
 - leave candidates consume only approved schedule coverage and approved leave
   allowance never exceeds the recomputed interval ceiling;
+- named assignment is repeatable, leaves every infeasible occurrence visible,
+  and excludes display names and business IDs from output;
+- approved swaps pass whole-roster revalidation, named leave consumes the
+  effective post-swap roster, and publication preserves every version key;
+- imported and published schedules are never combined for one effective
+  activity/date scope;
 - refresh and model validation still pass after the Python cells are saved.
 
 Set the Python release gate to passed only after this evidence exists. Never

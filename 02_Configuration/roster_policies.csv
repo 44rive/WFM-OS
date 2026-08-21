@@ -1,0 +1,2 @@
+Profile,RosterPolicyKey,ActivityKey,AssignmentMethod,AvailabilityMode,FairnessMethod,WorkdayAttributionMode,MinimumHoursMode,RepairDepth,MaxCandidatePairs,ValidFrom,ValidTo,Approved
+BLANK_DEPLOYMENT,EXAMPLE_ROSTER,,CONSTRAINED_GREEDY_REPAIR_V1,EXPLICIT_WINDOWS,TARGET_LOAD_BURDEN_V1,PATTERN_BUSINESS_DATE,DIAGNOSTIC,1,250,,,FALSE

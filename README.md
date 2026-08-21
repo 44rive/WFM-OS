@@ -34,7 +34,7 @@ and is never committed to Git.
 - Strategic and demand planning
 - Forecasting and forecast accuracy
 - Capacity, hiring, and training-wave planning
-- Schedule design, shift coverage, and leave planning
+- Schedule design, named roster, leave, swaps, and controlled publication
 - Intraday/RTA and action logging
 - Attendance, conformance, and adherence
 - Agent/team performance and executive reporting
@@ -79,7 +79,7 @@ tools/windows/      Fail-closed desktop Excel preflight and source installer
 
 ## Status
 
-The repository currently contains the v0.5 architecture, a deterministic
+The repository currently contains the v0.6 architecture, a deterministic
 premium `.xlsx` application shell, the contact-service slice, and the
 schedule-led operational-control spine. It now also contains the governed
 planning-to-supply engine:
@@ -90,13 +90,20 @@ Python candidates can never become facts merely because a cell calculated.
 The daily baseline reconciles exactly to an approved 48-interval profile before
 capacity is calculated. Hiring waves honor lead time, yield, FTE per head, and
 training-seat limits; supply publication is blocked unless its planned-hire FTE
-reconciles to approved waves. v0.5 adds governed anonymous shift-pattern
+reconciles to approved waves. v0.5 added governed anonymous shift-pattern
 fitting, independent Power Query interval coverage, schedule approval, and
 interval leave-capacity approval. The deterministic `GREEDY_DEFICIT_V1` method
 is transparent and reproducible; it is not a claim of global optimization.
-Named-agent roster assignment, employee leave-request adjudication, fairness,
-labor-law rules, skills, swaps, and roster publication remain later lifecycle
-slices. The shell remains explicitly
+v0.6 adds the separate named layer:
+
+`approved BASE schedule -> stable unit occurrences -> eligibility + AND-of-OR skills + explicit availability + approved contract constraints -> deterministic named roster candidate -> roster approval -> full-request leave and bilateral whole-occurrence swap recommendations -> separate decisions -> controlled publication -> explicit schedule authority`.
+
+The named assignment method is deterministic and bounded; it does not claim
+global optimality. Contracts and policies are enterprise assertions, not proof
+of compliance with law, collective agreements, or works-council requirements.
+Medical/protected leave adjudication, payroll valuation, entitlement accounting,
+partial leave, giveaways, open-shift markets, and multi-party swaps remain out
+of scope. The shell remains explicitly
 non-operational until its Power Query, Power Pivot, and controlled VBA engines
 are installed and validated in desktop Excel:
 
@@ -105,7 +112,7 @@ are installed and validated in desktop Excel:
 `people/identity mappings + schedules + logins + states + requirements -> interval staffing + attendance + adherence + governed close day`.
 
 The Windows installer can validate the committed artifact and install all
-reviewed Power Query definitions on a staged copy. Query loads, 44
-relationships, 60 DAX measures, 15 ordered Python cells, Date Table marking,
+reviewed Power Query definitions on a staged copy. Query loads, 54
+relationships, 80 DAX measures, 27 ordered Python cells, Date Table marking,
 refresh, and release validation remain explicit desktop Excel gates; see
 [`01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md`](01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md).

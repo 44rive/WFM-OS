@@ -145,6 +145,24 @@ Lead with severity, decision deadline, owner, and stable case key. Use semantic
 surface fills only in the severity cell, not across the whole row. Resolved rows
 become neutral rather than green bands.
 
+### Constraint funnel
+
+Use a four-stage horizontal funnel for a decision that narrows one governed
+population through scope, eligibility, hard constraints, and approval. Each
+stage is a white card with a numbered label, two-line definition, explicit
+empty/status label, and one module/semantic left rule. Do not use arrows,
+gradients, or imply that a later stage passed merely because an earlier stage
+contains rows. The named-roster control page is the reference implementation.
+
+### Version-lineage spine
+
+Use a five-stage horizontal spine when one publication depends on three or more
+immutable versioned controls. Each stage names the version role and its state;
+the final stage is always authority or release. A warning band below the spine
+states the complete release gate. The roster-publication page is the reference
+implementation. Never replace exact version keys with a decorative process
+diagram.
+
 ### Empty, loading, and error states
 
 - Empty: explain what source or selection is missing and the next action.
@@ -212,6 +230,6 @@ The product remains visually unified, but modules receive one restrained accent:
 
 ## Versioning
 
-The design system begins at version `1.0.0`. Workbook `BUILD_INFO` records the
+The design system is version `1.1.0`. Workbook `BUILD_INFO` records the
 design-system version. Any new token or component changes that version and this
 document before workbook implementation.

@@ -1,0 +1,2 @@
+EntitlementSnapshotKey,Profile,AgentKey,LeaveTypeKey,AsOfDate,AvailableHours,SourceSystemKey,Approved
+ENT_A,ENTERPRISE_A,AGENT_001,ANNUAL,2026-01-31,8,HR_SOURCE,TRUE

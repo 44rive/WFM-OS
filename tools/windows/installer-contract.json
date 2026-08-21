@@ -1,7 +1,7 @@
 {
-  "contractVersion": "1.3.0",
-  "installerVersion": "0.4.0",
-  "workbookRelease": "0.5.0-shell",
+  "contractVersion": "1.4.0",
+  "installerVersion": "0.5.0",
+  "workbookRelease": "0.6.0-shell",
   "inputArtifact": "01_Application/WFM_OS.xlsx",
   "buildProvenance": "01_Application/BUILD_PROVENANCE.json",
   "queryManifest": "90_Source_Code/01_Power_Query/MANIFEST.csv",
@@ -13,7 +13,8 @@
     "column": "Date"
   },
   "vbaModules": [
-    "90_Source_Code/04_VBA/modCloseDay.bas"
+    "90_Source_Code/04_VBA/modCloseDay.bas",
+    "90_Source_Code/04_VBA/modPublishRoster.bas"
   ],
   "manualSourceFiles": [
     "90_Source_Code/02_DAX/service.dax",
@@ -21,12 +22,16 @@
     "90_Source_Code/02_DAX/planning.dax",
     "90_Source_Code/02_DAX/supply.dax",
     "90_Source_Code/02_DAX/schedule_leave.dax",
+    "90_Source_Code/02_DAX/roster_publication.dax",
     "90_Source_Code/03_Python/forecast.py",
     "90_Source_Code/03_Python/capacity.py",
     "90_Source_Code/03_Python/planning.py",
     "90_Source_Code/03_Python/supply.py",
     "90_Source_Code/03_Python/scheduling.py",
     "90_Source_Code/03_Python/leave.py",
+    "90_Source_Code/03_Python/roster.py",
+    "90_Source_Code/03_Python/leave_requests.py",
+    "90_Source_Code/03_Python/swaps.py",
     "90_Source_Code/03_Python/excel_adapter.py"
   ],
   "requiredWorkbookTables": [
@@ -141,6 +146,78 @@
     {
       "name": "tblLeavePlanVersions",
       "columns": ["LeavePlanRowKey", "Profile", "LeavePlanVersionKey", "SchedulePlanVersionKey", "ScenarioKey", "PolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "ScheduledProductiveFTE", "CalculatedAllowanceHours", "ApprovedAllowanceHours", "RemainingCoverageFTE", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblSkills",
+      "columns": ["Profile", "SkillKey", "SkillName", "ValidFrom", "ValidTo", "Enabled"]
+    },
+    {
+      "name": "tblActivityEligibility",
+      "columns": ["Profile", "EligibilityKey", "AgentKey", "ActivityKey", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblActivitySkills",
+      "columns": ["Profile", "RequirementKey", "ActivityKey", "PatternKey", "SkillGroupKey", "SkillKey", "MinimumLevel", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblAgentSkills",
+      "columns": ["Profile", "AgentSkillKey", "AgentKey", "SkillKey", "ProficiencyLevel", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblAgentContracts",
+      "columns": ["Profile", "ContractKey", "AgentKey", "RosterPolicyKey", "PeriodType", "PeriodStartDay", "MinPaidHours", "TargetPaidHours", "MaxPaidHours", "MaxPaidHoursPerDay", "MaxPaidHoursPerShift", "MaxShiftSpanHours", "MinRestHours", "MaxConsecutiveWorkdays", "MaxAssignmentsPerWorkday", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblAgentAvailability",
+      "columns": ["Profile", "AvailabilityWindowKey", "AgentKey", "WindowStart", "WindowEnd", "AvailabilityType", "SourceRole", "Approved"]
+    },
+    {
+      "name": "tblAgentPreferences",
+      "columns": ["Profile", "PreferenceKey", "AgentKey", "PatternKey", "DayType", "PreferenceCost", "UnfavorableWeight", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblRosterPolicies",
+      "columns": ["Profile", "RosterPolicyKey", "ActivityKey", "AssignmentMethod", "AvailabilityMode", "FairnessMethod", "WorkdayAttributionMode", "MinimumHoursMode", "RepairDepth", "MaxCandidatePairs", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblLeaveTypePolicies",
+      "columns": ["Profile", "LeaveTypeKey", "CapacityDecisionMode", "EntitlementCheckMode", "PartialApprovalMode", "PaidFlag", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblScheduleAuthority",
+      "columns": ["Profile", "AuthorityKey", "ActivityKey", "ValidFrom", "ValidTo", "ScheduleAuthority", "RosterVersionKey", "PublicationVersionKey", "Approved", "Owner", "Notes"]
+    },
+    {
+      "name": "tblRosterPlanVersions",
+      "columns": ["RosterPlanRowKey", "AssignmentKey", "Profile", "RosterVersionKey", "SchedulePlanVersionKey", "ScenarioKey", "ApprovalStatus", "OccurrenceKey", "BusinessDate", "ActivityKey", "PatternVersionKey", "PatternKey", "OccurrenceOrdinal", "AgentKey", "ContractKey", "PaidHours", "ProductiveHours", "AssignmentMethod", "AssignmentStatus", "FairnessScore", "PreferenceCost", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblLeaveRequests",
+      "columns": ["LeaveRequestKey", "Profile", "AgentKey", "LeaveTypeKey", "RequestedStart", "RequestedEnd", "SubmittedAt", "PriorityRank", "RequestStatus", "ExternalReference", "Notes"]
+    },
+    {
+      "name": "tblLeaveEntitlementSnapshots",
+      "columns": ["EntitlementSnapshotKey", "Profile", "AgentKey", "LeaveTypeKey", "AsOfDate", "AvailableHours", "SourceSystemKey", "Approved"]
+    },
+    {
+      "name": "tblLeaveRequestDecisions",
+      "columns": ["LeaveDecisionRowKey", "Profile", "LeaveDecisionVersionKey", "RosterVersionKey", "SwapDecisionVersionKey", "LeavePlanVersionKey", "LeaveRequestKey", "ApprovalStatus", "AgentKey", "LeaveTypeKey", "RequestedStart", "RequestedEnd", "RequestedHours", "ApprovedHours", "RecommendationStatus", "DecisionReason", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblSwapRequests",
+      "columns": ["SwapRequestKey", "Profile", "RosterVersionKey", "AssignmentKeyA", "AgentKeyA", "AssignmentKeyB", "AgentKeyB", "ConsentAAt", "ConsentBAt", "SubmittedAt", "RequestStatus", "Notes"]
+    },
+    {
+      "name": "tblSwapDecisions",
+      "columns": ["SwapDecisionRowKey", "Profile", "SwapDecisionVersionKey", "RosterVersionKey", "SwapRequestKey", "ApprovalStatus", "AssignmentKeyA", "AgentKeyA", "AssignmentKeyB", "AgentKeyB", "RecommendationStatus", "DecisionReason", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblRosterPublications",
+      "columns": ["PublicationKey", "Profile", "PublicationVersionKey", "RosterVersionKey", "LeaveDecisionVersionKey", "SwapDecisionVersionKey", "ScenarioKey", "StartDate", "EndDate", "ApprovalStatus", "ApprovedAt", "ApprovedBy", "PublishedAt", "PublishedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblRosterPublicationLog",
+      "columns": ["PublicationLogKey", "PublicationKey", "Profile", "PublicationVersionKey", "RosterVersionKey", "PublishedAt", "PublishedBy", "OutputPath", "RowCount", "ContentHash", "Status"]
     },
     {
       "name": "tblBuildInfo",

@@ -1,0 +1,2 @@
+Profile,SkillKey,SkillName,ValidFrom,ValidTo,Enabled
+BLANK_DEPLOYMENT,EXAMPLE_SKILL,Disabled example skill,,,FALSE

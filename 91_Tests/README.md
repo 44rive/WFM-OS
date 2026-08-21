@@ -48,6 +48,12 @@ complete 48-interval coverage, visible infeasibility, rule and segment failure
 boundaries, cross-midnight expansion, profile-scoped Excel adapters, and
 interval leave capacity with duplicate-grain and unsafe-policy rejection.
 
+`test_roster_cycle.py` covers stable unit-occurrence keys, deterministic named
+assignment, explicit eligibility/skill/availability/contract constraints,
+visible unassigned occurrences, full-request leave queue ordering, external
+entitlement snapshots, protected/local review routing, and bilateral
+whole-occurrence swap revalidation.
+
 ## Reference definitions
 
 All fixture times are local, timezone-consistent ISO timestamps. Production

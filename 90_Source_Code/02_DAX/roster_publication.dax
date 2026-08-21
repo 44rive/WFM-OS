@@ -1,0 +1,80 @@
+// Named-roster measures report only approved, pseudonymous facts.
+// Recommendations and publication remain separate controlled decisions.
+
+Approved Roster Assignments :=
+    COUNTROWS ( fact_RosterPlan )
+
+Approved Roster Paid Hours :=
+    SUM ( fact_RosterPlan[PaidHours] )
+
+Approved Roster Productive Hours :=
+    SUM ( fact_RosterPlan[ProductiveHours] )
+
+Roster Assigned Agents :=
+    DISTINCTCOUNT ( fact_RosterPlan[AgentKey] )
+
+Average Paid Hours · Assignment :=
+    DIVIDE ( [Approved Roster Paid Hours], [Approved Roster Assignments] )
+
+Average Roster Fairness Score :=
+    AVERAGE ( fact_RosterPlan[FairnessScore] )
+
+Roster Preference Cost :=
+    SUM ( fact_RosterPlan[PreferenceCost] )
+
+Roster Occurrence Coverage % :=
+    DIVIDE ( [Approved Roster Assignments], [Approved Pattern Instances] )
+
+Named Leave Decisions :=
+    COUNTROWS ( fact_LeaveRequestDecision )
+
+Named Leave Requests Approved :=
+    CALCULATE (
+        COUNTROWS ( fact_LeaveRequestDecision ),
+        fact_LeaveRequestDecision[RecommendationStatus] = "APPROVE"
+    )
+
+Named Leave Requests Declined :=
+    CALCULATE (
+        COUNTROWS ( fact_LeaveRequestDecision ),
+        fact_LeaveRequestDecision[RecommendationStatus] = "DECLINE"
+    )
+
+Named Leave Requests · Review :=
+    CALCULATE (
+        COUNTROWS ( fact_LeaveRequestDecision ),
+        fact_LeaveRequestDecision[RecommendationStatus] = "REVIEW_REQUIRED"
+    )
+
+Named Leave Approved Hours :=
+    SUM ( fact_LeaveRequestDecision[ApprovedHours] )
+
+Named Leave Approval % :=
+    DIVIDE ( [Named Leave Requests Approved], [Named Leave Decisions] )
+
+Swap Decisions :=
+    COUNTROWS ( fact_SwapDecision )
+
+Swaps Approved :=
+    CALCULATE (
+        COUNTROWS ( fact_SwapDecision ),
+        fact_SwapDecision[RecommendationStatus] = "APPROVE"
+    )
+
+Swap Approval % :=
+    DIVIDE ( [Swaps Approved], [Swap Decisions] )
+
+Roster Publications :=
+    COUNTROWS ( fact_RosterPublication )
+
+Published Roster Scheduled Hours :=
+    DIVIDE ( SUM ( fact_PublishedRosterSegment[ScheduledSeconds] ), 3600 )
+
+Published Roster Productive Hours :=
+    DIVIDE (
+        CALCULATE (
+            SUM ( fact_PublishedRosterSegment[ScheduledSeconds] ),
+            fact_PublishedRosterSegment[ProductiveFlag] = TRUE ()
+        ),
+        3600
+    )

@@ -1,0 +1,2 @@
+Profile,AvailabilityWindowKey,AgentKey,WindowStart,WindowEnd,AvailabilityType,SourceRole,Approved
+BLANK_DEPLOYMENT,EXAMPLE_AVAILABILITY,,,,AVAILABLE,WORKFORCE,FALSE

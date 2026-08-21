@@ -1,6 +1,6 @@
 # Canonical data contracts
 
-Contract version: `1.4.0`.
+Contract version: `1.5.0`.
 
 These are logical contracts. Physical types and required/optional status will be
 implemented and tested in Power Query.
@@ -184,6 +184,170 @@ ApprovedAllowanceHours, RemainingCoverageFTE, ApprovedAt, ApprovedBy,
 SourceRunKey, Notes
 ```
 
+## Skill
+
+```text
+Profile, SkillKey, SkillName, ValidFrom, ValidTo, Enabled
+```
+
+## Activity eligibility
+
+```text
+Profile, EligibilityKey, AgentKey, ActivityKey, ValidFrom, ValidTo, Approved
+```
+
+## Activity skill requirement
+
+```text
+Profile, RequirementKey, ActivityKey, PatternKey, SkillGroupKey, SkillKey,
+MinimumLevel, ValidFrom, ValidTo, Approved
+```
+
+Every effective `SkillGroupKey` is required. Any qualifying skill inside one
+group satisfies that group. An exact `PatternKey` definition takes precedence
+over `ALL`.
+
+## Agent skill
+
+```text
+Profile, AgentSkillKey, AgentKey, SkillKey, ProficiencyLevel,
+ValidFrom, ValidTo, Approved
+```
+
+## Agent contract
+
+```text
+Profile, ContractKey, AgentKey, RosterPolicyKey, PeriodType, PeriodStartDay,
+MinPaidHours, TargetPaidHours, MaxPaidHours, MaxPaidHoursPerDay,
+MaxPaidHoursPerShift, MaxShiftSpanHours, MinRestHours,
+MaxConsecutiveWorkdays, MaxAssignmentsPerWorkday, ValidFrom, ValidTo, Approved
+```
+
+v0.6 implements `PeriodType = WEEK`. Contract values are enterprise-approved
+assertions and are not proof of statutory or collective-agreement compliance.
+
+## Agent availability window
+
+```text
+Profile, AvailabilityWindowKey, AgentKey, WindowStart, WindowEnd,
+AvailabilityType, SourceRole, Approved
+```
+
+Supported types are `AVAILABLE` and `UNAVAILABLE`; an unavailable intersection
+overrides availability. Every paid interval of an assignment must be contained
+inside dated availability.
+
+## Agent preference
+
+```text
+Profile, PreferenceKey, AgentKey, PatternKey, DayType, PreferenceCost,
+UnfavorableWeight, ValidFrom, ValidTo, Approved
+```
+
+Preferences are nonnegative soft costs. They cannot make an otherwise eligible
+agent ineligible.
+
+## Roster policy
+
+```text
+Profile, RosterPolicyKey, ActivityKey, AssignmentMethod, AvailabilityMode,
+FairnessMethod, WorkdayAttributionMode, MinimumHoursMode, RepairDepth,
+MaxCandidatePairs, ValidFrom, ValidTo, Approved
+```
+
+## Roster plan
+
+```text
+RosterPlanRowKey, AssignmentKey, Profile, RosterVersionKey, SchedulePlanVersionKey,
+ScenarioKey, ApprovalStatus, OccurrenceKey, BusinessDate, ActivityKey,
+PatternVersionKey, PatternKey, OccurrenceOrdinal, AgentKey, ContractKey,
+PaidHours, ProductiveHours, AssignmentMethod, AssignmentStatus,
+FairnessScore, PreferenceCost, ApprovedAt, ApprovedBy, SourceRunKey, Notes
+```
+
+`AssignmentKey` identifies the occurrence assignment and remains unchanged when
+an approved swap changes its agent. It must not embed the agent identity.
+
+## Leave type policy
+
+```text
+Profile, LeaveTypeKey, CapacityDecisionMode, EntitlementCheckMode,
+PartialApprovalMode, PaidFlag, ValidFrom, ValidTo, Approved
+```
+
+## Leave request
+
+```text
+LeaveRequestKey, Profile, AgentKey, LeaveTypeKey, RequestedStart,
+RequestedEnd, SubmittedAt, PriorityRank, RequestStatus, ExternalReference, Notes
+```
+
+## Leave entitlement snapshot
+
+```text
+EntitlementSnapshotKey, Profile, AgentKey, LeaveTypeKey, AsOfDate,
+AvailableHours, SourceSystemKey, Approved
+```
+
+The snapshot is external evidence. WFM OS does not maintain entitlement
+balances.
+
+## Leave request decision
+
+```text
+LeaveDecisionRowKey, Profile, LeaveDecisionVersionKey, RosterVersionKey,
+SwapDecisionVersionKey, LeavePlanVersionKey, LeaveRequestKey, ApprovalStatus, AgentKey, LeaveTypeKey,
+RequestedStart, RequestedEnd, RequestedHours, ApprovedHours,
+RecommendationStatus, DecisionReason, ApprovedAt, ApprovedBy, SourceRunKey,
+Notes
+```
+
+## Swap request
+
+```text
+SwapRequestKey, Profile, RosterVersionKey, AssignmentKeyA, AgentKeyA,
+AssignmentKeyB, AgentKeyB, ConsentAAt, ConsentBAt, SubmittedAt,
+RequestStatus, Notes
+```
+
+## Swap decision
+
+```text
+SwapDecisionRowKey, Profile, SwapDecisionVersionKey, RosterVersionKey,
+SwapRequestKey, ApprovalStatus, AssignmentKeyA, AgentKeyA, AssignmentKeyB,
+AgentKeyB, RecommendationStatus, DecisionReason, ApprovedAt, ApprovedBy,
+SourceRunKey, Notes
+```
+
+## Roster publication
+
+```text
+PublicationKey, Profile, PublicationVersionKey, RosterVersionKey,
+LeaveDecisionVersionKey, SwapDecisionVersionKey, ScenarioKey, StartDate,
+EndDate, ApprovalStatus, ApprovedAt, ApprovedBy, PublishedAt, PublishedBy,
+SourceRunKey, Notes
+```
+
+## Published roster segment
+
+```text
+PublicationVersionKey, RosterVersionKey, OccurrenceKey, SegmentKey,
+BusinessDate, IntervalStart, IntervalKey, AgentKey, ActivityKey,
+ScheduleTypeKey, PaidFlag, ProductiveFlag, ScheduledSeconds, PublicationStatus
+```
+
+## Schedule authority
+
+```text
+Profile, AuthorityKey, ActivityKey, ValidFrom, ValidTo, ScheduleAuthority,
+RosterVersionKey, PublicationVersionKey, Approved, Owner, Notes
+```
+
+`ScheduleAuthority` is either `IMPORTED_SCHEDULE` or `PUBLISHED_ROSTER`.
+Published authority requires both version keys. Approved effective ranges may
+not overlap for one activity. This prevents imported and WFM OS-published
+schedules from being combined in adherence or staffing facts.
+
 ## Agent operational interval
 
 ```text
@@ -243,6 +407,20 @@ NetProductiveFTE, Status, ClosedAt, ClosedBy, SourceRunKey
 - Leave policy outside its numeric bounds, duplicate approved leave interval,
   allowance above the independently calculated maximum, invalid increment, or
   negative remaining coverage: block leave publication.
+- Missing or overlapping effective roster policy, contract, activity
+  eligibility, skill, or availability: fail named assignment and block roster
+  approval.
+- Duplicate, missing, extra, or unassigned approved roster occurrence; altered
+  occurrence identity or hours; employee overlap; rest/hour/day assertion
+  breach; or roster coverage mismatch: block roster publication.
+- Named roster for a scenario other than `BASE`: block publication.
+- Leave-request approval without a matching request/roster, above available
+  entitlement or interval capacity, outside full-request mode, or with duplicate
+  interval consumption: block publication.
+- Approved swap without both consents, with assignment conflict, eligibility
+  failure, coverage change, or version mismatch: block publication.
+- Missing publication evidence, unresolved roster DQ, or a daylight-saving
+  exception without explicit review: block publication.
 - Invalid or unmatched planning adjustment: fail the analytical candidate run.
 - Python candidate without a stable version and approval evidence: exclude it
   from canonical facts.

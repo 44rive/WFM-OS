@@ -212,6 +212,10 @@ The release remains blocked until:
   leave ceilings match the v0.5 golden fixtures;
 - approved schedule hours and coverage are independently recomputed by Power
   Query, undercoverage is blocking, and approved leave never exceeds capacity;
+- named assignment, visible infeasibility, full-request leave, and bilateral
+  swap revalidation match the v0.6 anonymized fixtures;
+- published roster segments retain exact roster/change/publication lineage and
+  imported schedules are never combined with published schedule authority;
 - the close-day controller is idempotent and creates no duplicate final keys;
 - a second refresh produces identical finalized results;
 - the workbook passes visual inspection in desktop Excel.

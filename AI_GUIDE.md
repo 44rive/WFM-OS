@@ -87,8 +87,9 @@ position or paste source from an uncommitted working copy.
 - Never publish a supply plan whose planned-hire FTE does not reconcile to
   approved hiring waves for the same plan version, scenario, activity, and
   proficiency period.
-- Never turn an anonymous schedule candidate into named-agent assignments.
-  Named rosters require a separate canonical contract, privacy review, and ADR.
+- Never attach agents directly to an anonymous schedule candidate. Named
+  rosters must pass the separate ADR 0006 occurrence, eligibility, contract,
+  approval, and publication chain.
 - Never calculate leave capacity from an unapproved Python coverage spill.
   Leave candidates must consume independently expanded approved schedule
   coverage from Power Query.
@@ -186,8 +187,25 @@ For the planning-to-supply chain, preserve these invariants:
 10. leave allowance has unique schedule-version/scenario/interval/activity
     grain, is bounded by coverage floor, reserve, percentage cap, and increment,
     and approved allowance cannot exceed the recomputed maximum;
-11. named-agent assignment, employee leave requests, fairness, labor-law rules,
-    skill matching, swaps, and roster publication remain outside this contract.
+11. named assignment consumes one approved `BASE` schedule version and retains
+    every unit occurrence, including any unassigned blocking occurrence;
+12. `CONSTRAINED_GREEDY_REPAIR_V1` is scarcity-first, deterministically tied,
+    bounded by configured repair depth/pairs, and never described as optimal;
+13. active employment, explicit activity eligibility, AND-of-OR skills,
+    explicit dated availability, non-overlap, rest, and contract maxima are
+    hard constraints; minimum hours remain visible according to policy;
+14. cross-midnight patterns keep the pattern `BusinessDate`, charge paid time
+    to actual daily/weekly periods, and occupy the full paid-start/end span;
+15. named facts contain pseudonymous `AgentKey` only; names and business IDs do
+    not enter candidate or publication output;
+16. leave recommendations process the complete request in stable queue order.
+    `ALWAYS_REVIEW` categories are never capacity-declined, and entitlement is
+    an external snapshot rather than a balance maintained by WFM OS;
+17. swaps are bilateral, consented, whole-occurrence exchanges and require a
+    complete-roster revalidation before a separate approval;
+18. publication requires a separately approved roster, leave/swap lineage, and
+    exactly one effective schedule authority. Never combine imported schedules
+    with published roster segments for staffing or adherence.
 
 ### VBA change
 
@@ -267,6 +285,24 @@ borders, or additional accent colors.
 5. provide empty, loading, warning, and blocking-error states;
 6. add navigation, ownership, refresh timestamp, and drill-through behavior;
 7. document the operating cadence and approval point.
+
+### Change roster, leave, swap, or publication behavior
+
+1. Read ADR 0006 and preserve the anonymous-schedule boundary.
+2. Prefer configuration for new enterprise skills, eligibility, contracts,
+   availability, preferences, leave routing, or schedule authority.
+3. If calculation behavior changes, update the dependency-free core, adapter,
+   manifest, anonymized fixture, Power Query validation, contracts, and ADR in
+   the same change.
+4. Preserve immutable `OccurrenceKey` and agent-independent `AssignmentKey`.
+5. Evaluate swaps first, then named leave against the effective post-swap
+   roster; publication must name both decision versions.
+6. Keep local/protected leave on `ALWAYS_REVIEW`; never infer a diagnosis or
+   protected attribute.
+7. Keep the roster constraint funnel and publication lineage spine aligned with
+   design-system version `1.1.0`; do not locally invent another workflow visual.
+8. Prove imported and published schedules cannot enter the same effective
+   operational scope.
 
 ## Workbook modification workflow
 

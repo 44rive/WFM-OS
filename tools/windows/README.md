@@ -60,7 +60,8 @@ powershell.exe -NoProfile -File tools\windows\Install-WfmOsExcel.ps1 `
 ```
 
 `.xlsm` output is permitted only with `-ImportMacro`. The installer tests access
-to `Workbook.VBProject` before importing `modCloseDay.bas`; if "Trust access to
+to `Workbook.VBProject` before importing the reviewed close-day and roster-
+publication modules; if "Trust access to
 the VBA project object model" is unavailable, it fails without publishing the
 candidate workbook. Macros are disabled while source workbooks are opened.
 

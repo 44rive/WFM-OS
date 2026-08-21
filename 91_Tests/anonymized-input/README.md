@@ -21,3 +21,8 @@ The planning-to-supply fixtures add fabricated daily candidates, effective
 `ALL` and weekday interval profiles, approved/draft scenarios, interval
 capacity, weekly supply movements, and two nonoverlapping hiring policies. They
 contain no enterprise data.
+
+The v0.6 named-roster fixtures add two pseudonymous active agents, fabricated
+skills, eligibility, contracts, availability, preferences, leave requests,
+an external entitlement snapshot, and one consented bilateral swap. No real
+identity, diagnosis, protected attribute, or entitlement balance is present.

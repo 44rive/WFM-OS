@@ -134,6 +134,23 @@ class RepositoryContractTest(unittest.TestCase):
         leave_keys = [(row["Profile"], row["PolicyKey"]) for row in leave]
         self.assertEqual(len(leave_keys), len(set(leave_keys)))
 
+        roster_key_contracts = {
+            "skills.csv": ("Profile", "SkillKey"),
+            "activity_eligibility.csv": ("Profile", "EligibilityKey"),
+            "activity_skill_requirements.csv": ("Profile", "RequirementKey"),
+            "agent_skills.csv": ("Profile", "AgentSkillKey"),
+            "agent_contracts.csv": ("Profile", "ContractKey"),
+            "agent_availability.csv": ("Profile", "AvailabilityWindowKey"),
+            "agent_preferences.csv": ("Profile", "PreferenceKey"),
+            "roster_policies.csv": ("Profile", "RosterPolicyKey"),
+            "leave_type_policies.csv": ("Profile", "LeaveTypeKey"),
+            "schedule_authority.csv": ("Profile", "AuthorityKey"),
+        }
+        for filename, fields in roster_key_contracts.items():
+            configured = rows(ROOT / "02_Configuration" / filename)
+            keys = [tuple(row[field] for field in fields) for row in configured]
+            self.assertEqual(len(keys), len(set(keys)), filename)
+
     def test_dax_measure_names_are_unique(self) -> None:
         measure_pattern = re.compile(r"^([^/\n][^\n]*?)\s*:=\s*$", re.MULTILINE)
         names: list[str] = []
@@ -169,6 +186,15 @@ class RepositoryContractTest(unittest.TestCase):
                 ("SCHEDULE_ENTRYPOINT", "run_schedule_excel"),
                 ("SCHEDULE_COVERAGE_OUTPUT", "schedule_coverage_candidates"),
                 ("LEAVE_ENTRYPOINT", "run_leave_excel"),
+                ("ROSTER_ENTRYPOINT", "run_roster_excel"),
+                ("ROSTER_SEGMENT_OUTPUT", "roster_segment_candidates"),
+                ("ROSTER_DIAGNOSTIC_OUTPUT", "roster_diagnostic_candidates"),
+                ("ROSTER_PERIOD_OUTPUT", "roster_period_candidates"),
+                ("LEAVE_REQUEST_ENTRYPOINT", "run_leave_requests_excel"),
+                ("LEAVE_CONSUMPTION_OUTPUT", "leave_consumption_candidates"),
+                ("SWAP_ENTRYPOINT", "run_swaps_excel"),
+                ("SWAP_PROPOSAL_OUTPUT", "swap_proposal_candidates"),
+                ("SWAP_DIAGNOSTIC_OUTPUT", "swap_diagnostic_candidates"),
             },
         )
 
@@ -251,6 +277,19 @@ class RepositoryContractTest(unittest.TestCase):
             "tblDQChecks",
         ):
             self.assertIn(f'"{table_name}"', source)
+
+    def test_roster_publication_module_is_pseudonymous_and_fail_closed(self) -> None:
+        source = (ROOT / "90_Source_Code" / "04_VBA" / "modPublishRoster.bas").read_text(encoding="utf-8")
+        for table_name in (
+            "tblRosterPublications",
+            "out_PublishedRosterSegments",
+            "dq_RosterPublication",
+            "tblRosterPublicationLog",
+        ):
+            self.assertIn(f'"{table_name}"', source)
+        self.assertIn("EXPORTED_HASH_REQUIRED", source)
+        self.assertIn('HasRosterColumn(table, "DisplayName")', source)
+        self.assertIn('HasRosterColumn(table, "EmployeeBusinessID")', source)
 
     def test_canonical_source_is_vendor_neutral(self) -> None:
         forbidden = ("verint", "allianz", "nice cxone", "genesys")

@@ -2,8 +2,9 @@
 
 This module intentionally contains table-shaping code only. It expects
 ``forecast.py``, ``capacity.py``, ``planning.py``, ``supply.py``,
-``scheduling.py``, and ``leave.py`` to have been evaluated in earlier Python
-cells, following the workbook Python manifest and row-major calculation order.
+``scheduling.py``, ``leave.py``, ``roster.py``, ``leave_requests.py``, and
+``swaps.py`` to have been evaluated in earlier Python cells, following the
+workbook Python manifest and row-major calculation order.
 """
 
 from __future__ import annotations
@@ -605,3 +606,211 @@ def run_leave_excel(
     return _plain_rows(
         [{**row, "Profile": profile} for row in calculate_leave_allowance(coverage, policies)]
     )
+
+
+def _profile_rows(frame: object, profile: str) -> list[dict[str, object]]:
+    return [
+        row for row in _records(frame)
+        if str(row.get("Profile") or "").strip() in {"", profile}
+    ]
+
+
+def _approved_profile_rows(frame: object, profile: str) -> list[dict[str, object]]:
+    output: list[dict[str, object]] = []
+    for row in _profile_rows(frame, profile):
+        if "ApprovalStatus" in row:
+            if str(row.get("ApprovalStatus") or "").strip().upper() != "APPROVED":
+                continue
+        elif "Approved" in row and not _truth(row.get("Approved"), "Approved"):
+            continue
+        output.append(row)
+    return output
+
+
+def _public_roster_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    return [
+        {key: value for key, value in row.items() if key not in {"Occurrence", "Segments"}}
+        for row in rows
+    ]
+
+
+roster_segment_candidates: list[dict[str, object]] = []
+roster_diagnostic_candidates: list[dict[str, object]] = []
+roster_period_candidates: list[dict[str, object]] = []
+leave_consumption_candidates: list[dict[str, object]] = []
+swap_proposal_candidates: list[dict[str, object]] = []
+swap_diagnostic_candidates: list[dict[str, object]] = []
+
+
+def run_roster_excel(
+    schedule_plan_frame: object,
+    pattern_frame: object,
+    coverage_frame: object,
+    people_frame: object,
+    roster_policy_frame: object,
+    contract_frame: object,
+    eligibility_frame: object,
+    agent_skill_frame: object,
+    skill_requirement_frame: object,
+    availability_frame: object,
+    preference_frame: object,
+    *,
+    profile: str,
+) -> list[dict[str, object]]:
+    """Return named-roster candidates and retain governed companion outputs."""
+    global roster_segment_candidates, roster_diagnostic_candidates, roster_period_candidates
+    schedule_plan = _approved_profile_rows(schedule_plan_frame, profile)
+    coverage = _approved_profile_rows(coverage_frame, profile)
+    patterns = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _profile_rows(pattern_frame, profile)
+    ]
+    assignments, segments, diagnostics, periods = assign_named_roster(
+        schedule_plan,
+        patterns,
+        coverage,
+        _profile_rows(people_frame, profile),
+        _profile_rows(roster_policy_frame, profile),
+        _profile_rows(contract_frame, profile),
+        _profile_rows(eligibility_frame, profile),
+        _profile_rows(agent_skill_frame, profile),
+        _profile_rows(skill_requirement_frame, profile),
+        _profile_rows(availability_frame, profile),
+        _profile_rows(preference_frame, profile),
+    )
+    roster_segment_candidates = _plain_rows([{**row, "Profile": profile} for row in segments])
+    roster_diagnostic_candidates = _plain_rows([{**row, "Profile": profile} for row in diagnostics])
+    roster_period_candidates = _plain_rows([{**row, "Profile": profile} for row in periods])
+    return _plain_rows(
+        [{**row, "Profile": profile} for row in _public_roster_rows(assignments)]
+    )
+
+
+def run_leave_requests_excel(
+    roster_frame: object,
+    schedule_plan_frame: object,
+    pattern_frame: object,
+    leave_plan_frame: object,
+    request_frame: object,
+    leave_type_policy_frame: object,
+    entitlement_frame: object,
+    prior_decision_frame: object,
+    swap_decision_frame: object,
+    *,
+    profile: str,
+) -> list[dict[str, object]]:
+    """Return named leave recommendations and retain interval consumption."""
+    global leave_consumption_candidates
+    schedule_plan = _approved_profile_rows(schedule_plan_frame, profile)
+    patterns = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _profile_rows(pattern_frame, profile)
+    ]
+    roster_rows = _roster_with_occurrences(
+        _approved_profile_rows(roster_frame, profile), schedule_plan, patterns
+    )
+    approved_swaps = [
+        row for row in _approved_profile_rows(swap_decision_frame, profile)
+        if str(row.get("RecommendationStatus") or "").strip().upper() == "APPROVE"
+    ]
+    swap_versions = {
+        str(row.get("SwapDecisionVersionKey") or "").strip()
+        for row in approved_swaps
+        if str(row.get("SwapDecisionVersionKey") or "").strip()
+    }
+    if len(swap_versions) > 1:
+        raise ValueError("Leave evaluation requires at most one approved swap-decision version")
+    by_assignment = {str(row.get("AssignmentKey") or "").strip(): row for row in roster_rows}
+    touched: set[str] = set()
+    for swap in sorted(approved_swaps, key=lambda row: str(row.get("SwapRequestKey") or "")):
+        key_a = str(swap.get("AssignmentKeyA") or "").strip()
+        key_b = str(swap.get("AssignmentKeyB") or "").strip()
+        if key_a in touched or key_b in touched:
+            raise ValueError("One assignment cannot be affected by multiple approved swaps")
+        if key_a not in by_assignment or key_b not in by_assignment:
+            raise ValueError("Approved swap assignment is missing from the approved roster")
+        row_a, row_b = by_assignment[key_a], by_assignment[key_b]
+        if row_a["AgentKey"] != swap.get("AgentKeyA") or row_b["AgentKey"] != swap.get("AgentKeyB"):
+            raise ValueError("Approved swap ownership does not match the approved roster")
+        row_a["AgentKey"], row_b["AgentKey"] = row_b["AgentKey"], row_a["AgentKey"]
+        touched.update({key_a, key_b})
+    roster_segments = _roster_flat_segments(
+        [{**row, "RosterCandidateKey": row.get("AssignmentKey")} for row in roster_rows]
+    )
+    decisions, consumption = evaluate_leave_requests(
+        roster_rows,
+        roster_segments,
+        _approved_profile_rows(leave_plan_frame, profile),
+        _profile_rows(request_frame, profile),
+        _profile_rows(leave_type_policy_frame, profile),
+        _profile_rows(entitlement_frame, profile),
+        _profile_rows(prior_decision_frame, profile),
+        swap_decision_version=next(iter(swap_versions), ""),
+    )
+    leave_consumption_candidates = _plain_rows(
+        [{**row, "Profile": profile} for row in consumption]
+    )
+    return _plain_rows([{**row, "Profile": profile} for row in decisions])
+
+
+def _roster_with_occurrences(
+    roster_rows: list[dict[str, object]],
+    schedule_plan_rows: list[dict[str, object]],
+    pattern_rows: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    occurrences = {
+        row["OccurrenceKey"]: row
+        for row in expand_pattern_occurrences(schedule_plan_rows, pattern_rows)
+    }
+    output: list[dict[str, object]] = []
+    for row in roster_rows:
+        key = str(row.get("OccurrenceKey") or "").strip()
+        if key not in occurrences:
+            raise ValueError(f"Approved roster occurrence cannot be reconstructed: {key}")
+        output.append({**row, "Occurrence": occurrences[key], "Segments": occurrences[key]["Segments"]})
+    return output
+
+
+def run_swaps_excel(
+    roster_frame: object,
+    schedule_plan_frame: object,
+    pattern_frame: object,
+    request_frame: object,
+    people_frame: object,
+    roster_policy_frame: object,
+    contract_frame: object,
+    eligibility_frame: object,
+    agent_skill_frame: object,
+    skill_requirement_frame: object,
+    availability_frame: object,
+    *,
+    profile: str,
+) -> list[dict[str, object]]:
+    """Return bilateral swap recommendations and companion proposal outputs."""
+    global swap_proposal_candidates, swap_diagnostic_candidates
+    schedule_plan = _approved_profile_rows(schedule_plan_frame, profile)
+    patterns = [
+        {**row, "ApprovedFlag": row.get("Approved")}
+        for row in _profile_rows(pattern_frame, profile)
+    ]
+    roster_rows = _roster_with_occurrences(
+        _approved_profile_rows(roster_frame, profile), schedule_plan, patterns
+    )
+    decisions, proposals, diagnostics = evaluate_swap_requests(
+        roster_rows,
+        _profile_rows(request_frame, profile),
+        _profile_rows(people_frame, profile),
+        _profile_rows(roster_policy_frame, profile),
+        _profile_rows(contract_frame, profile),
+        _profile_rows(eligibility_frame, profile),
+        _profile_rows(agent_skill_frame, profile),
+        _profile_rows(skill_requirement_frame, profile),
+        _profile_rows(availability_frame, profile),
+    )
+    swap_proposal_candidates = _plain_rows(
+        [{**row, "Profile": profile} for row in _public_roster_rows(proposals)]
+    )
+    swap_diagnostic_candidates = _plain_rows(
+        [{**row, "Profile": profile} for row in diagnostics]
+    )
+    return _plain_rows([{**row, "Profile": profile} for row in decisions])

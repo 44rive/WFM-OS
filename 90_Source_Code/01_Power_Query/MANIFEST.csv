@@ -65,6 +65,17 @@ InstallOrder,QueryName,Kind,SourceFile,LoadDestination,RefreshLane,Required
 81,fact_ScheduleCoverage,fact,04_Facts/fact_ScheduleCoverage.pq,DataModel,Shared,TRUE
 82,stg_LeavePlanVersions,staging,02_Staging/stg_LeavePlanVersions.pq,ConnectionOnly,Shared,TRUE
 83,fact_LeavePlan,fact,04_Facts/fact_LeavePlan.pq,DataModel,Shared,TRUE
+84,stg_RosterPlanVersions,staging,02_Staging/stg_RosterPlanVersions.pq,ConnectionOnly,Shared,TRUE
+85,stg_LeaveRequestDecisions,staging,02_Staging/stg_LeaveRequestDecisions.pq,ConnectionOnly,Shared,TRUE
+86,stg_SwapDecisions,staging,02_Staging/stg_SwapDecisions.pq,ConnectionOnly,Shared,TRUE
+87,stg_RosterPublications,staging,02_Staging/stg_RosterPublications.pq,ConnectionOnly,Shared,TRUE
+88,stg_ScheduleAuthority,staging,02_Staging/stg_ScheduleAuthority.pq,ConnectionOnly,Shared,TRUE
+89,fact_RosterPlan,fact,04_Facts/fact_RosterPlan.pq,DataModel,Shared,TRUE
+90,fact_LeaveRequestDecision,fact,04_Facts/fact_LeaveRequestDecision.pq,DataModel,Shared,TRUE
+91,fact_SwapDecision,fact,04_Facts/fact_SwapDecision.pq,DataModel,Shared,TRUE
+92,fact_RosterPublication,fact,04_Facts/fact_RosterPublication.pq,DataModel,Shared,TRUE
+93,fact_PublishedRosterSegment,fact,04_Facts/fact_PublishedRosterSegment.pq,DataModel,Shared,TRUE
+94,stg_AuthoritativeScheduleIntervals,staging,02_Staging/stg_AuthoritativeScheduleIntervals.pq,ConnectionOnly,Shared,TRUE
 100,dq_Contacts,output,05_Outputs/dq_Contacts.pq,Worksheet:02_DATA_QUALITY!dq_Contacts,Shared,TRUE
 101,out_ContactReconciliation,output,05_Outputs/out_ContactReconciliation.pq,Worksheet:95_QUERY_OUTPUTS!out_ContactReconciliation,Shared,TRUE
 102,dq_OperationalMappings,output,05_Outputs/dq_OperationalMappings.pq,Worksheet:02_DATA_QUALITY!dq_OperationalMappings,Shared,TRUE
@@ -85,3 +96,9 @@ InstallOrder,QueryName,Kind,SourceFile,LoadDestination,RefreshLane,Required
 117,out_ApprovedSchedulePlan,output,05_Outputs/out_ApprovedSchedulePlan.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedSchedulePlan,Shared,TRUE
 118,out_ApprovedScheduleCoverage,output,05_Outputs/out_ApprovedScheduleCoverage.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedScheduleCoverage,Shared,TRUE
 119,out_ApprovedLeavePlan,output,05_Outputs/out_ApprovedLeavePlan.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedLeavePlan,Shared,TRUE
+120,out_ApprovedRoster,output,05_Outputs/out_ApprovedRoster.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedRoster,Shared,TRUE
+121,out_ApprovedLeaveRequestDecisions,output,05_Outputs/out_ApprovedLeaveRequestDecisions.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedLeaveRequestDecisions,Shared,TRUE
+122,out_ApprovedSwapDecisions,output,05_Outputs/out_ApprovedSwapDecisions.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedSwapDecisions,Shared,TRUE
+123,out_ApprovedRosterPublication,output,05_Outputs/out_ApprovedRosterPublication.pq,Worksheet:95_QUERY_OUTPUTS!out_ApprovedRosterPublication,Shared,TRUE
+124,out_PublishedRosterSegments,output,05_Outputs/out_PublishedRosterSegments.pq,Worksheet:95_QUERY_OUTPUTS!out_PublishedRosterSegments,Shared,TRUE
+125,dq_RosterPublication,output,05_Outputs/dq_RosterPublication.pq,Worksheet:02_DATA_QUALITY!dq_RosterPublication,Shared,TRUE

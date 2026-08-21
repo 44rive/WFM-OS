@@ -59,3 +59,23 @@ InstallOrder,MeasureName,HomeTable,SourceFile,FormatString,DisplayFolder,Descrip
 79,Calculated Leave Allowance Hours,fact_LeavePlan,schedule_leave.dax,"#,##0.00",Planning\Leave,Maximum governed removable staff-hours across approved leave-plan intervals,TRUE
 80,Approved Leave Allowance Hours,fact_LeavePlan,schedule_leave.dax,"#,##0.00",Planning\Leave,Approved removable staff-hours across leave-plan intervals,TRUE
 81,Leave Capacity Utilization %,fact_LeavePlan,schedule_leave.dax,0.0%,Planning\Leave,Approved leave allowance divided by calculated leave capacity,TRUE
+90,Approved Roster Assignments,fact_RosterPlan,roster_publication.dax,"#,##0",Roster\Assignment,Approved named occurrence assignments,TRUE
+91,Approved Roster Paid Hours,fact_RosterPlan,roster_publication.dax,"#,##0.00",Roster\Assignment,Approved paid hours assigned to pseudonymous agents,TRUE
+92,Approved Roster Productive Hours,fact_RosterPlan,roster_publication.dax,"#,##0.00",Roster\Assignment,Approved productive hours assigned to pseudonymous agents,TRUE
+93,Roster Assigned Agents,fact_RosterPlan,roster_publication.dax,"#,##0",Roster\Assignment,Distinct pseudonymous agents in the approved roster context,TRUE
+94,Average Paid Hours · Assignment,fact_RosterPlan,roster_publication.dax,"#,##0.00",Roster\Fairness,Average paid hours per approved assignment,TRUE
+95,Average Roster Fairness Score,fact_RosterPlan,roster_publication.dax,"#,##0.000",Roster\Fairness,Average deterministic projected-load fairness score,TRUE
+96,Roster Preference Cost,fact_RosterPlan,roster_publication.dax,"#,##0.00",Roster\Fairness,Sum of nonnegative soft preference costs,TRUE
+97,Roster Occurrence Coverage %,fact_RosterPlan,roster_publication.dax,0.0%,Roster\Coverage,Approved named assignments divided by approved anonymous pattern instances,TRUE
+100,Named Leave Decisions,fact_LeaveRequestDecision,roster_publication.dax,"#,##0",Roster\Leave,Approved named leave decision rows,TRUE
+101,Named Leave Requests Approved,fact_LeaveRequestDecision,roster_publication.dax,"#,##0",Roster\Leave,Named leave decisions recommended for full approval,TRUE
+102,Named Leave Requests Declined,fact_LeaveRequestDecision,roster_publication.dax,"#,##0",Roster\Leave,Named leave decisions recommended for decline,TRUE
+103,Named Leave Requests · Review,fact_LeaveRequestDecision,roster_publication.dax,"#,##0",Roster\Leave,Named leave decisions requiring human review,TRUE
+104,Named Leave Approved Hours,fact_LeaveRequestDecision,roster_publication.dax,"#,##0.00",Roster\Leave,Approved full-request paid roster hours,TRUE
+105,Named Leave Approval %,fact_LeaveRequestDecision,roster_publication.dax,0.0%,Roster\Leave,Approved named leave requests divided by named leave decisions,TRUE
+110,Swap Decisions,fact_SwapDecision,roster_publication.dax,"#,##0",Roster\Swap,Approved bilateral whole-occurrence swap decision rows,TRUE
+111,Swaps Approved,fact_SwapDecision,roster_publication.dax,"#,##0",Roster\Swap,Swap decisions recommended for approval after complete-roster revalidation,TRUE
+112,Swap Approval %,fact_SwapDecision,roster_publication.dax,0.0%,Roster\Swap,Approved swaps divided by swap decisions,TRUE
+120,Roster Publications,fact_RosterPublication,roster_publication.dax,"#,##0",Roster\Publication,Controlled published roster versions,TRUE
+121,Published Roster Scheduled Hours,fact_PublishedRosterSegment,roster_publication.dax,"#,##0.00",Roster\Publication,Published paid scheduled seconds expressed as hours,TRUE
+122,Published Roster Productive Hours,fact_PublishedRosterSegment,roster_publication.dax,"#,##0.00",Roster\Publication,Published productive scheduled seconds expressed as hours,TRUE

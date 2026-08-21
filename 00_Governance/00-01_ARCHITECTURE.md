@@ -76,6 +76,16 @@ coverage from effective pattern segments. Leave planning then allocates an
 interval allowance against that approved coverage without creating employee
 leave decisions.
 
+Named assignment and publication follow ADR 0006. Python expands the approved
+`BASE` pattern plan into stable occurrences and recommends eligible pseudonymous
+agents under configured skills, contracts, availability, preference, and
+fairness assertions. Roster approval, leave-request decisions, bilateral swap
+decisions, and publication are separate immutable controls. Published roster
+segments never overwrite imported schedule facts or imply legal certification.
+One non-overlapping authority row selects either imported schedule intervals or
+an exact roster/publication version for operational staffing and adherence;
+the two sources are never combined.
+
 ## Workbook sheet groups
 
 ```text

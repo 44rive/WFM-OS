@@ -1,0 +1,3 @@
+Profile,ContractKey,AgentKey,RosterPolicyKey,PeriodType,PeriodStartDay,MinPaidHours,TargetPaidHours,MaxPaidHours,MaxPaidHoursPerDay,MaxPaidHoursPerShift,MaxShiftSpanHours,MinRestHours,MaxConsecutiveWorkdays,MaxAssignmentsPerWorkday,ValidFrom,ValidTo,Approved
+ENTERPRISE_A,CONTRACT_A,AGENT_001,RP_SUPPORT,WEEK,MONDAY,0,8,40,8,8,12,0,6,2,2026-01-01,,TRUE
+ENTERPRISE_A,CONTRACT_B,AGENT_002,RP_SUPPORT,WEEK,MONDAY,0,8,40,8,8,12,0,6,2,2026-01-01,,TRUE

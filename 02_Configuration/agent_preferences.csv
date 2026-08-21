@@ -1,0 +1,2 @@
+Profile,PreferenceKey,AgentKey,PatternKey,DayType,PreferenceCost,UnfavorableWeight,ValidFrom,ValidTo,Approved
+BLANK_DEPLOYMENT,EXAMPLE_PREFERENCE,,ALL,ALL,0,0,,,FALSE

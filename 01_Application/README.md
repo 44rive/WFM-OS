@@ -14,9 +14,11 @@ The shell contains:
   `tblPeople`, `tblIdentityMapping`, `tblActivities`, `tblQueueMapping`,
   `tblStateMapping`, `tblMetricRules`, `tblCalendarEvents`,
   `tblForecastPolicies`, `tblIntradayProfiles`, `tblCapacityPolicies`, and
-  `tblHiringPolicies`;
+  `tblHiringPolicies`, plus the roster skill, eligibility, contract,
+  availability, preference, leave-type, and schedule-authority tables;
 - controlled forecast, requirement, supply-assumption, hiring, and supply-plan
-  tables;
+  tables, followed by separate roster, leave-request, swap, and publication
+  decisions;
 - controlled close-day input, bounded snapshot-ready output, and an append-only
   snapshot-store reservation;
 - hidden, clearly labelled reservations for future analytical and technical

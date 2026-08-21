@@ -1,0 +1,3 @@
+SchedulePlanVersionKey,ScenarioKey,BusinessDate,ActivityKey,PatternVersionKey,PatternKey,PatternCount
+SCH_V06,BASE,2026-02-02,ACT_SUPPORT,PV1,P_EARLY,1
+SCH_V06,BASE,2026-02-02,ACT_SUPPORT,PV1,P_LATE,1
