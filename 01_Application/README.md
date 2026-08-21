@@ -11,7 +11,10 @@ The shell contains:
 - controlled configuration and decision-input tables;
 - exact workbook tables for the repository configuration contracts, including
   `tblParameters`, `tblSourceSystems`, `tblFieldMapping`, `tblValueMapping`,
-  `tblActivities`, `tblQueueMapping`, and `tblMetricRules`;
+  `tblPeople`, `tblIdentityMapping`, `tblActivities`, `tblQueueMapping`,
+  `tblStateMapping`, and `tblMetricRules`;
+- controlled close-day input, bounded snapshot-ready output, and an append-only
+  snapshot-store reservation;
 - hidden, clearly labelled reservations for future analytical and technical
   components;
 - `BUILD_INFO`, which identifies the source commit, contract/design versions,

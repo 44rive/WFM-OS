@@ -44,8 +44,11 @@ CONFIG_TABLES = {
     "tblSourceSystems": ROOT / "02_Configuration" / "source_systems.csv",
     "tblFieldMapping": ROOT / "02_Configuration" / "field_mapping.csv",
     "tblValueMapping": ROOT / "02_Configuration" / "value_mapping.csv",
+    "tblPeople": ROOT / "02_Configuration" / "people.csv",
+    "tblIdentityMapping": ROOT / "02_Configuration" / "identity_mapping.csv",
     "tblActivities": ROOT / "02_Configuration" / "activities.csv",
     "tblQueueMapping": ROOT / "02_Configuration" / "queue_mapping.csv",
+    "tblStateMapping": ROOT / "02_Configuration" / "state_mapping.csv",
     "tblMetricRules": ROOT / "02_Configuration" / "metric_rules.csv",
 }
 
@@ -55,6 +58,13 @@ FORBIDDEN_CELL_TERMS = (
     "claude",
     "204021",
 )
+
+REQUIRED_CONTROL_TABLES = {
+    "tblActionInput",
+    "tblCloseDayInput",
+    "tblCloseDayReady",
+    "tblOperationalSnapshots",
+}
 
 
 def fail(message: str) -> None:
@@ -134,7 +144,7 @@ def validate_workbook(path: Path) -> dict[str, object]:
 
         visible = [sheet for sheet in workbook.worksheets if sheet.sheet_state == "visible"]
         hidden = [sheet for sheet in workbook.worksheets if sheet.sheet_state != "visible"]
-        if len(workbook.sheetnames) != 43 or len(visible) != 35 or len(hidden) != 8:
+        if len(workbook.sheetnames) != 47 or len(visible) != 38 or len(hidden) != 9:
             fail(
                 "Unexpected workbook surface: "
                 f"{len(workbook.sheetnames)} sheets, {len(visible)} visible, {len(hidden)} hidden"
@@ -145,6 +155,9 @@ def validate_workbook(path: Path) -> dict[str, object]:
             fail("External workbook links are not allowed in the portable shell.")
 
         tables = workbook_tables(workbook)
+        missing_control_tables = sorted(REQUIRED_CONTROL_TABLES.difference(tables))
+        if missing_control_tables:
+            fail(f"Missing controlled tables: {', '.join(missing_control_tables)}")
         for table_name, contract_path in CONFIG_TABLES.items():
             if table_name not in tables:
                 fail(f"Missing configuration table: {table_name}")
@@ -247,6 +260,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workbook", type=Path, default=DEFAULT_WORKBOOK)
     parser.add_argument("--provenance", type=Path, default=DEFAULT_PROVENANCE)
+    parser.add_argument(
+        "--skip-provenance",
+        action="store_true",
+        help="Validate an unreleased preview without a committed provenance sidecar.",
+    )
     return parser.parse_args()
 
 
@@ -254,11 +272,12 @@ def main() -> None:
     args = parse_args()
     workbook_path = args.workbook.resolve()
     results = validate_workbook(workbook_path)
-    validate_provenance(
-        workbook_path,
-        results["build_info"],
-        args.provenance.resolve(),
-    )
+    if not args.skip_provenance:
+        validate_provenance(
+            workbook_path,
+            results["build_info"],
+            args.provenance.resolve(),
+        )
     print(
         "Validated WFM_OS.xlsx · "
         f"sha256={sha256(workbook_path)} · "

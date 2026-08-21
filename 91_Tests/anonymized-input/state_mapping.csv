@@ -1,0 +1,5 @@
+source_system,source_state,canonical_state,productive_flag
+EVENT_SYS,READY,Available,TRUE
+EVENT_SYS,HANDLE,Handling,TRUE
+EVENT_SYS,AUX,Other,FALSE
+EVENT_SYS,BREAK,Break,FALSE

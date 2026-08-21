@@ -235,19 +235,23 @@ CONFIG_SHEETS = (
      ("Profile", "Adapter", "Entity", "SourceField", "CanonicalField", "DataType", "Required", "Enabled")),
     ("62_VALUE_MAPPING", "Value mapping", "Translate external codes into governed canonical values.", "tblValueMapping",
      ("Profile", "SystemKey", "Domain", "SourceValue", "CanonicalValue", "ValidFrom", "ValidTo", "Enabled")),
-    ("63_PEOPLE", "People and identities", "Resolve dated workforce identities before facts enter the model.", "tblPeople",
-     ("AgentKey", "EmployeeBusinessID", "OperationalID", "SourceSystem", "DisplayName", "ActivityKey", "TeamKey", "ManagerKey", "SiteKey", "ContractHours", "ValidFrom", "ValidTo", "EmploymentStatus")),
-    ("64_ACTIVITIES", "Activities", "Define the stable operating activities used across the WFM cycle.", "tblActivities",
+    ("63_PEOPLE", "People", "Govern the effective-dated workforce dimension without exposing source identities.", "tblPeople",
+     ("Profile", "AgentKey", "EmployeeBusinessID", "DisplayName", "ActivityKey", "TeamKey", "ManagerKey", "SiteKey", "ContractHours", "ValidFrom", "ValidTo", "EmploymentStatus", "Enabled")),
+    ("64_IDENTITY_MAPPING", "Identity mapping", "Resolve each source-system identity to one dated canonical agent key.", "tblIdentityMapping",
+     ("Profile", "SystemKey", "ExternalAgentID", "AgentKey", "ValidFrom", "ValidTo", "Enabled")),
+    ("65_ACTIVITIES", "Activities", "Define the stable operating activities used across the WFM cycle.", "tblActivities",
      ("Profile", "ActivityKey", "ActivityName", "ChannelKey", "Timezone", "ValidFrom", "ValidTo", "Enabled")),
-    ("65_QUEUE_MAPPING", "Queue mapping", "Map source queues to canonical queues, activities, and channels.", "tblQueueMapping",
+    ("66_QUEUE_MAPPING", "Queue mapping", "Map source queues to canonical queues, activities, and channels.", "tblQueueMapping",
      ("Profile", "SystemKey", "SourceQueueID", "QueueKey", "QueueName", "ActivityKey", "ChannelKey", "ValidFrom", "ValidTo", "Enabled")),
-    ("66_TARGETS", "Targets", "Govern operational targets by scope and effective period.", "tblTargets",
+    ("67_STATE_MAPPING", "State mapping", "Map source states to canonical presence and adherence behavior.", "tblStateMapping",
+     ("Profile", "SystemKey", "SourceStateID", "StateKey", "StateName", "AdherenceClass", "PresentFlag", "ProductiveFlag", "ValidFrom", "ValidTo", "Enabled")),
+    ("68_TARGETS", "Targets", "Govern operational targets by scope and effective period.", "tblTargets",
      ("TargetKey", "MetricKey", "ActivityKey", "Channel", "TargetValue", "Unit", "ValidFrom", "ValidTo", "Approved", "Owner")),
-    ("67_CALENDAR_EVENTS", "Calendar events", "Record dated events and quantified demand or capacity effects.", "tblCalendarEvents",
+    ("69_CALENDAR_EVENTS", "Calendar events", "Record dated events and quantified demand or capacity effects.", "tblCalendarEvents",
      ("EventKey", "EventName", "EventType", "ActivityKey", "StartAt", "EndAt", "ImpactType", "ImpactValue", "Approved", "Owner")),
-    ("68_SHIFT_RULES", "Shift rules", "Define contract, shift, break, and coverage constraints.", "tblShiftRules",
+    ("70_SHIFT_RULES", "Shift rules", "Define contract, shift, break, and coverage constraints.", "tblShiftRules",
      ("RuleKey", "RuleType", "ScopeKey", "Value", "Unit", "ValidFrom", "ValidTo", "Enabled", "Owner", "Notes")),
-    ("69_METRIC_RULES", "Metric rules", "Store effective-dated policy parameters; DAX remains the metric engine.", "tblMetricRules",
+    ("71_METRIC_RULES", "Metric rules", "Store effective-dated policy parameters; DAX remains the metric engine.", "tblMetricRules",
      ("Profile", "MetricKey", "RuleName", "Value", "Unit", "ValidFrom", "ValidTo", "Approved")),
 )
 
@@ -261,6 +265,8 @@ INPUT_SHEETS = (
      ("ActionKey", "OpenedAt", "Module", "Severity", "Action", "Owner", "DueAt", "Status", "Outcome", "ClosedAt")),
     ("83_SCENARIO_INPUTS", "Scenario inputs", "Define versioned assumptions for planning and simulation.", "tblScenarioInputs",
      ("ScenarioKey", "ScenarioName", "ActivityKey", "StartDate", "EndDate", "VolumeChangePct", "AHTChangePct", "ShrinkagePct", "Notes", "Status")),
+    ("84_CLOSE_DAY", "Close day", "Approve one business date for a complete, reconciled, append-only operational snapshot.", "tblCloseDayInput",
+     ("CloseKey", "Profile", "BusinessDate", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt", "SnapshotStatus", "SnapshotAt", "SourceRunKey", "Notes")),
 )
 
 
@@ -274,6 +280,7 @@ SOURCE_ROLES = (
     ("BLANK_DEPLOYMENT", "ABSENCE_LEAVE", "AbsenceLeaveSource", "GenericDelimited", "03_Data/07_Absence_Leave", "*.*", "Auto", "comma", "65001", "en-US", False),
     ("BLANK_DEPLOYMENT", "QUALITY", "QualitySource", "GenericDelimited", "03_Data/08_Quality", "*.*", "Auto", "comma", "65001", "en-US", False),
     ("BLANK_DEPLOYMENT", "FORECASTS", "ForecastSource", "GenericDelimited", "03_Data/09_Forecasts", "*.*", "Auto", "comma", "65001", "en-US", False),
+    ("BLANK_DEPLOYMENT", "STAFFING_REQUIREMENTS", "StaffingRequirementSource", "GenericDelimited", "03_Data/10_Staffing_Requirements", "*.*", "Auto", "comma", "65001", "en-US", False),
 )
 
 
@@ -284,12 +291,12 @@ ADAPTER_CONTRACTS = {
         "WaitSeconds", "TalkSeconds", "HoldSeconds", "AfterContactSeconds"
     ),
     "WorkItem": (
-        "WorkItemKey", "SourceSystem", "SourceWorkItemID", "CreatedAt", "CompletedAt", "ChannelKey", "WorkTypeKey", "ActivityKey", "AgentKey", "Status", "HandlingSeconds", "SlaDeadline"
+        "SourceWorkItemID", "CreatedAt", "CompletedAt", "ChannelExternalID", "WorkTypeExternalID", "ActivityExternalID", "AgentExternalID", "StatusExternalID", "HandlingSeconds", "SlaDeadline"
     ),
-    "AgentEvent": ("AgentEventKey", "SourceSystem", "AgentKey", "EventStart", "EventEnd", "StateKey", "DurationSeconds"),
-    "LoginSession": ("LoginSessionKey", "SourceSystem", "AgentKey", "LoginAt", "LogoutAt"),
-    "ScheduleSegment": ("ScheduleSegmentKey", "SourceSystem", "AgentKey", "ScheduledStart", "ScheduledEnd", "ActivityKey", "ScheduleTypeKey", "PaidFlag", "ProductiveFlag"),
-    "PersonIdentity": ("AgentKey", "EmployeeBusinessID", "OperationalID", "SourceSystem", "DisplayName", "ActivityKey", "TeamKey", "ManagerKey", "SiteKey", "ContractHours", "ValidFrom", "ValidTo", "EmploymentStatus"),
+    "AgentEvent": ("SourceAgentEventID", "AgentExternalID", "EventStart", "EventEnd", "StateExternalID"),
+    "LoginSession": ("SourceLoginSessionID", "AgentExternalID", "LoginAt", "LogoutAt"),
+    "ScheduleSegment": ("SourceScheduleSegmentID", "AgentExternalID", "ScheduledStart", "ScheduledEnd", "ActivityExternalID", "ScheduleTypeExternalID", "PaidFlag", "ProductiveFlag"),
+    "StaffingRequirement": ("SourceRequirementID", "IntervalStart", "ActivityExternalID", "RequiredFTE", "RequirementVersion", "ApprovedFlag"),
     "Forecast": ("ForecastVersionKey", "ApprovedFlag", "Scenario", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHT", "CreatedAt", "ApprovedAt"),
 }
 
@@ -303,7 +310,18 @@ OPTIONAL_ADAPTER_FIELDS = {
     "CompletedAt",
     "AgentKey",
     "ApprovedAt",
+    "RequirementVersion",
 }
+
+
+def adapter_data_type(field_name: str) -> str:
+    if field_name.endswith(("At", "Start", "End")):
+        return "datetime"
+    if field_name.endswith(("Seconds", "Hours", "Volume", "AHT", "FTE")):
+        return "number"
+    if field_name.endswith("Flag"):
+        return "boolean"
+    return "text"
 
 
 def fill(token: str) -> PatternFill:
@@ -501,14 +519,14 @@ def business_page(ws, page: Page, previous_name: str, next_name: str) -> None:
     ws.auto_filter.ref = None
 
 
-def add_home(wb: Workbook) -> None:
+def add_home(wb: Workbook, version: str) -> None:
     ws = wb.create_sheet("00_HOME")
     set_canvas(ws, "primary-700")
     ws.freeze_panes = "B7"
     apply_fill_to_range(ws, 2, 3, 2, 17, "shell-950")
     merge_style(ws, "B2:E3", "WFM OS", cell_fill="shell-950", cell_font=font(20, "paper-000", True))
     merge_style(ws, "F2:L3", "UNIVERSAL WORKFORCE MANAGEMENT", cell_fill="shell-950", cell_font=font(9, "paper-000", True))
-    merge_style(ws, "M2:Q3", "APPLICATION SHELL · 0.1.0", cell_fill="shell-900", cell_font=font(8.5, "warning-100", True), alignment=Alignment(horizontal="center", vertical="center"))
+    merge_style(ws, "M2:Q3", f"APPLICATION SHELL · {version}", cell_fill="shell-900", cell_font=font(8.5, "warning-100", True), alignment=Alignment(horizontal="center", vertical="center"))
     for col in range(2, 18):
         ws.cell(3, col).border = Border(bottom=side("primary-500", "medium"))
     merge_style(ws, "B4:Q4", "Command center", cell_fill="pearl-050", cell_font=font(18, "ink-900", True), alignment=Alignment(vertical="bottom"))
@@ -689,14 +707,14 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
                 entity,
                 "",
                 canonical,
-                "datetime" if canonical.endswith(("At", "Start", "End")) else "number" if canonical.endswith(("Seconds", "Hours", "Volume", "AHT")) else "text",
+                adapter_data_type(canonical),
                 canonical not in OPTIONAL_ADAPTER_FIELDS,
                 False,
             )
             for entity, fields in ADAPTER_CONTRACTS.items()
             for canonical in fields
         )
-    elif name == "69_METRIC_RULES":
+    elif name == "71_METRIC_RULES":
         rows = (
             ("BLANK_DEPLOYMENT", "SERVICE_LEVEL", "Threshold", "", "seconds", "", "", False),
             ("BLANK_DEPLOYMENT", "SERVICE_LEVEL", "ExcludeShortAbandons", "", "boolean", "", "", False),
@@ -794,9 +812,69 @@ def add_test_harness(wb: Workbook) -> None:
     ws.sheet_state = "hidden"
 
 
+def add_snapshot_store(wb: Workbook) -> None:
+    ws = wb.create_sheet("94_SNAPSHOT_STORE")
+    set_canvas(ws, "ink-500")
+    apply_fill_to_range(ws, 2, 3, 2, 17, "shell-950")
+    merge_style(ws, "B2:E3", "WFM OS", cell_fill="shell-950", cell_font=font(18, "paper-000", True))
+    merge_style(ws, "F2:Q3", "CONTROLLED OPERATIONAL SNAPSHOTS", cell_fill="shell-950", cell_font=font(9, "paper-000", True))
+    merge_style(
+        ws,
+        "B5:Q8",
+        "Append-only store reserved for approved close-day snapshots. Do not type, paste, sort, or delete rows manually.",
+        cell_fill="warning-100",
+        cell_font=font(9, "warning-600", True),
+        alignment=Alignment(vertical="center", wrap_text=True, indent=1),
+        border=Border(left=side("warning-600", "medium")),
+    )
+    style_table(
+        ws,
+        10,
+        2,
+        (
+            "SnapshotKey", "Profile", "BusinessDate", "IntervalStart", "ActivityKey",
+            "ScheduledFTE", "ScheduledProductiveFTE", "PresentFTE", "ProductiveFTE",
+            "RequiredFTE", "NetProductiveFTE", "Status", "ClosedAt", "ClosedBy", "SourceRunKey"
+        ),
+        [],
+        "tblOperationalSnapshots",
+    )
+    ws.sheet_state = "hidden"
+
+
+def add_query_outputs(wb: Workbook) -> None:
+    ws = wb.create_sheet("95_QUERY_OUTPUTS")
+    set_canvas(ws, "ink-500")
+    apply_fill_to_range(ws, 2, 3, 2, 17, "shell-950")
+    merge_style(ws, "B2:E3", "WFM OS", cell_fill="shell-950", cell_font=font(18, "paper-000", True))
+    merge_style(ws, "F2:Q3", "BOUNDED QUERY OUTPUTS", cell_fill="shell-950", cell_font=font(9, "paper-000", True))
+    merge_style(
+        ws,
+        "B5:Q8",
+        "Reserved load surface for reconciled Power Query outputs. The current shell contains headers only; Power Query is not embedded.",
+        cell_fill="info-100",
+        cell_font=font(9, "info-600", True),
+        alignment=Alignment(vertical="center", wrap_text=True, indent=1),
+        border=Border(left=side("info-600", "medium")),
+    )
+    style_table(
+        ws,
+        10,
+        2,
+        (
+            "SnapshotKey", "Profile", "BusinessDate", "IntervalStart", "ActivityKey",
+            "ScheduledFTE", "ScheduledProductiveFTE", "PresentFTE", "ProductiveFTE",
+            "RequiredFTE", "NetProductiveFTE", "Status"
+        ),
+        [],
+        "tblCloseDayReady",
+    )
+    ws.sheet_state = "hidden"
+
+
 def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str) -> None:
     ws = wb.create_sheet("99_BUILD_INFO")
-    page_shell(ws, ws.title, "Build information", "Confirm exactly what this artifact contains before using it for an operational decision.", "info-600", "83_SCENARIO_INPUTS", "00_HOME")
+    page_shell(ws, ws.title, "Build information", "Confirm exactly what this artifact contains before using it for an operational decision.", "info-600", "84_CLOSE_DAY", "00_HOME")
     rows = (
         ("Product", "WFM OS", "Universal, vendor-neutral Excel WFM application"),
         ("Artifact", "WFM_OS.xlsx", "Data-free application shell"),
@@ -805,7 +883,7 @@ def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str)
         ("Operational status", "NOT OPERATIONAL", "Do not use for workforce decisions yet"),
         ("Build date", build_date, "UTC date supplied to the generator"),
         ("Git commit", git_commit, "Source revision used for this build"),
-        ("Canonical contracts", "1.0.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
+        ("Canonical contracts", "1.1.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
         ("Design system", "1.0.0", "Obsidian & Pearl"),
         ("Power Query", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
         ("Power Pivot / DAX", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
@@ -873,7 +951,7 @@ def build(output: Path, build_date: str, git_commit: str, version: str) -> None:
     wb.remove(wb.active)
     set_workbook_properties(wb, build_date, version)
     add_lookup_sheet(wb)
-    add_home(wb)
+    add_home(wb, version)
     add_control_center(wb)
     add_data_quality(wb)
     add_refresh_audit(wb)
@@ -890,7 +968,8 @@ def build(output: Path, build_date: str, git_commit: str, version: str) -> None:
     technical_sheet(wb, "91_PY_INIT", "Python initialization", "Reserved for shared imports, deterministic settings, and analytical execution order.", "NOT EMBEDDED IN THIS SHELL. Install genuine Python in Excel cells only in the desktop Excel release workflow.")
     technical_sheet(wb, "92_PY_FORECAST", "Python forecast lab", "Reserved for forecast backtesting and statistical candidate models fed by governed Excel or query outputs.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
     technical_sheet(wb, "93_PY_SCENARIOS", "Python scenario lab", "Reserved for simulation and optimization experiments; approved results must be versioned before use.", "NOT EMBEDDED IN THIS SHELL. No Python formula is claimed or simulated.")
-    technical_sheet(wb, "95_QUERY_OUTPUTS", "Bounded query outputs", "Reserved for small, reviewable Power Query outputs such as data-quality exceptions and forecast training sets.", "POWER QUERY IS NOT EMBEDDED IN THIS SHELL. Large facts must load only to the Data Model in the executable release.")
+    add_snapshot_store(wb)
+    add_query_outputs(wb)
     technical_sheet(wb, "96_PIVOT_SUPPORT", "Pivot support", "Reserved for technical PivotTables that drive controlled business layouts and slicers.", "POWER PIVOT AND PIVOTTABLES ARE NOT EMBEDDED IN THIS SHELL.")
     technical_sheet(wb, "97_MODEL_REGISTRY", "Model registry", "Reserved for the installed query, table, relationship, measure, and refresh-lane inventory.", "THE SEMANTIC MODEL IS NOT EMBEDDED IN THIS SHELL.")
     add_test_harness(wb)
@@ -943,7 +1022,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=default_root / "01_Application" / "WFM_OS.xlsx")
     parser.add_argument("--build-date", default=os.environ.get("SOURCE_DATE", datetime.now(timezone.utc).date().isoformat()))
     parser.add_argument("--git-commit", default=None)
-    parser.add_argument("--version", default="0.1.0-shell")
+    parser.add_argument("--version", default="0.2.0-shell")
     return parser.parse_args()
 
 

@@ -1,0 +1,4 @@
+business_date,agent_key,scheduled_minutes,present_scheduled_minutes,late_minutes,early_leave_minutes,attendance_rate,outcome
+2026-01-16,AGENT_001,60,60,0,0,1.000000,PRESENT
+2026-01-16,AGENT_002,60,50,5,5,0.833333,PARTIAL
+2026-01-16,AGENT_003,60,50,5,5,0.833333,PARTIAL

@@ -1,0 +1,59 @@
+// Operational-control measures. FTE measures require interval-level context.
+
+Scheduled Seconds :=
+    SUM ( fact_OperationalIntervalClosed[ScheduledSeconds] )
+        + SUM ( fact_OperationalIntervalLive[ScheduledSeconds] )
+
+Scheduled Productive Seconds :=
+    SUM ( fact_OperationalIntervalClosed[ScheduledProductiveSeconds] )
+        + SUM ( fact_OperationalIntervalLive[ScheduledProductiveSeconds] )
+
+Logged Scheduled Seconds :=
+    SUM ( fact_OperationalIntervalClosed[LoggedScheduledSeconds] )
+        + SUM ( fact_OperationalIntervalLive[LoggedScheduledSeconds] )
+
+Productive Actual Seconds :=
+    SUM ( fact_OperationalIntervalClosed[ProductiveActualSeconds] )
+        + SUM ( fact_OperationalIntervalLive[ProductiveActualSeconds] )
+
+Adherent Seconds :=
+    SUM ( fact_OperationalIntervalClosed[AdherentSeconds] )
+        + SUM ( fact_OperationalIntervalLive[AdherentSeconds] )
+
+Adherence Exception Seconds :=
+    SUM ( fact_OperationalIntervalClosed[ExceptionSeconds] )
+        + SUM ( fact_OperationalIntervalLive[ExceptionSeconds] )
+
+Scheduled Hours :=
+    DIVIDE ( [Scheduled Seconds], 3600 )
+
+Present Scheduled Hours :=
+    DIVIDE ( [Logged Scheduled Seconds], 3600 )
+
+Productive Actual Hours :=
+    DIVIDE ( [Productive Actual Seconds], 3600 )
+
+Conformance % :=
+    DIVIDE ( [Logged Scheduled Seconds], [Scheduled Seconds] )
+
+Adherence % :=
+    DIVIDE ( [Adherent Seconds], [Scheduled Seconds] )
+
+Scheduled FTE · Interval :=
+    DIVIDE ( [Scheduled Seconds], 1800 )
+
+Scheduled Productive FTE · Interval :=
+    DIVIDE ( [Scheduled Productive Seconds], 1800 )
+
+Present FTE · Interval :=
+    DIVIDE ( [Logged Scheduled Seconds], 1800 )
+
+Productive FTE · Interval :=
+    DIVIDE ( [Productive Actual Seconds], 1800 )
+
+Required FTE · Interval :=
+    SUM ( fact_StaffingRequirementClosed[RequiredFTE] )
+        + SUM ( fact_StaffingRequirementLive[RequiredFTE] )
+
+Net Productive FTE · Interval :=
+    [Productive FTE · Interval] - [Required FTE · Interval]

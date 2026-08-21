@@ -1,0 +1,2 @@
+agent_event_id,source_system,operational_id,event_start,event_end,source_state
+EVT_UNKNOWN,EVENT_SYS,OP_UNKNOWN,2026-01-16T09:00:00,2026-01-16T09:10:00,READY

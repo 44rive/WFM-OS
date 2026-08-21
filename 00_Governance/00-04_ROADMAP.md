@@ -16,6 +16,10 @@ repeat refreshes, with no unmapped values hidden.
 - Deliver intraday, attendance, conformance, adherence, and action logging.
 - Implement close-day and append-only decision snapshots.
 
+Source status: implemented in v0.2 with anonymized acceptance fixtures. Desktop
+Excel engine installation, execution, and visual validation remain the release
+gate before this milestone can be called operational.
+
 ## Milestone 3 — planning cycle
 
 - Add forecast versions, calendar events, backtesting, and Python models.

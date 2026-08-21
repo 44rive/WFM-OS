@@ -1,2 +1,6 @@
 Profile,SystemKey,SourceRole,Adapter,RelativePath,FilePattern,Format,Delimiter,Encoding,Culture,Enabled
 example-enterprise,EXAMPLE_CONTACTS,ContactPlatform,GenericDelimited,03_Data/02_Contacts,*.csv,csv,comma,65001,en-US,FALSE
+example-enterprise,EXAMPLE_EVENTS,AgentEventSource,GenericDelimited,03_Data/04_Agent_Events,*.csv,csv,comma,65001,en-US,FALSE
+example-enterprise,EXAMPLE_LOGIN,LoginSource,GenericDelimited,03_Data/05_Login_Sessions,*.csv,csv,comma,65001,en-US,FALSE
+example-enterprise,EXAMPLE_SCHEDULE,SchedulingTool,GenericDelimited,03_Data/06_Schedules,*.csv,csv,comma,65001,en-US,FALSE
+example-enterprise,EXAMPLE_REQUIREMENTS,StaffingRequirementSource,GenericDelimited,03_Data/10_Staffing_Requirements,*.csv,csv,comma,65001,en-US,FALSE

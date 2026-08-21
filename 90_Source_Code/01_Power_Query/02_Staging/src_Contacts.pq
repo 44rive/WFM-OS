@@ -109,7 +109,8 @@ let
         Text.From(FormatCheck[SystemKey]),
         "ContactDirection",
         "Direction",
-        p_AsOfDate
+        p_AsOfDate,
+        "ContactStart"
     ),
     MappedOutcome = fxApplyValueMapping(
         MappedDirection,
@@ -117,7 +118,8 @@ let
         Text.From(FormatCheck[SystemKey]),
         "ContactOutcome",
         "Outcome",
-        p_AsOfDate
+        p_AsOfDate,
+        "ContactStart"
     ),
     Selected = Table.SelectColumns(
         MappedOutcome,

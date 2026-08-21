@@ -13,6 +13,7 @@ ignored by Git; only their instructions are version-controlled.
 07_Absence_Leave/    absence, leave, holiday, and exception inputs
 08_Quality/          quality and customer-outcome results
 09_Forecasts/        external/client/global forecast inputs
+10_Staffing_Requirements/ approved interval staffing requirements
 90_Quarantine/       rejected files or rows requiring resolution
 99_Snapshots/        approved dated operational snapshots
 ```

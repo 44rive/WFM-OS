@@ -1,0 +1,5 @@
+business_date,agent_key,scheduled_seconds,logged_seconds,adherent_seconds,exception_seconds,conformance_rate,adherence_rate
+2026-01-16,AGENT_001,3600,3600,3300,300,1.000000,0.916667
+2026-01-16,AGENT_002,3600,3000,2700,900,0.833333,0.750000
+2026-01-16,AGENT_003,3600,3000,3000,600,0.833333,0.833333
+2026-01-16,TOTAL,10800,9600,9000,1800,0.888889,0.833333

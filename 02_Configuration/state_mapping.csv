@@ -1,0 +1,3 @@
+Profile,SystemKey,SourceStateID,StateKey,StateName,AdherenceClass,PresentFlag,ProductiveFlag,ValidFrom,ValidTo,Enabled
+example-enterprise,EXAMPLE_EVENTS,READY,AVAILABLE,Available,PRODUCTIVE,TRUE,TRUE,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_EVENTS,BREAK,BREAK,Break,BREAK,TRUE,FALSE,2026-01-01,,FALSE

@@ -1,0 +1,2 @@
+Profile,AgentKey,EmployeeBusinessID,DisplayName,ActivityKey,TeamKey,ManagerKey,SiteKey,ContractHours,ValidFrom,ValidTo,EmploymentStatus,Enabled
+example-enterprise,AGENT_EXAMPLE,EMP_EXAMPLE,Example Agent,EXAMPLE_VOICE,TEAM_EXAMPLE,MANAGER_EXAMPLE,SITE_EXAMPLE,8,2026-01-01,,Active,FALSE

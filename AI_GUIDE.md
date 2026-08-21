@@ -39,7 +39,8 @@ Before making a change, read these files in order:
 | DAX | `90_Source_Code/02_DAX/` |
 | Python | `90_Source_Code/03_Python/` |
 | VBA | `90_Source_Code/04_VBA/` |
-| Released application | `01_Application/WFM_OS.xlsm` |
+| Current application shell | `01_Application/WFM_OS.xlsx` |
+| Target executable release | `01_Application/WFM_OS.xlsm` |
 
 Text source in Git is canonical. A workbook release must contain the same source
 and identify its repository commit on a technical `BUILD_INFO` sheet.
@@ -65,6 +66,10 @@ For Power Query installation order and load destinations, use
 - Never claim a query, relationship, measure, or Python workflow is wired unless
   it actually exists and executes in the released workbook.
 - Never restyle a page locally when an existing component or token applies.
+- Never join an external agent ID without both its source-system key and an
+  effective date.
+- Never overwrite finalized snapshot rows; an idempotent repeat close may only
+  confirm that the same stable keys are already final.
 
 ## Decide the smallest correct change
 

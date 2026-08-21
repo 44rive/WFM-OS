@@ -47,6 +47,11 @@ No date can exist in both lanes.
 The model serves demand planning, forecasting, capacity, scheduling, leave,
 intraday, attendance, adherence, performance, and governance pages.
 
+Operational control uses the schedule-led interval spine defined in ADR 0002.
+External agent identities are resolved through a dated bridge before facts are
+built. Schedule, login, and agent-state durations are intersected at half-open
+30-minute windows; overlap defects remain blocking quality results.
+
 ### 5. Analytical labs
 
 Python in Excel consumes named Power Query results for forecast backtesting,
@@ -77,6 +82,10 @@ Approved outputs are versioned before they affect operational decisions.
 | `fact_` | Data Model only |
 | `out_` | bounded worksheet table |
 | `dq_` | bounded Data Quality table |
+
+Close-day snapshots are append-only controlled records. Power Query may prepare
+snapshot candidates but must not overwrite user decisions or pretend a refresh
+is an immutable close.
 
 ## Portability
 

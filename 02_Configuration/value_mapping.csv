@@ -4,3 +4,7 @@ example-enterprise,EXAMPLE_CONTACTS,ContactDirection,outbound,Outbound,2026-01-0
 example-enterprise,EXAMPLE_CONTACTS,ContactOutcome,answered,Handled,2026-01-01,,FALSE
 example-enterprise,EXAMPLE_CONTACTS,ContactOutcome,abandoned,Abandoned,2026-01-01,,FALSE
 example-enterprise,EXAMPLE_CONTACTS,Channel,voice,Voice,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_SCHEDULE,Activity,source-activity,EXAMPLE_VOICE,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_SCHEDULE,ScheduleType,production,PRODUCTION,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_SCHEDULE,ScheduleType,break,BREAK,2026-01-01,,FALSE
+example-enterprise,EXAMPLE_REQUIREMENTS,Activity,source-activity,EXAMPLE_VOICE,2026-01-01,,FALSE

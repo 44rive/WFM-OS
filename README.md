@@ -78,9 +78,12 @@ and is never committed to Git.
 
 ## Status
 
-The repository currently contains the v0.1 architecture, a deterministic
-premium `.xlsx` application shell, and the source for the first contact-service
-vertical slice. The shell remains explicitly non-operational until its Power
-Query and Power Pivot engines are installed and validated in desktop Excel:
+The repository currently contains the v0.2 architecture, a deterministic
+premium `.xlsx` application shell, the contact-service slice, and the
+schedule-led operational-control spine. The shell remains explicitly
+non-operational until its Power Query, Power Pivot, and controlled VBA engines
+are installed and validated in desktop Excel:
 
 `contact export -> Power Query -> Power Pivot -> DAX volume/SL/AHT -> live and historical views`.
+
+`people/identity mappings + schedules + logins + states + requirements -> interval staffing + attendance + adherence + governed close day`.

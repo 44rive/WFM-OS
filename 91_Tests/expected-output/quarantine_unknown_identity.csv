@@ -1,0 +1,2 @@
+entity,source_key,source_system,external_identity,observed_at,reason
+AgentEvent,EVT_UNKNOWN,EVENT_SYS,OP_UNKNOWN,2026-01-16T09:00:00,UNKNOWN_IDENTITY
