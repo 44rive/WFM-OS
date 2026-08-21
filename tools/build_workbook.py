@@ -248,25 +248,33 @@ CONFIG_SHEETS = (
     ("68_TARGETS", "Targets", "Govern operational targets by scope and effective period.", "tblTargets",
      ("TargetKey", "MetricKey", "ActivityKey", "Channel", "TargetValue", "Unit", "ValidFrom", "ValidTo", "Approved", "Owner")),
     ("69_CALENDAR_EVENTS", "Calendar events", "Record dated events and quantified demand or capacity effects.", "tblCalendarEvents",
-     ("EventKey", "EventName", "EventType", "ActivityKey", "StartAt", "EndAt", "ImpactType", "ImpactValue", "Approved", "Owner")),
+     ("Profile", "EventKey", "EventName", "EventType", "ActivityKey", "ChannelKey", "StartAt", "EndAt", "ImpactType", "ImpactValue", "Approved", "Owner", "Notes")),
     ("70_SHIFT_RULES", "Shift rules", "Define contract, shift, break, and coverage constraints.", "tblShiftRules",
      ("RuleKey", "RuleType", "ScopeKey", "Value", "Unit", "ValidFrom", "ValidTo", "Enabled", "Owner", "Notes")),
     ("71_METRIC_RULES", "Metric rules", "Store effective-dated policy parameters; DAX remains the metric engine.", "tblMetricRules",
      ("Profile", "MetricKey", "RuleName", "Value", "Unit", "ValidFrom", "ValidTo", "Approved")),
+    ("72_FORECAST_POLICIES", "Forecast policies", "Govern forecast method, grain, history, horizon, and seasonal behavior by operating scope.", "tblForecastPolicies",
+     ("Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "Frequency", "HistoryPeriods", "HorizonPeriods", "SeasonLength", "MinimumHistory", "ValidFrom", "ValidTo", "Approved")),
+    ("73_CAPACITY_POLICIES", "Capacity policies", "Govern queueing or workload assumptions before requirements can be approved.", "tblCapacityPolicies",
+     ("Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "IntervalMinutes", "TargetServiceLevel", "AnswerTimeSeconds", "MaxOccupancy", "ShrinkagePct", "Concurrency", "FTEPerHead", "ValidFrom", "ValidTo", "Approved")),
 )
 
 
 INPUT_SHEETS = (
     ("80_FORECAST_OVERRIDES", "Forecast overrides", "Capture governed changes before approval into a forecast version.", "tblForecastOverrides",
-     ("OverrideKey", "Profile", "ActivityKey", "Channel", "IntervalStart", "ForecastVolume", "ForecastAHTSeconds", "Reason", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt")),
+     ("OverrideKey", "Profile", "ForecastVersionKey", "ActivityKey", "ChannelKey", "ForecastDate", "ForecastVolume", "ForecastAHTSeconds", "Reason", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt")),
     ("81_ATTEND_DECISIONS", "Attendance decisions", "Store keyed decisions separately from refreshable attendance cases.", "tblAttendanceDecisions",
      ("CaseKey", "Decision", "DecisionReason", "Owner", "DecisionAt", "EvidenceReference", "Notes")),
     ("82_ACTION_INPUT", "Action input", "Maintain the controlled operational action register.", "tblActionInput",
      ("ActionKey", "OpenedAt", "Module", "Severity", "Action", "Owner", "DueAt", "Status", "Outcome", "ClosedAt")),
     ("83_SCENARIO_INPUTS", "Scenario inputs", "Define versioned assumptions for planning and simulation.", "tblScenarioInputs",
-     ("ScenarioKey", "ScenarioName", "ActivityKey", "StartDate", "EndDate", "VolumeChangePct", "AHTChangePct", "ShrinkagePct", "Notes", "Status")),
+     ("ScenarioKey", "Profile", "ScenarioName", "ForecastPolicyKey", "CapacityPolicyKey", "ActivityKey", "ChannelKey", "StartDate", "EndDate", "VolumeChangePct", "AHTChangePct", "ShrinkagePct", "Notes", "Status")),
     ("84_CLOSE_DAY", "Close day", "Approve one business date for a complete, reconciled, append-only operational snapshot.", "tblCloseDayInput",
      ("CloseKey", "Profile", "BusinessDate", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt", "SnapshotStatus", "SnapshotAt", "SourceRunKey", "Notes")),
+    ("85_FORECAST_APPROVAL", "Forecast approval", "Publish stable forecast versions only after analytical review and reconciliation.", "tblForecastVersions",
+     ("ForecastRowKey", "Profile", "ForecastVersionKey", "ApprovalStatus", "Scenario", "Method", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHTSeconds", "CreatedAt", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
+    ("86_REQUIREMENT_APPROVAL", "Requirement approval", "Publish capacity candidates into the operational staffing-requirement contract.", "tblRequirementApprovals",
+     ("RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "PaidFTE", "RequiredHeads", "ShrinkagePct", "RequirementVersion", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes")),
 )
 
 
@@ -297,7 +305,7 @@ ADAPTER_CONTRACTS = {
     "LoginSession": ("SourceLoginSessionID", "AgentExternalID", "LoginAt", "LogoutAt"),
     "ScheduleSegment": ("SourceScheduleSegmentID", "AgentExternalID", "ScheduledStart", "ScheduledEnd", "ActivityExternalID", "ScheduleTypeExternalID", "PaidFlag", "ProductiveFlag"),
     "StaffingRequirement": ("SourceRequirementID", "IntervalStart", "ActivityExternalID", "RequiredFTE", "RequirementVersion", "ApprovedFlag"),
-    "Forecast": ("ForecastVersionKey", "ApprovedFlag", "Scenario", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHT", "CreatedAt", "ApprovedAt"),
+    "Forecast": ("ForecastVersionKey", "ApprovalStatus", "Scenario", "Method", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHTSeconds", "CreatedAt", "ApprovedAt", "ApprovedBy", "SourceRunKey"),
 }
 
 
@@ -311,6 +319,9 @@ OPTIONAL_ADAPTER_FIELDS = {
     "AgentKey",
     "ApprovedAt",
     "RequirementVersion",
+    "Scenario",
+    "ApprovedBy",
+    "SourceRunKey",
 }
 
 
@@ -651,6 +662,8 @@ def add_data_quality(wb: Workbook) -> None:
         ("DQ-004", "Canonical keys unique", "Model", "Dimension and fact keys must be unique at their declared grain.", "NOT RUN", 0, "Model owner", "Validate canonical build"),
         ("DQ-005", "Live and closed do not overlap", "Model", "No business date may exist in both refresh lanes.", "NOT RUN", 0, "Model owner", "Validate date boundary"),
         ("DQ-006", "Source totals reconcile", "Reconciliation", "Source totals must reconcile to canonical facts before approval.", "NOT RUN", 0, "WFM owner", "Run reconciliation"),
+        ("DQ-007", "Forecast approvals are unique", "Planning", "Only one valid approved forecast row may exist at each interval, activity, and channel grain.", "NOT RUN", 0, "Planning owner", "Resolve dq_PlanningApprovals"),
+        ("DQ-008", "Requirements are approved", "Planning", "Only evidence-backed, valid approved requirements may enter canonical staffing facts.", "NOT RUN", 0, "Capacity owner", "Resolve dq_PlanningApprovals"),
     )
     style_table(ws, 18, 2, ("CheckKey", "Check", "Domain", "Requirement", "Status", "IssueCount", "Owner", "NextAction"), checks, "tblDQChecks")
     add_list_validation(ws, "F19", "F500", "DQ_STATUS_LIST", "Choose the validation outcome.")
@@ -721,6 +734,24 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
             ("BLANK_DEPLOYMENT", "ABANDON_RATE", "ShortAbandonThreshold", "", "seconds", "", "", False),
             ("BLANK_DEPLOYMENT", "ADHERENCE", "Tolerance", "", "minutes", "", "", False),
         )
+    elif name == "72_FORECAST_POLICIES":
+        rows = (
+            (
+                "BLANK_DEPLOYMENT", "DAILY_SEASONAL_BASELINE", "", "",
+                "SEASONAL_NAIVE", "DAILY", 56, 28, 7, 28, "", "", False,
+            ),
+        )
+    elif name == "73_CAPACITY_POLICIES":
+        rows = (
+            (
+                "BLANK_DEPLOYMENT", "SYNCHRONOUS_STANDARD", "", "VOICE",
+                "ERLANG_C", 30, 0.8, 20, 0.85, 0.2, 1, 1, "", "", False,
+            ),
+            (
+                "BLANK_DEPLOYMENT", "ASYNCHRONOUS_STANDARD", "", "EMAIL",
+                "WORKLOAD", 30, "", "", 0.85, 0.2, 1, 1, "", "", False,
+            ),
+        )
     style_table(ws, 13, 2, headers, rows, table_name, input_table=True, max_input_row=1000)
     end_col = get_column_letter(1 + len(headers))
     if "Enabled" in headers:
@@ -741,12 +772,23 @@ def config_or_input_sheet(wb: Workbook, spec, *, is_input: bool = False) -> None
     if "Status" in headers:
         col = get_column_letter(2 + headers.index("Status"))
         add_list_validation(ws, f"{col}14", f"{col}1000", "ACTION_STATUS_LIST", "Select the current lifecycle state.")
-    if "Channel" in headers:
-        col = get_column_letter(2 + headers.index("Channel"))
+    channel_header = "ChannelKey" if "ChannelKey" in headers else "Channel" if "Channel" in headers else None
+    if channel_header:
+        col = get_column_letter(2 + headers.index(channel_header))
         add_list_validation(ws, f"{col}14", f"{col}1000", "CHANNEL_LIST", "Select a canonical channel.")
     if "Format" in headers:
         col = get_column_letter(2 + headers.index("Format"))
         add_list_validation(ws, f"{col}14", f"{col}1000", "FORMAT_LIST", "Choose the source extract format.")
+    if "Method" in headers:
+        col = get_column_letter(2 + headers.index("Method"))
+        list_name = "CAPACITY_METHOD_LIST" if name == "73_CAPACITY_POLICIES" else "FORECAST_METHOD_LIST"
+        add_list_validation(ws, f"{col}14", f"{col}1000", list_name, "Choose a governed planning method.")
+    if "Frequency" in headers:
+        col = get_column_letter(2 + headers.index("Frequency"))
+        add_list_validation(ws, f"{col}14", f"{col}1000", "FORECAST_FREQUENCY_LIST", "Choose the implemented planning grain.")
+    if "ImpactType" in headers:
+        col = get_column_letter(2 + headers.index("ImpactType"))
+        add_list_validation(ws, f"{col}14", f"{col}1000", "PLANNING_IMPACT_LIST", "Choose the governed impact domain.")
     for index, header in enumerate(headers, start=2):
         width = 14
         if header in {"Notes", "Reason", "DecisionReason", "EvidenceReference", "Outcome", "PathPattern", "TransformHint"}:
@@ -770,8 +812,12 @@ def add_lookup_sheet(wb: Workbook) -> None:
         "ATTENDANCE_DECISION_LIST": ("PENDING", "VALID", "EXCUSED", "UNEXCUSED", "CANCELLED"),
         "SEVERITY_LIST": ("INFORMATION", "WARNING", "BLOCKING"),
         "ACTION_STATUS_LIST": ("DRAFT", "OPEN", "IN PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED"),
-        "CHANNEL_LIST": ("Voice", "Chat", "Email", "Case", "BackOffice", "Dispatch", "Other"),
+        "CHANNEL_LIST": ("VOICE", "CHAT", "EMAIL", "CASE", "BACK_OFFICE", "DISPATCH", "OTHER"),
         "FORMAT_LIST": ("Auto", "csv", "xlsx", "xlsb", "json", "parquet", "txt"),
+        "FORECAST_METHOD_LIST": ("SEASONAL_NAIVE",),
+        "CAPACITY_METHOD_LIST": ("ERLANG_C", "WORKLOAD"),
+        "FORECAST_FREQUENCY_LIST": ("DAILY",),
+        "PLANNING_IMPACT_LIST": ("VOLUME_PCT", "AHT_PCT", "SHRINKAGE_PCT"),
     }
     for col, (name, values) in enumerate(lists.items(), start=1):
         ws.cell(1, col, name).font = font(9, "ink-700", True)
@@ -807,6 +853,7 @@ def add_test_harness(wb: Workbook) -> None:
         ("T-004", "Power Pivot model executable", "Engine", "Tables, relationships, and measures execute", "NOT IMPLEMENTED", "Desktop Excel release step"),
         ("T-005", "Python in Excel executable", "Engine", "Analytical cells execute in declared order", "NOT IMPLEMENTED", "Desktop Excel release step"),
         ("T-006", "VBA controller executable", "Engine", "Signed refresh and publication controls execute", "NOT IMPLEMENTED", "Macro-enabled release step"),
+        ("T-007", "Planning Python deterministic", "Planning", "Forecast, adjustment, accuracy, and capacity fixtures match", "PASS", "91_Tests/test_planning_cycle.py"),
     )
     style_table(ws, 6, 2, ("TestKey", "Test", "Domain", "Expected", "Status", "Evidence"), tests, "tblTestHarness")
     ws.sheet_state = "hidden"
@@ -874,7 +921,7 @@ def add_query_outputs(wb: Workbook) -> None:
 
 def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str) -> None:
     ws = wb.create_sheet("99_BUILD_INFO")
-    page_shell(ws, ws.title, "Build information", "Confirm exactly what this artifact contains before using it for an operational decision.", "info-600", "84_CLOSE_DAY", "00_HOME")
+    page_shell(ws, ws.title, "Build information", "Confirm exactly what this artifact contains before using it for an operational decision.", "info-600", "86_REQUIREMENT_APPROVAL", "00_HOME")
     rows = (
         ("Product", "WFM OS", "Universal, vendor-neutral Excel WFM application"),
         ("Artifact", "WFM_OS.xlsx", "Data-free application shell"),
@@ -883,7 +930,7 @@ def add_build_info(wb: Workbook, build_date: str, git_commit: str, version: str)
         ("Operational status", "NOT OPERATIONAL", "Do not use for workforce decisions yet"),
         ("Build date", build_date, "UTC date supplied to the generator"),
         ("Git commit", git_commit, "Source revision used for this build"),
-        ("Canonical contracts", "1.1.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
+        ("Canonical contracts", "1.2.0", "00_Governance/00-02_CANONICAL_CONTRACTS.md"),
         ("Design system", "1.0.0", "Obsidian & Pearl"),
         ("Power Query", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
         ("Power Pivot / DAX", "NOT EMBEDDED", "Must be installed and validated in desktop Excel"),
@@ -1022,7 +1069,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=default_root / "01_Application" / "WFM_OS.xlsx")
     parser.add_argument("--build-date", default=os.environ.get("SOURCE_DATE", datetime.now(timezone.utc).date().isoformat()))
     parser.add_argument("--git-commit", default=None)
-    parser.add_argument("--version", default="0.2.0-shell")
+    parser.add_argument("--version", default="0.3.0-shell")
     return parser.parse_args()
 
 

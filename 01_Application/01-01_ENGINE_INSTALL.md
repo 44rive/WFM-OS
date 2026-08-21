@@ -33,6 +33,23 @@ effective-dated people and source identities
   -> approved close-day candidate and controlled snapshot publisher
 ```
 
+The planning foundation is:
+
+```text
+closed interval demand
+  -> governed forecast history
+  -> deterministic Python daily baseline and approved adjustments
+  -> reviewed interval forecast versions
+  -> forecast accuracy facts and DAX
+  -> Erlang C or workload capacity candidates
+  -> reviewed requirement approvals
+  -> shared closed/live staffing-requirement facts
+```
+
+Daily forecast output is deliberately not treated as interval demand. A
+reviewed intraday profile must reconcile daily totals into interval rows before
+capacity is run.
+
 ## Install Power Query
 
 Run the preflight and prepared-copy installer described in
@@ -41,7 +58,7 @@ destinations. The installer adds reviewed M definitions but deliberately leaves
 loads and refresh validation as manual release gates.
 
 1. Open the generated workbook in Microsoft 365 desktop Excel.
-2. Confirm that `59_PARAMETERS` through `71_METRIC_RULES` contain the expected
+2. Confirm that `59_PARAMETERS` through `73_CAPACITY_POLICIES` contain the expected
    named tables.
 3. Set an absolute `RootPath`, deployment profile, and `AsOfDate`.
 4. Install the queries in
@@ -70,6 +87,8 @@ fact_ContactClosed[ActivityKey]  -> dim_Activity[ActivityKey]
 fact_ContactLive[ActivityKey]    -> dim_Activity[ActivityKey]
 fact_ContactClosed[QueueKey]     -> dim_Queue[QueueKey]
 fact_ContactLive[QueueKey]       -> dim_Queue[QueueKey]
+fact_ContactClosed[ChannelKey]   -> dim_Channel[ChannelKey]
+fact_ContactLive[ChannelKey]     -> dim_Channel[ChannelKey]
 fact_OperationalIntervalClosed[BusinessDate] -> dim_Date[Date]
 fact_OperationalIntervalLive[BusinessDate]   -> dim_Date[Date]
 fact_OperationalIntervalClosed[IntervalKey]  -> dim_Interval[IntervalKey]
@@ -84,6 +103,14 @@ fact_StaffingRequirementClosed[IntervalKey]  -> dim_Interval[IntervalKey]
 fact_StaffingRequirementLive[IntervalKey]    -> dim_Interval[IntervalKey]
 fact_StaffingRequirementClosed[ActivityKey]  -> dim_Activity[ActivityKey]
 fact_StaffingRequirementLive[ActivityKey]    -> dim_Activity[ActivityKey]
+fact_Forecast[BusinessDate]      -> dim_Date[Date]
+fact_Forecast[IntervalKey]       -> dim_Interval[IntervalKey]
+fact_Forecast[ActivityKey]       -> dim_Activity[ActivityKey]
+fact_Forecast[ChannelKey]        -> dim_Channel[ChannelKey]
+fact_ForecastAccuracy[BusinessDate] -> dim_Date[Date]
+fact_ForecastAccuracy[IntervalKey]   -> dim_Interval[IntervalKey]
+fact_ForecastAccuracy[ActivityKey]   -> dim_Activity[ActivityKey]
+fact_ForecastAccuracy[ChannelKey]    -> dim_Channel[ChannelKey]
 ```
 
 Mark `dim_Date` as the Date Table using its `Date` column. Do not create a
@@ -92,11 +119,20 @@ relationship between the live and closed facts.
 ## Install measures
 
 Install `90_Source_Code/02_DAX/service.dax` and
-`90_Source_Code/02_DAX/operational_control.dax` as explicit measures. Business
+`90_Source_Code/02_DAX/operational_control.dax` and
+`90_Source_Code/02_DAX/planning.dax` as explicit measures. Business
 pages must consume these measures rather than recreate them with worksheet
 formulas. Use `90_Source_Code/02_DAX/MANIFEST.csv` for home tables, formats,
 display folders, and descriptions. Measures labelled `· Interval` require
 interval-grain filter context.
+
+## Install Python in Excel
+
+Follow `01_Application/01-03_PYTHON_INSTALL.md` and
+`90_Source_Code/03_Python/MANIFEST.csv`. Install the three definition cells and
+two entrypoint cells in exact order. Forecast and capacity outputs remain
+candidates until they are reviewed and pasted into `tblForecastVersions` and
+`tblRequirementApprovals` with complete approval evidence.
 
 ## Install close day
 
@@ -133,6 +169,11 @@ The release remains blocked until:
 - schedule, login, and state overlaps are zero or explicitly blocking;
 - interval staffing, attendance, conformance, and adherence match the golden
   fixtures;
+- planning baseline, adjustment, accuracy, and capacity results match the
+  planning fixtures;
+- forecast candidates cannot bypass `tblForecastVersions`, and requirements
+  cannot bypass `tblRequirementApprovals`;
+- daily forecast totals reconcile exactly to the reviewed interval profile;
 - the close-day controller is idempotent and creates no duplicate final keys;
 - a second refresh produces identical finalized results;
 - the workbook passes visual inspection in desktop Excel.

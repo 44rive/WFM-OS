@@ -1,0 +1,5 @@
+ScenarioKey,Method,OfferedTrafficErlangs,EffectiveTrafficErlangs,ProductiveFTE,PaidFTE,RequiredHeads,AchievedOccupancy,AchievedServiceLevel
+SYNC_VOICE,ERLANG_C,1,1,3,3.75,4,0.333333,0.927206
+SYNC_CONCURRENT,ERLANG_C,3.2,1.6,4,5.333333,7,0.4,0.932808
+ASYNC_EMAIL,WORKLOAD,5,5,5.882353,7.352941,8,0.85,
+ASYNC_CHAT,WORKLOAD,6,3,3.75,5,7,0.8,

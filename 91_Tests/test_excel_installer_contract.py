@@ -48,6 +48,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
             "queryManifest",
             "daxManifest",
             "relationshipManifest",
+            "pythonManifest",
         ):
             self.assertTrue((ROOT / self.contract[key]).is_file(), key)
         for relative in self.contract["manualSourceFiles"] + self.contract["vbaModules"]:
@@ -94,7 +95,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
                 actual.add((dax_path.name, name.strip()))
         self.assertEqual(declared, actual)
         self.assertEqual(len(rows), len({row["InstallOrder"] for row in rows}))
-        self.assertEqual(len(rows), 29)
+        self.assertEqual(len(rows), 38)
         self.assertTrue(all(row["HomeTable"] in model_tables for row in rows))
         self.assertTrue(all(row["FormatString"] for row in rows))
         self.assertEqual({row["Required"] for row in rows}, {"TRUE"})
@@ -112,7 +113,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
             for row in rows
         }
         self.assertEqual(len(rows), len(keys))
-        self.assertEqual(len(rows), 22)
+        self.assertEqual(len(rows), 32)
         self.assertTrue(all(row["ForeignTable"].startswith("fact_") for row in rows))
         self.assertTrue(all(row["LookupTable"].startswith("dim_") for row in rows))
         self.assertTrue(all(row["ForeignTable"] in model_tables for row in rows))
@@ -122,6 +123,28 @@ class ExcelInstallerContractTest(unittest.TestCase):
         self.assertEqual({row["Active"] for row in rows}, {"TRUE"})
         self.assertEqual({row["Required"] for row in rows}, {"TRUE"})
         self.assertEqual(self.contract["dateTable"], {"table": "dim_Date", "column": "Date"})
+
+    def test_python_manifest_has_exact_definition_source_coverage(self) -> None:
+        manifest_path = ROOT / self.contract["pythonManifest"]
+        with manifest_path.open(newline="", encoding="utf-8") as source:
+            rows = list(csv.DictReader(source))
+        self.assertEqual(len(rows), 5)
+        self.assertEqual(
+            [int(row["InstallOrder"]) for row in rows],
+            sorted(int(row["InstallOrder"]) for row in rows),
+        )
+        self.assertEqual(
+            len(rows),
+            len({(row["Sheet"], row["AnchorCell"]) for row in rows}),
+        )
+        definitions = {
+            (manifest_path.parent / row["SourceFile"]).resolve()
+            for row in rows
+            if row["Role"] == "DEFINITIONS"
+        }
+        actual = {path.resolve() for path in manifest_path.parent.glob("*.py")}
+        self.assertEqual(definitions, actual)
+        self.assertEqual({row["Required"] for row in rows}, {"TRUE"})
 
     def test_installer_is_fail_closed_and_never_claims_engine_completion(self) -> None:
         script = SCRIPT_PATH.read_text(encoding="utf-8")
@@ -154,6 +177,7 @@ class ExcelInstallerContractTest(unittest.TestCase):
                 "QUERY_LOAD_DESTINATIONS",
                 "DATA_MODEL_RELATIONSHIPS",
                 "DAX_MEASURES",
+                "PYTHON_IN_EXCEL_CELLS",
                 "DATE_TABLE_MARKING",
                 "DESKTOP_EXCEL_REFRESH_VALIDATION",
             },

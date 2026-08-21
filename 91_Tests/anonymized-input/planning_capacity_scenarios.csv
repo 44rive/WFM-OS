@@ -1,0 +1,5 @@
+ScenarioKey,Method,Volume,AHTSeconds,IntervalMinutes,TargetServiceLevel,AnswerTimeSeconds,Occupancy,Concurrency,Shrinkage,FTEPerHead
+SYNC_VOICE,ERLANG_C,10,180,30,0.8,20,0.85,1,0.2,1
+SYNC_CONCURRENT,ERLANG_C,24,240,30,0.8,30,0.85,2,0.25,0.8
+ASYNC_EMAIL,WORKLOAD,60,300,60,,,0.85,1,0.2,1
+ASYNC_CHAT,WORKLOAD,120,180,60,,,0.8,2,0.25,0.8

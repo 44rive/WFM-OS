@@ -1,0 +1,3 @@
+ActivityKey,ChannelKey,ObservationCount,ActualTotal,ForecastTotal,WAPEPercent,SignedBiasPercent,MAE,RMSE,ZeroActualPolicy
+ACT_CASES,EMAIL,2,0,5,,,2.5,3.535534,UNDEFINED_DENOMINATOR
+ACT_SUPPORT,VOICE,3,300,306,10,2,10,10.132456,DEFINED

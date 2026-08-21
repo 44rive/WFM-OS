@@ -1,6 +1,6 @@
 let
     Source = Table.SelectRows(
-        stg_StaffingRequirements,
+        stg_AllStaffingRequirements,
         each [MappingStatus] = "MAPPED" and [ApprovedFlag] and [BusinessDate] = p_AsOfDate
     ),
     Selected = Table.SelectColumns(

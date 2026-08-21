@@ -1,0 +1,44 @@
+// Planning measures report approved forecast facts and scored forecast/actual pairs.
+// Positive signed bias means the approved forecast was above actual demand.
+
+Approved Forecast Volume :=
+    SUM ( fact_Forecast[ForecastVolume] )
+
+Approved Forecast AHT Seconds :=
+    DIVIDE (
+        SUMX (
+            fact_Forecast,
+            fact_Forecast[ForecastVolume] * fact_Forecast[ForecastAHTSeconds]
+        ),
+        [Approved Forecast Volume]
+    )
+
+Approved Forecast Workload Hours :=
+    DIVIDE (
+        SUMX (
+            fact_Forecast,
+            fact_Forecast[ForecastVolume] * fact_Forecast[ForecastAHTSeconds]
+        ),
+        3600
+    )
+
+Scored Actual Volume :=
+    SUM ( fact_ForecastAccuracy[ActualVolume] )
+
+Scored Forecast Volume :=
+    SUM ( fact_ForecastAccuracy[ForecastVolume] )
+
+Forecast Absolute Error :=
+    SUM ( fact_ForecastAccuracy[AbsoluteError] )
+
+Forecast WAPE % :=
+    DIVIDE ( [Forecast Absolute Error], [Scored Actual Volume] )
+
+Forecast Signed Bias % :=
+    DIVIDE (
+        SUM ( fact_ForecastAccuracy[SignedError] ),
+        [Scored Actual Volume]
+    )
+
+Forecast Intervals Scored :=
+    COUNTROWS ( fact_ForecastAccuracy )

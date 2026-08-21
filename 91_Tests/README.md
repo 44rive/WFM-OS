@@ -32,6 +32,12 @@ table schemas, exact Power Query and DAX source coverage, relationship metadata,
 and the fail-closed Windows installer boundary without pretending to execute
 desktop Excel in Linux CI.
 
+`test_planning_cycle.py` covers grouped daily seasonal-naive forecasting,
+backtest accuracy and zero-denominator policy, approved calendar/override
+precedence, future-data leakage prevention, Python-in-Excel table adapters,
+Erlang C, asynchronous workload capacity, shrinkage, concurrency, and invalid
+planning parameters.
+
 ## Reference definitions
 
 All fixture times are local, timezone-consistent ISO timestamps. Production

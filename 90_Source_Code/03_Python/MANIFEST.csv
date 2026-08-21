@@ -1,0 +1,6 @@
+InstallOrder,Sheet,AnchorCell,SourceFile,Role,Entrypoint,Required
+10,91_PY_INIT,B15,forecast.py,DEFINITIONS,,TRUE
+20,91_PY_INIT,B16,capacity.py,DEFINITIONS,,TRUE
+30,91_PY_INIT,B17,excel_adapter.py,DEFINITIONS,,TRUE
+40,92_PY_FORECAST,B15,excel_adapter.py,FORECAST_ENTRYPOINT,run_forecast_excel,TRUE
+50,93_PY_SCENARIOS,B15,excel_adapter.py,CAPACITY_ENTRYPOINT,run_capacity_excel,TRUE

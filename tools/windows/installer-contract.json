@@ -1,12 +1,13 @@
 {
-  "contractVersion": "1.0.0",
-  "installerVersion": "0.1.0",
-  "workbookRelease": "0.2.0-shell",
+  "contractVersion": "1.1.0",
+  "installerVersion": "0.2.0",
+  "workbookRelease": "0.3.0-shell",
   "inputArtifact": "01_Application/WFM_OS.xlsx",
   "buildProvenance": "01_Application/BUILD_PROVENANCE.json",
   "queryManifest": "90_Source_Code/01_Power_Query/MANIFEST.csv",
   "daxManifest": "90_Source_Code/02_DAX/MANIFEST.csv",
   "relationshipManifest": "90_Source_Code/02_DAX/RELATIONSHIPS.csv",
+  "pythonManifest": "90_Source_Code/03_Python/MANIFEST.csv",
   "dateTable": {
     "table": "dim_Date",
     "column": "Date"
@@ -16,7 +17,11 @@
   ],
   "manualSourceFiles": [
     "90_Source_Code/02_DAX/service.dax",
-    "90_Source_Code/02_DAX/operational_control.dax"
+    "90_Source_Code/02_DAX/operational_control.dax",
+    "90_Source_Code/02_DAX/planning.dax",
+    "90_Source_Code/03_Python/forecast.py",
+    "90_Source_Code/03_Python/capacity.py",
+    "90_Source_Code/03_Python/excel_adapter.py"
   ],
   "requiredWorkbookTables": [
     {
@@ -48,6 +53,18 @@
       "columns": ["Profile", "MetricKey", "RuleName", "Value", "Unit", "ValidFrom", "ValidTo", "Approved"]
     },
     {
+      "name": "tblCalendarEvents",
+      "columns": ["Profile", "EventKey", "EventName", "EventType", "ActivityKey", "ChannelKey", "StartAt", "EndAt", "ImpactType", "ImpactValue", "Approved", "Owner", "Notes"]
+    },
+    {
+      "name": "tblForecastPolicies",
+      "columns": ["Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "Frequency", "HistoryPeriods", "HorizonPeriods", "SeasonLength", "MinimumHistory", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblCapacityPolicies",
+      "columns": ["Profile", "PolicyKey", "ActivityKey", "ChannelKey", "Method", "IntervalMinutes", "TargetServiceLevel", "AnswerTimeSeconds", "MaxOccupancy", "ShrinkagePct", "Concurrency", "FTEPerHead", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
       "name": "tblDQChecks",
       "columns": ["CheckKey", "Check", "Domain", "Requirement", "Status", "IssueCount", "Owner", "NextAction"]
     },
@@ -64,6 +81,18 @@
       "columns": ["SnapshotKey", "Profile", "BusinessDate", "IntervalStart", "ActivityKey", "ScheduledFTE", "ScheduledProductiveFTE", "PresentFTE", "ProductiveFTE", "RequiredFTE", "NetProductiveFTE", "Status", "ClosedAt", "ClosedBy", "SourceRunKey"]
     },
     {
+      "name": "tblForecastOverrides",
+      "columns": ["OverrideKey", "Profile", "ForecastVersionKey", "ActivityKey", "ChannelKey", "ForecastDate", "ForecastVolume", "ForecastAHTSeconds", "Reason", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt"]
+    },
+    {
+      "name": "tblForecastVersions",
+      "columns": ["ForecastRowKey", "Profile", "ForecastVersionKey", "ApprovalStatus", "Scenario", "Method", "ActivityKey", "ChannelKey", "IntervalStart", "ForecastVolume", "ForecastAHTSeconds", "CreatedAt", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblRequirementApprovals",
+      "columns": ["RequirementKey", "Profile", "ForecastVersionKey", "CapacityPolicyKey", "ApprovalStatus", "IntervalStart", "ActivityKey", "RequiredFTE", "PaidFTE", "RequiredHeads", "ShrinkagePct", "RequirementVersion", "ApprovedAt", "ApprovedBy", "SourceRunKey", "Notes"]
+    },
+    {
       "name": "tblBuildInfo",
       "columns": ["Field", "Value", "Evidence / note"]
     }
@@ -72,6 +101,7 @@
     "QUERY_LOAD_DESTINATIONS",
     "DATA_MODEL_RELATIONSHIPS",
     "DAX_MEASURES",
+    "PYTHON_IN_EXCEL_CELLS",
     "DATE_TABLE_MARKING",
     "DESKTOP_EXCEL_REFRESH_VALIDATION"
   ]

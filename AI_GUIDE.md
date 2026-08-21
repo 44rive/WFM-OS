@@ -38,7 +38,7 @@ Before making a change, read these files in order:
 | Power Query | `90_Source_Code/01_Power_Query/` |
 | DAX measures | `90_Source_Code/02_DAX/*.dax` and `90_Source_Code/02_DAX/MANIFEST.csv` |
 | Model relationships | `90_Source_Code/02_DAX/RELATIONSHIPS.csv` |
-| Python | `90_Source_Code/03_Python/` |
+| Python | `90_Source_Code/03_Python/*.py` and `90_Source_Code/03_Python/MANIFEST.csv` |
 | VBA | `90_Source_Code/04_VBA/` |
 | Desktop installer | `tools/windows/installer-contract.json` and `tools/windows/Install-WfmOsExcel.ps1` |
 | Current application shell | `01_Application/WFM_OS.xlsx` |
@@ -52,6 +52,9 @@ For Power Query installation order and load destinations, use
 For measure metadata and model relationships, use the two manifests under
 `90_Source_Code/02_DAX/`; do not treat prose or a model screenshot as the
 canonical definition.
+For Python installation order, cell anchors, and entrypoints, use
+`90_Source_Code/03_Python/MANIFEST.csv`; never infer cell order from sheet
+position or paste source from an uncommitted working copy.
 
 ## Hard constraints
 
@@ -75,6 +78,10 @@ canonical definition.
   effective date.
 - Never overwrite finalized snapshot rows; an idempotent repeat close may only
   confirm that the same stable keys are already final.
+- Never let a Python candidate enter a canonical forecast or staffing fact
+  without a stable version, source-run evidence, named approver, and timestamp.
+- Never send a daily forecast total directly into an interval capacity formula;
+  first reconcile it to an approved intraday profile.
 
 ## Decide the smallest correct change
 
@@ -134,6 +141,12 @@ Keep analytical functions pure where possible. The workbook wrapper may call
 `xl()` to obtain Power Query data, but approved operational outputs must be
 versioned in controlled Excel tables before downstream use.
 
+Core calculations belong in dependency-free modules and must accept ordinary
+records so Linux CI can prove their behavior. `excel_adapter.py` may shape
+DataFrames but must not redefine forecast or capacity mathematics. Update the
+Python manifest and `01_Application/01-03_PYTHON_INSTALL.md` whenever a Python
+cell, anchor, source file, or entrypoint changes.
+
 ### VBA change
 
 VBA is limited to refresh sequencing, snapshot creation, backup, controlled
@@ -149,7 +162,8 @@ explicit overwrite switches, disable macros while opening source workbooks,
 produce a JSON report, and preserve `NOT OPERATIONAL` until the full release gate
 passes.
 
-When a query, measure, relationship, Date Table setting, or VBA module changes:
+When a query, measure, relationship, Python cell, Date Table setting, or VBA
+module changes:
 
 1. update its canonical source and machine-readable manifest or installer
    contract;

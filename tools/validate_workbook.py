@@ -36,6 +36,10 @@ REQUIRED_SHEETS = {
     "30_INTRADAY",
     "40_PERFORMANCE",
     "41_EXECUTIVE",
+    "72_FORECAST_POLICIES",
+    "73_CAPACITY_POLICIES",
+    "85_FORECAST_APPROVAL",
+    "86_REQUIREMENT_APPROVAL",
     "99_BUILD_INFO",
 }
 
@@ -50,6 +54,9 @@ CONFIG_TABLES = {
     "tblQueueMapping": ROOT / "02_Configuration" / "queue_mapping.csv",
     "tblStateMapping": ROOT / "02_Configuration" / "state_mapping.csv",
     "tblMetricRules": ROOT / "02_Configuration" / "metric_rules.csv",
+    "tblCalendarEvents": ROOT / "02_Configuration" / "calendar_events.csv",
+    "tblForecastPolicies": ROOT / "02_Configuration" / "forecast_policies.csv",
+    "tblCapacityPolicies": ROOT / "02_Configuration" / "capacity_policies.csv",
 }
 
 FORBIDDEN_CELL_TERMS = (
@@ -64,6 +71,8 @@ REQUIRED_CONTROL_TABLES = {
     "tblCloseDayInput",
     "tblCloseDayReady",
     "tblOperationalSnapshots",
+    "tblForecastVersions",
+    "tblRequirementApprovals",
 }
 
 
@@ -144,7 +153,7 @@ def validate_workbook(path: Path) -> dict[str, object]:
 
         visible = [sheet for sheet in workbook.worksheets if sheet.sheet_state == "visible"]
         hidden = [sheet for sheet in workbook.worksheets if sheet.sheet_state != "visible"]
-        if len(workbook.sheetnames) != 47 or len(visible) != 38 or len(hidden) != 9:
+        if len(workbook.sheetnames) != 51 or len(visible) != 42 or len(hidden) != 9:
             fail(
                 "Unexpected workbook surface: "
                 f"{len(workbook.sheetnames)} sheets, {len(visible)} visible, {len(hidden)} hidden"

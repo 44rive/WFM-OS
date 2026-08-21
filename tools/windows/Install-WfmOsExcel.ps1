@@ -243,6 +243,7 @@ $provenancePath = Resolve-AbsolutePath -Path ([string]$contract.buildProvenance)
 $queryManifestPath = Resolve-AbsolutePath -Path ([string]$contract.queryManifest) -BasePath $RepositoryRoot
 $daxManifestPath = Resolve-AbsolutePath -Path ([string]$contract.daxManifest) -BasePath $RepositoryRoot
 $relationshipManifestPath = Resolve-AbsolutePath -Path ([string]$contract.relationshipManifest) -BasePath $RepositoryRoot
+$pythonManifestPath = Resolve-AbsolutePath -Path ([string]$contract.pythonManifest) -BasePath $RepositoryRoot
 
 $report = [ordered]@{
     contractVersion = [string]$contract.contractVersion
@@ -264,9 +265,11 @@ $report = [ordered]@{
     modelContract = [ordered]@{
         daxManifest = [string]$contract.daxManifest
         relationshipManifest = [string]$contract.relationshipManifest
+        pythonManifest = [string]$contract.pythonManifest
         dateTable = $contract.dateTable
         measureCount = 0
         relationshipCount = 0
+        pythonCellCount = 0
         installation = "MANUAL_REQUIRED"
     }
     manualRequiredCapabilities = @($contract.manualRequiredCapabilities)
@@ -287,6 +290,7 @@ try {
     Assert-File $queryManifestPath
     Assert-File $daxManifestPath
     Assert-File $relationshipManifestPath
+    Assert-File $pythonManifestPath
 
     $provenance = Get-Content -LiteralPath $provenancePath -Raw -Encoding UTF8 | ConvertFrom-Json
     $sourceHash = (Get-FileHash -LiteralPath $inputWorkbook -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -419,6 +423,36 @@ try {
     }
     $report.modelContract.measureCount = $daxManifest.Count
     $report.modelContract.relationshipCount = $relationshipManifest.Count
+
+    $pythonManifest = @(Import-Csv -LiteralPath $pythonManifestPath)
+    if ($pythonManifest.Count -eq 0) {
+        throw "Python manifest is empty."
+    }
+    $seenPythonOrders = @{}
+    $seenPythonAnchors = @{}
+    $previousPythonOrder = [int]::MinValue
+    foreach ($pythonCell in $pythonManifest) {
+        $order = 0
+        if (-not [int]::TryParse([string]$pythonCell.InstallOrder, [ref]$order) -or $order -le $previousPythonOrder) {
+            throw "Python manifest must contain strictly increasing integer InstallOrder values."
+        }
+        $anchorKey = @([string]$pythonCell.Sheet, [string]$pythonCell.AnchorCell) -join "!"
+        if ($seenPythonOrders.ContainsKey($order) -or $seenPythonAnchors.ContainsKey($anchorKey)) {
+            throw "Duplicate Python order or cell anchor in Python manifest."
+        }
+        $pythonSourcePath = Resolve-AbsolutePath -Path ([string]$pythonCell.SourceFile) -BasePath (Split-Path -Parent $pythonManifestPath)
+        Assert-File $pythonSourcePath
+        if ([string]$pythonCell.Required -cne "TRUE") {
+            throw "Every Python manifest row must remain required: $anchorKey"
+        }
+        if ([string]$pythonCell.Role -cne "DEFINITIONS" -and [string]::IsNullOrWhiteSpace([string]$pythonCell.Entrypoint)) {
+            throw "Python entrypoint row is missing Entrypoint: $anchorKey"
+        }
+        $seenPythonOrders[$order] = $true
+        $seenPythonAnchors[$anchorKey] = $true
+        $previousPythonOrder = $order
+    }
+    $report.modelContract.pythonCellCount = $pythonManifest.Count
 
     if ($ImportMacro -and -not $Apply) {
         throw "-ImportMacro requires -Apply."

@@ -1,0 +1,2 @@
+Profile,EventKey,EventName,EventType,ActivityKey,ChannelKey,StartAt,EndAt,ImpactType,ImpactValue,Approved,Owner,Notes
+example-enterprise,EXAMPLE_EVENT,Example event,DEMAND,EXAMPLE_VOICE,VOICE,2026-02-01,2026-02-01,VOLUME_PCT,0,FALSE,Planning owner,Fabricated disabled example

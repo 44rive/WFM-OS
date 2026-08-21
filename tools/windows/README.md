@@ -35,16 +35,20 @@ explicit switches are supplied:
 The installer adds M definitions in the exact order declared by
 `90_Source_Code/01_Power_Query/MANIFEST.csv`. It does not claim to automate
 query load destinations, Data Model relationships, Date Table marking, or DAX
-measures. These remain `MANUAL_REQUIRED` in every install report.
+measures. Python in Excel cells are also a controlled manual step. These remain
+`MANUAL_REQUIRED` in every install report.
 
 The manual model contract is still machine-readable:
 
 - `90_Source_Code/02_DAX/RELATIONSHIPS.csv` declares every relationship;
 - `90_Source_Code/02_DAX/MANIFEST.csv` declares every governed measure;
+- `90_Source_Code/03_Python/MANIFEST.csv` declares every Python cell and its
+  required calculation order;
 - `dim_Date[Date]` is the required Date Table contract.
 
 Follow `01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md` after definition
-installation. `-WhatIf` exercises the apply decision without creating a copy.
+installation, and use `01_Application/01-03_PYTHON_INSTALL.md` for the Python
+cells. `-WhatIf` exercises the apply decision without creating a copy.
 
 ## Optional reviewed macro import
 

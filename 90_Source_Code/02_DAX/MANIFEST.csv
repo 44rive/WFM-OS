@@ -28,3 +28,12 @@ InstallOrder,MeasureName,HomeTable,SourceFile,FormatString,DisplayFolder,Descrip
 44,Productive FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Productive actual seconds expressed as 30-minute interval FTE,TRUE
 45,Required FTE · Interval,fact_StaffingRequirementClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Approved staffing requirement across closed and live lanes,TRUE
 46,Net Productive FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Productive interval FTE less required interval FTE,TRUE
+50,Approved Forecast Volume,fact_Forecast,planning.dax,"#,##0",Planning\Forecast,Approved forecast volume in the current filter context,TRUE
+51,Approved Forecast AHT Seconds,fact_Forecast,planning.dax,"#,##0.0",Planning\Forecast,Volume-weighted approved forecast average handle time,TRUE
+52,Approved Forecast Workload Hours,fact_Forecast,planning.dax,"#,##0.00",Planning\Forecast,Approved forecast volume multiplied by forecast handle time in hours,TRUE
+53,Scored Actual Volume,fact_ForecastAccuracy,planning.dax,"#,##0",Planning\Accuracy,Actual volume at forecast scoring grain,TRUE
+54,Scored Forecast Volume,fact_ForecastAccuracy,planning.dax,"#,##0",Planning\Accuracy,Forecast volume with an observed actual at scoring grain,TRUE
+55,Forecast Absolute Error,fact_ForecastAccuracy,planning.dax,"#,##0",Planning\Accuracy,Absolute forecast error summed across scored intervals,TRUE
+56,Forecast WAPE %,fact_ForecastAccuracy,planning.dax,0.0%,Planning\Accuracy,Absolute forecast error divided by scored actual volume,TRUE
+57,Forecast Signed Bias %,fact_ForecastAccuracy,planning.dax,+0.0%;-0.0%;—,Planning\Accuracy,Signed forecast error divided by scored actual volume; positive means over-forecast,TRUE
+58,Forecast Intervals Scored,fact_ForecastAccuracy,planning.dax,"#,##0",Planning\Accuracy,Count of forecast intervals with observed actual demand,TRUE

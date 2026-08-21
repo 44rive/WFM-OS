@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PQ_ROOT = ROOT / "90_Source_Code" / "01_Power_Query"
 MANIFEST = PQ_ROOT / "MANIFEST.csv"
+PYTHON_ROOT = ROOT / "90_Source_Code" / "03_Python"
+PYTHON_MANIFEST = PYTHON_ROOT / "MANIFEST.csv"
 
 
 def rows(path: Path) -> list[dict[str, str]]:
@@ -104,6 +106,50 @@ class RepositoryContractTest(unittest.TestCase):
             names.extend(name.strip() for name in measure_pattern.findall(path.read_text(encoding="utf-8")))
         self.assertGreaterEqual(len(names), 20)
         self.assertEqual(len(names), len(set(names)))
+
+    def test_python_manifest_is_complete_and_ordered(self) -> None:
+        manifest = rows(PYTHON_MANIFEST)
+        orders = [int(row["InstallOrder"]) for row in manifest]
+        anchors = [(row["Sheet"], row["AnchorCell"]) for row in manifest]
+        self.assertEqual(orders, sorted(orders))
+        self.assertEqual(len(orders), len(set(orders)))
+        self.assertEqual(len(anchors), len(set(anchors)))
+        self.assertEqual({row["Required"] for row in manifest}, {"TRUE"})
+
+        declared_definition_sources = {
+            (PYTHON_ROOT / row["SourceFile"]).resolve()
+            for row in manifest
+            if row["Role"] == "DEFINITIONS"
+        }
+        actual_sources = {path.resolve() for path in PYTHON_ROOT.glob("*.py")}
+        self.assertEqual(declared_definition_sources, actual_sources)
+        self.assertEqual(
+            {(row["Role"], row["Entrypoint"]) for row in manifest if row["Role"] != "DEFINITIONS"},
+            {
+                ("FORECAST_ENTRYPOINT", "run_forecast_excel"),
+                ("CAPACITY_ENTRYPOINT", "run_capacity_excel"),
+            },
+        )
+
+    def test_planning_queries_keep_approval_between_candidates_and_facts(self) -> None:
+        forecast_source = (
+            PQ_ROOT / "04_Facts" / "fact_Forecast.pq"
+        ).read_text(encoding="utf-8")
+        requirement_source = (
+            PQ_ROOT / "02_Staging" / "stg_AllStaffingRequirements.pq"
+        ).read_text(encoding="utf-8")
+        requirement_approval_source = (
+            PQ_ROOT / "02_Staging" / "stg_RequirementApprovals.pq"
+        ).read_text(encoding="utf-8")
+        dq_source = (
+            PQ_ROOT / "05_Outputs" / "dq_PlanningApprovals.pq"
+        ).read_text(encoding="utf-8")
+        self.assertIn("stg_ForecastVersions", forecast_source)
+        self.assertIn('[ApprovedFlag] and [ValidationStatus] = "VALID"', forecast_source)
+        self.assertIn("stg_RequirementApprovals", requirement_source)
+        self.assertIn("APPROVED", requirement_approval_source)
+        self.assertIn("MappingStatus", requirement_approval_source)
+        self.assertIn("BLOCKING", dq_source)
 
     def test_close_day_module_targets_governed_tables(self) -> None:
         source = (ROOT / "90_Source_Code" / "04_VBA" / "modCloseDay.bas").read_text(encoding="utf-8")

@@ -1,6 +1,6 @@
 # Canonical data contracts
 
-Contract version: `1.1.0`.
+Contract version: `1.2.0`.
 
 These are logical contracts. Physical types and required/optional status will be
 implemented and tested in Power Query.
@@ -57,8 +57,30 @@ IdentityKey, SystemKey, ExternalAgentID, AgentKey, ValidFrom, ValidTo
 ## Forecast
 
 ```text
-ForecastVersionKey, ApprovedFlag, Scenario, ActivityKey, ChannelKey,
-IntervalStart, ForecastVolume, ForecastAHT, CreatedAt, ApprovedAt
+ForecastRowKey, Profile, ForecastVersionKey, ApprovalStatus, Scenario,
+Method, ActivityKey, ChannelKey, BusinessDate, IntervalStart, IntervalKey,
+ForecastVolume, ForecastAHTSeconds, CreatedAt, ApprovedAt, ApprovedBy,
+SourceRunKey
+```
+
+## Forecast accuracy
+
+```text
+ForecastVersionKey, BusinessDate, IntervalStart, IntervalKey, ActivityKey,
+ChannelKey, ActualVolume, ForecastVolume, SignedError, AbsoluteError
+```
+
+Signed forecast error is `ForecastVolume - ActualVolume`; positive bias means
+over-forecast. WAPE and signed bias are undefined when total actual volume is
+zero, while absolute error, MAE, and RMSE remain defined.
+
+## Capacity candidate
+
+```text
+RequirementKey, Profile, ForecastVersionKey, CapacityPolicyKey, IntervalStart,
+ActivityKey, ChannelKey, Method, ForecastVolume, ForecastAHTSeconds, RequiredFTE,
+PaidFTE, RequiredHeads, ShrinkagePct, RequirementVersion, AchievedOccupancy,
+AchievedServiceLevel
 ```
 
 ## Agent operational interval
@@ -97,3 +119,9 @@ NetProductiveFTE, Status, ClosedAt, ClosedBy, SourceRunKey
 - Overlapping schedule, login, or state events for one agent: expose and block
   operational approval.
 - Snapshot duplicate grain or unapproved close request: refuse the close.
+- Duplicate approved forecast grain: quarantine the rows and block publication.
+- Duplicate approved staffing-requirement grain: quarantine the rows and block
+  planning publication.
+- Invalid or unmatched planning adjustment: fail the analytical candidate run.
+- Python candidate without a stable version and approval evidence: exclude it
+  from canonical facts.

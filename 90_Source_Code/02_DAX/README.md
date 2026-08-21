@@ -11,6 +11,11 @@ and expected reconciliation source.
 schedule, presence, staffing, conformance, and adherence metrics. Do not
 duplicate either definition in worksheet formulas.
 
+`planning.dax` owns approved forecast totals, workload, and forecast-accuracy
+measures. Signed forecast error is forecast minus actual, so positive bias means
+over-forecast. Capacity algorithms remain in Python; DAX reports their approved
+staffing-requirement results through the existing operational measures.
+
 Use `MANIFEST.csv` as the installation contract for measure order, home table,
 format, display folder, and business description. Use `RELATIONSHIPS.csv` as
 the canonical relationship contract; fact columns are foreign keys and

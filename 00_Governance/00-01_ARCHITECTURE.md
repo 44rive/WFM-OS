@@ -58,6 +58,11 @@ Python in Excel consumes named Power Query results for forecast backtesting,
 statistical models, scenarios, schedule experiments, and anomaly analysis.
 Approved outputs are versioned before they affect operational decisions.
 
+The planning cycle follows ADR 0003. Power Query supplies closed actuals;
+Python creates forecast and capacity candidates; controlled approval tables
+publish immutable versions back into canonical forecast and staffing facts.
+Python output never enters an operational fact merely because a cell recalculated.
+
 ## Workbook sheet groups
 
 ```text

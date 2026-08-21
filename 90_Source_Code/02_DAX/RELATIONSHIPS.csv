@@ -7,6 +7,8 @@ InstallOrder,ForeignTable,ForeignColumn,LookupTable,LookupColumn,Cardinality,Cro
 15,fact_ContactLive,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
 16,fact_ContactClosed,QueueKey,dim_Queue,QueueKey,ManyToOne,Single,TRUE,TRUE
 17,fact_ContactLive,QueueKey,dim_Queue,QueueKey,ManyToOne,Single,TRUE,TRUE
+18,fact_ContactClosed,ChannelKey,dim_Channel,ChannelKey,ManyToOne,Single,TRUE,TRUE
+19,fact_ContactLive,ChannelKey,dim_Channel,ChannelKey,ManyToOne,Single,TRUE,TRUE
 20,fact_OperationalIntervalClosed,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
 21,fact_OperationalIntervalLive,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
 22,fact_OperationalIntervalClosed,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
@@ -21,3 +23,11 @@ InstallOrder,ForeignTable,ForeignColumn,LookupTable,LookupColumn,Cardinality,Cro
 33,fact_StaffingRequirementLive,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
 34,fact_StaffingRequirementClosed,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
 35,fact_StaffingRequirementLive,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+40,fact_Forecast,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+41,fact_Forecast,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
+42,fact_Forecast,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+43,fact_Forecast,ChannelKey,dim_Channel,ChannelKey,ManyToOne,Single,TRUE,TRUE
+44,fact_ForecastAccuracy,BusinessDate,dim_Date,Date,ManyToOne,Single,TRUE,TRUE
+45,fact_ForecastAccuracy,IntervalKey,dim_Interval,IntervalKey,ManyToOne,Single,TRUE,TRUE
+46,fact_ForecastAccuracy,ActivityKey,dim_Activity,ActivityKey,ManyToOne,Single,TRUE,TRUE
+47,fact_ForecastAccuracy,ChannelKey,dim_Channel,ChannelKey,ManyToOne,Single,TRUE,TRUE

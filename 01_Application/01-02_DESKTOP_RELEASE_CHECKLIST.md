@@ -26,8 +26,8 @@ powershell.exe -NoProfile -File tools\windows\Install-WfmOsExcel.ps1
 
 The command opens the committed shell read-only with macros disabled. It checks
 the artifact hash and Git provenance, required table schemas, Power Query source
-coverage, model metadata, DAX source, and Excel availability. Preserve the JSON
-report path printed by the command.
+coverage, model metadata, DAX and Python manifests, and Excel availability.
+Preserve the JSON report path printed by the command.
 
 ## 2 · Install reviewed definitions on a new copy
 
@@ -82,14 +82,28 @@ display folder, and description. Use the referenced `.dax` file for the formula.
 
 After installation:
 
-1. compare all 29 measure names to the manifest;
+1. compare all 38 measure names to the manifest;
 2. confirm there are no implicit measures on business pages;
 3. test blank and zero denominators for every ratio;
 4. validate measures labelled `· Interval` only at 30-minute interval grain;
-5. reconcile service, attendance, adherence, and staffing totals to the golden
+5. reconcile service, attendance, adherence, staffing, forecast, and accuracy
+   totals to the golden
    fixture outputs.
 
-## 6 · Install the controlled close-day action
+## 6 · Install governed Python cells
+
+Follow `01_Application/01-03_PYTHON_INSTALL.md` and install all five rows from
+`90_Source_Code/03_Python/MANIFEST.csv` in exact order. Confirm each definition
+cell calculates before installing the next cell. Capture evidence that the
+forecast adapter excludes history after `AsOfDate`, the daily forecast is
+reconciled to an interval profile before approval, and the capacity adapter
+reads only approved interval forecasts.
+
+Neither spilled candidate output is a canonical fact. Approval requires stable
+keys, source-run evidence, approver, timestamp, and successful
+`dq_PlanningApprovals` refresh.
+
+## 7 · Install the controlled close-day action
 
 For the macro-enabled candidate:
 
@@ -105,7 +119,7 @@ execution evidence. Assign `CloseOperationalDay` to the controlled action on
 `84_CLOSE_DAY`, then prove approval blocking, failed-DQ blocking, replacement
 behavior, idempotency, and duplicate prevention with anonymized fixtures.
 
-## 7 · Execute release evidence
+## 8 · Execute release evidence
 
 All evidence is required:
 
@@ -116,19 +130,20 @@ All evidence is required:
 | Refresh | Shared, live, and closed lanes complete without repair or privacy prompts |
 | Data quality | Unknowns remain visible; every blocking check is zero or resolved |
 | Reconciliation | Source counts and governed totals tie to the accepted fixture outputs |
-| Semantic model | 22 required relationships exist with one intended filter path |
-| Measures | 29 explicit measures match name, formula, format, and expected result |
+| Semantic model | 32 required relationships exist with one intended filter path |
+| Measures | 38 explicit measures match name, formula, format, and expected result |
+| Planning Python | Five ordered cells execute; candidate/approval boundaries and as-of behavior pass |
+| Planning reconciliation | Daily forecast equals reviewed interval totals; approved requirements trace to forecast and policy versions |
 | Close day | Approval controls pass; repeat close is idempotent and duplicate-free |
 | Repeatability | A second refresh returns identical finalized results |
 | Visual inspection | Pages pass the design-system checklist at 100% zoom |
 | Security | No credentials, production data, or personal data exist in the artifact or diff |
 
-Python in Excel forecasting is a separate governed slice. Its absence does not
-invalidate the current contact-service and operational-control fixture tests,
-but it blocks any release claim that forecasting, capacity, or scenarios are
-operational.
+Contact-service and operational-control evidence may be assessed independently,
+but missing Python or planning-approval evidence blocks any whole-product or
+planning-cycle operational claim.
 
-## 8 · Promote deliberately
+## 9 · Promote deliberately
 
 Only after all evidence passes:
 
