@@ -1,0 +1,30 @@
+InstallOrder,MeasureName,HomeTable,SourceFile,FormatString,DisplayFolder,Description,Required
+10,Contacts Offered,fact_ContactClosed,service.dax,"#,##0",Service\Volume,Inbound contacts offered across closed and live lanes,TRUE
+11,Contacts Handled,fact_ContactClosed,service.dax,"#,##0",Service\Volume,Inbound contacts handled across closed and live lanes,TRUE
+12,Contacts Short Abandoned,fact_ContactClosed,service.dax,"#,##0",Service\Volume,Offered contacts abandoned below the governed short-abandon threshold,TRUE
+13,Contacts Abandoned,fact_ContactClosed,service.dax,"#,##0",Service\Volume,Offered contacts not handled,TRUE
+14,Abandon %,fact_ContactClosed,service.dax,0.0%,Service\Quality,Abandoned contacts divided by offered contacts,TRUE
+15,Contacts Answered Within SL,fact_ContactClosed,service.dax,"#,##0",Service\Quality,Handled contacts answered inside the governed service threshold,TRUE
+16,SL Eligible Offered,fact_ContactClosed,service.dax,"#,##0",Service\Quality,Offered contacts eligible for the service-level denominator,TRUE
+17,Service Level %,fact_ContactClosed,service.dax,0.0%,Service\Quality,Contacts answered within threshold divided by eligible offered contacts,TRUE
+18,Handle Seconds,fact_ContactClosed,service.dax,"#,##0",Service\Time,Total talk hold and after-contact seconds for handled contacts,TRUE
+19,AHT Seconds,fact_ContactClosed,service.dax,"#,##0.0",Service\Time,Handle seconds divided by handled contacts,TRUE
+20,Wait Seconds Handled,fact_ContactClosed,service.dax,"#,##0",Service\Time,Total wait seconds for handled contacts,TRUE
+21,ASA Seconds,fact_ContactClosed,service.dax,"#,##0.0",Service\Time,Handled-contact wait seconds divided by handled contacts,TRUE
+30,Scheduled Seconds,fact_OperationalIntervalClosed,operational_control.dax,"#,##0",Operations\Time,Governed scheduled seconds across closed and live lanes,TRUE
+31,Scheduled Productive Seconds,fact_OperationalIntervalClosed,operational_control.dax,"#,##0",Operations\Time,Scheduled seconds classified as productive,TRUE
+32,Logged Scheduled Seconds,fact_OperationalIntervalClosed,operational_control.dax,"#,##0",Operations\Time,Scheduled seconds covered by a login,TRUE
+33,Productive Actual Seconds,fact_OperationalIntervalClosed,operational_control.dax,"#,##0",Operations\Time,Scheduled productive seconds covered by productive actual states,TRUE
+34,Adherent Seconds,fact_OperationalIntervalClosed,operational_control.dax,"#,##0",Operations\Time,Scheduled seconds satisfying the governed adherence rule,TRUE
+35,Adherence Exception Seconds,fact_OperationalIntervalClosed,operational_control.dax,"#,##0",Operations\Time,Scheduled seconds outside the governed adherence rule,TRUE
+36,Scheduled Hours,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Hours,Scheduled seconds expressed as hours,TRUE
+37,Present Scheduled Hours,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Hours,Logged scheduled seconds expressed as hours,TRUE
+38,Productive Actual Hours,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Hours,Productive actual seconds expressed as hours,TRUE
+39,Conformance %,fact_OperationalIntervalClosed,operational_control.dax,0.0%,Operations\Quality,Logged scheduled seconds divided by scheduled seconds,TRUE
+40,Adherence %,fact_OperationalIntervalClosed,operational_control.dax,0.0%,Operations\Quality,Adherent seconds divided by scheduled seconds,TRUE
+41,Scheduled FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Scheduled seconds expressed as 30-minute interval FTE,TRUE
+42,Scheduled Productive FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Scheduled productive seconds expressed as 30-minute interval FTE,TRUE
+43,Present FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Logged scheduled seconds expressed as 30-minute interval FTE,TRUE
+44,Productive FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Productive actual seconds expressed as 30-minute interval FTE,TRUE
+45,Required FTE · Interval,fact_StaffingRequirementClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Approved staffing requirement across closed and live lanes,TRUE
+46,Net Productive FTE · Interval,fact_OperationalIntervalClosed,operational_control.dax,"#,##0.00",Operations\Staffing,Productive interval FTE less required interval FTE,TRUE

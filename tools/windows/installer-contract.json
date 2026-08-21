@@ -1,0 +1,78 @@
+{
+  "contractVersion": "1.0.0",
+  "installerVersion": "0.1.0",
+  "workbookRelease": "0.2.0-shell",
+  "inputArtifact": "01_Application/WFM_OS.xlsx",
+  "buildProvenance": "01_Application/BUILD_PROVENANCE.json",
+  "queryManifest": "90_Source_Code/01_Power_Query/MANIFEST.csv",
+  "daxManifest": "90_Source_Code/02_DAX/MANIFEST.csv",
+  "relationshipManifest": "90_Source_Code/02_DAX/RELATIONSHIPS.csv",
+  "dateTable": {
+    "table": "dim_Date",
+    "column": "Date"
+  },
+  "vbaModules": [
+    "90_Source_Code/04_VBA/modCloseDay.bas"
+  ],
+  "manualSourceFiles": [
+    "90_Source_Code/02_DAX/service.dax",
+    "90_Source_Code/02_DAX/operational_control.dax"
+  ],
+  "requiredWorkbookTables": [
+    {
+      "name": "tblParameters",
+      "columns": ["Parameter", "Value", "DataType", "Description"]
+    },
+    {
+      "name": "tblSourceSystems",
+      "columns": ["Profile", "SystemKey", "SourceRole", "Adapter", "RelativePath", "FilePattern", "Format", "Delimiter", "Encoding", "Culture", "Enabled"]
+    },
+    {
+      "name": "tblFieldMapping",
+      "columns": ["Profile", "Adapter", "Entity", "SourceField", "CanonicalField", "DataType", "Required", "Enabled"]
+    },
+    {
+      "name": "tblValueMapping",
+      "columns": ["Profile", "SystemKey", "Domain", "SourceValue", "CanonicalValue", "ValidFrom", "ValidTo", "Enabled"]
+    },
+    {
+      "name": "tblActivities",
+      "columns": ["Profile", "ActivityKey", "ActivityName", "ChannelKey", "Timezone", "ValidFrom", "ValidTo", "Enabled"]
+    },
+    {
+      "name": "tblQueueMapping",
+      "columns": ["Profile", "SystemKey", "SourceQueueID", "QueueKey", "QueueName", "ActivityKey", "ChannelKey", "ValidFrom", "ValidTo", "Enabled"]
+    },
+    {
+      "name": "tblMetricRules",
+      "columns": ["Profile", "MetricKey", "RuleName", "Value", "Unit", "ValidFrom", "ValidTo", "Approved"]
+    },
+    {
+      "name": "tblDQChecks",
+      "columns": ["CheckKey", "Check", "Domain", "Requirement", "Status", "IssueCount", "Owner", "NextAction"]
+    },
+    {
+      "name": "tblCloseDayInput",
+      "columns": ["CloseKey", "Profile", "BusinessDate", "RequestedBy", "RequestedAt", "ApprovalStatus", "ApprovedBy", "ApprovedAt", "SnapshotStatus", "SnapshotAt", "SourceRunKey", "Notes"]
+    },
+    {
+      "name": "tblCloseDayReady",
+      "columns": ["SnapshotKey", "Profile", "BusinessDate", "IntervalStart", "ActivityKey", "ScheduledFTE", "ScheduledProductiveFTE", "PresentFTE", "ProductiveFTE", "RequiredFTE", "NetProductiveFTE", "Status"]
+    },
+    {
+      "name": "tblOperationalSnapshots",
+      "columns": ["SnapshotKey", "Profile", "BusinessDate", "IntervalStart", "ActivityKey", "ScheduledFTE", "ScheduledProductiveFTE", "PresentFTE", "ProductiveFTE", "RequiredFTE", "NetProductiveFTE", "Status", "ClosedAt", "ClosedBy", "SourceRunKey"]
+    },
+    {
+      "name": "tblBuildInfo",
+      "columns": ["Field", "Value", "Evidence / note"]
+    }
+  ],
+  "manualRequiredCapabilities": [
+    "QUERY_LOAD_DESTINATIONS",
+    "DATA_MODEL_RELATIONSHIPS",
+    "DAX_MEASURES",
+    "DATE_TABLE_MARKING",
+    "DESKTOP_EXCEL_REFRESH_VALIDATION"
+  ]
+}

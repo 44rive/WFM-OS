@@ -36,9 +36,11 @@ Before making a change, read these files in order:
 | Canonical fields | `00_Governance/00-02_CANONICAL_CONTRACTS.md` |
 | Visual system | `00_Governance/00-03_DESIGN_SYSTEM.md` and `02_Configuration/design_tokens.csv` |
 | Power Query | `90_Source_Code/01_Power_Query/` |
-| DAX | `90_Source_Code/02_DAX/` |
+| DAX measures | `90_Source_Code/02_DAX/*.dax` and `90_Source_Code/02_DAX/MANIFEST.csv` |
+| Model relationships | `90_Source_Code/02_DAX/RELATIONSHIPS.csv` |
 | Python | `90_Source_Code/03_Python/` |
 | VBA | `90_Source_Code/04_VBA/` |
+| Desktop installer | `tools/windows/installer-contract.json` and `tools/windows/Install-WfmOsExcel.ps1` |
 | Current application shell | `01_Application/WFM_OS.xlsx` |
 | Target executable release | `01_Application/WFM_OS.xlsm` |
 
@@ -47,6 +49,9 @@ and identify its repository commit on a technical `BUILD_INFO` sheet.
 
 For Power Query installation order and load destinations, use
 `90_Source_Code/01_Power_Query/MANIFEST.csv`; do not infer them from filenames.
+For measure metadata and model relationships, use the two manifests under
+`90_Source_Code/02_DAX/`; do not treat prose or a model screenshot as the
+canonical definition.
 
 ## Hard constraints
 
@@ -135,6 +140,29 @@ VBA is limited to refresh sequencing, snapshot creation, backup, controlled
 publication, and similar workbook actions. Business metric logic does not belong
 in VBA. Export every embedded module to `90_Source_Code/04_VBA/`.
 
+### Installer or engine-wiring change
+
+The Windows installer may automate only behavior that is both documented by the
+Excel object model and proven in the supported desktop Excel release environment.
+Keep the default mode read-only. Apply mode must work on a staged copy, require
+explicit overwrite switches, disable macros while opening source workbooks,
+produce a JSON report, and preserve `NOT OPERATIONAL` until the full release gate
+passes.
+
+When a query, measure, relationship, Date Table setting, or VBA module changes:
+
+1. update its canonical source and machine-readable manifest or installer
+   contract;
+2. update `91_Tests/test_excel_installer_contract.py` when the contract changes;
+3. run the repository tests;
+4. run the Windows preflight;
+5. install on a new candidate copy;
+6. complete `01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md` in desktop Excel.
+
+Do not automate version-sensitive Power Query load connections with an inferred
+provider string and call them validated. Do not claim Linux CI executed Excel
+COM, Power Pivot, DAX, Python in Excel, or VBA.
+
 ### Design change
 
 Use `00_Governance/00-03_DESIGN_SYSTEM.md`. A new visual component requires:
@@ -191,12 +219,17 @@ borders, or additional accent colors.
    measures, names, validations, conditional formatting, PivotTables, charts,
    Python cells, and VBA before editing.
 3. Update text source and tests first.
-4. Install the exact source into desktop Excel.
+4. Run the Windows installer preflight and install the exact source on a staged
+   copy.
 5. Refresh using anonymized fixtures.
 6. Run the technical and visual verification below.
 7. Update `BUILD_INFO` with version, Git commit, contract version, design-system
    version, and build date.
 8. Commit source and workbook together.
+
+The installer report is evidence of preflight and definition import only. It is
+not evidence that loads, relationships, measures, refresh, or workbook controls
+execute correctly.
 
 ## Technical verification
 

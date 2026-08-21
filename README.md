@@ -52,6 +52,7 @@ and is never committed to Git.
 90_Source_Code/     Power Query, DAX, Python, and VBA source
 91_Tests/           Anonymized fixtures and expected results
 99_Archive/         Retired clean artifacts and migration references
+tools/windows/      Fail-closed desktop Excel preflight and source installer
 ```
 
 ## Product and design standards
@@ -87,3 +88,9 @@ are installed and validated in desktop Excel:
 `contact export -> Power Query -> Power Pivot -> DAX volume/SL/AHT -> live and historical views`.
 
 `people/identity mappings + schedules + logins + states + requirements -> interval staffing + attendance + adherence + governed close day`.
+
+The Windows installer can now validate the committed artifact and install all
+reviewed Power Query definitions on a staged copy. Model loads, 22 relationships,
+29 DAX measures, Date Table marking, refresh, and release validation remain
+explicit desktop Excel gates; see
+[`01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md`](01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md).

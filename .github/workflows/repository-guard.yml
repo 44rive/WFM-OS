@@ -44,3 +44,23 @@ jobs:
           cmp --silent 01_Application/WFM_OS.xlsx /tmp/WFM_OS.xlsx
       - name: Validate committed workbook structure and provenance
         run: python tools/validate_workbook.py
+
+  windows-installer-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Parse installer with Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          $path = (Resolve-Path 'tools\windows\Install-WfmOsExcel.ps1').Path
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            $path,
+            [ref]$tokens,
+            [ref]$parseErrors
+          ) | Out-Null
+          if ($parseErrors.Count -gt 0) {
+            $parseErrors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }

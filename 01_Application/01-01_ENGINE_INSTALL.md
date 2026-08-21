@@ -35,6 +35,11 @@ effective-dated people and source identities
 
 ## Install Power Query
 
+Run the preflight and prepared-copy installer described in
+`01_Application/01-02_DESKTOP_RELEASE_CHECKLIST.md` before applying load
+destinations. The installer adds reviewed M definitions but deliberately leaves
+loads and refresh validation as manual release gates.
+
 1. Open the generated workbook in Microsoft 365 desktop Excel.
 2. Confirm that `59_PARAMETERS` through `71_METRIC_RULES` contain the expected
    named tables.
@@ -52,7 +57,9 @@ business sheet.
 
 ## Create Power Pivot relationships
 
-Create single-direction one-to-many relationships:
+`90_Source_Code/02_DAX/RELATIONSHIPS.csv` is the machine-readable source of
+truth for relationship order, columns, cardinality, direction, active state,
+and requirement. Its current contract is:
 
 ```text
 fact_ContactClosed[BusinessDate] -> dim_Date[Date]
@@ -87,7 +94,9 @@ relationship between the live and closed facts.
 Install `90_Source_Code/02_DAX/service.dax` and
 `90_Source_Code/02_DAX/operational_control.dax` as explicit measures. Business
 pages must consume these measures rather than recreate them with worksheet
-formulas. Measures labelled `· Interval` require interval-grain filter context.
+formulas. Use `90_Source_Code/02_DAX/MANIFEST.csv` for home tables, formats,
+display folders, and descriptions. Measures labelled `· Interval` require
+interval-grain filter context.
 
 ## Install close day
 

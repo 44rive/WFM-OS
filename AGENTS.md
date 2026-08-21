@@ -13,3 +13,7 @@
 - Follow `00_Governance/00-03_DESIGN_SYSTEM.md`; do not improvise new colors or
   components.
 - Record architectural changes in `00_Governance/00-05_Decisions/`.
+- Keep `tools/windows/installer-contract.json`, the query/DAX/relationship
+  manifests, and `91_Tests/test_excel_installer_contract.py` aligned. Never
+  convert a `MANUAL_REQUIRED` engine step into an automated claim without a
+  successful desktop Excel fixture run and evidence.
